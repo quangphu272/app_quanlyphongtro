@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/surface"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Room Image -->
+        <ImageView
+            android:id="@+id/ivRoomImage"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:background="@color/surface_variant"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Image Overlay -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/gradient_background"
+            android:padding="12dp"
+            app:layout_constraintTop_toTopOf="@id/ivRoomImage"
+            app:layout_constraintStart_toStartOf="@id/ivRoomImage"
+            app:layout_constraintEnd_toEndOf="@id/ivRoomImage">
+
+            <!-- Status Badge -->
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Còn trống"
+                android:textSize="12sp"
+                android:textColor="@color/white"
+                app:chipBackgroundColor="@color/success"
+                app:chipCornerRadius="12dp"
+                app:chipMinHeight="24dp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Like Button -->
+            <ImageView
+                android:id="@+id/ivLike"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_favorite_border"
+                android:background="@drawable/card_background"
+                android:padding="6dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </LinearLayout>
+
+        <!-- Content -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintTop_toBottomOf="@id/ivRoomImage">
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Phòng trọ đẹp"
+                android:textAppearance="@style/TextAppearance.QuanLyTimTro.Title2"
+                android:textColor="@color/text_primary"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginBottom="4dp" />
+
+            <!-- Address -->
+            <TextView
+                android:id="@+id/tvAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="123 Đường ABC, Quận 1, TP.HCM"
+                android:textAppearance="@style/TextAppearance.QuanLyTimTro.Body2"
+                android:textColor="@color/text_secondary"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:drawableStart="@drawable/ic_location"
+                android:drawablePadding="8dp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Price -->
+            <TextView
+                android:id="@+id/tvPrice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="3,000,000 VNĐ/tháng"
+                android:textAppearance="@style/TextAppearance.QuanLyTimTro.Title1"
+                android:textColor="@color/primary"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Room Info Row -->
+            <LinearLayout
+                android:id="@+id/roomInfoRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <!-- Area -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipArea"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="25 m²"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    app:chipIcon="@drawable/ic_area"
+                    app:chipIconTint="@color/primary"
+                    app:chipBackgroundColor="@color/surface_variant"
+                    app:chipCornerRadius="16dp"
+                    app:chipMinHeight="32dp"
+                    app:chipStrokeWidth="0dp" />
+
+                <!-- Room Type -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipRoomType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Studio"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    app:chipIcon="@drawable/ic_room"
+                    app:chipIconTint="@color/primary"
+                    app:chipBackgroundColor="@color/surface_variant"
+                    app:chipCornerRadius="16dp"
+                    app:chipMinHeight="32dp"
+                    app:chipStrokeWidth="0dp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <!-- Rating -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_star"
+                        android:tint="@color/warning"
+                        android:layout_marginEnd="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvRating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="4.5"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Amenities -->
+            <LinearLayout
+                android:id="@+id/amenitiesLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="WiFi"
+                    android:textSize="10sp"
+                    android:textColor="@color/primary"
+                    app:chipIcon="@drawable/ic_wifi"
+                    app:chipIconTint="@color/primary"
+                    app:chipBackgroundColor="@color/primary_container"
+                    app:chipCornerRadius="12dp"
+                    app:chipMinHeight="24dp"
+                    app:chipStrokeWidth="0dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="Điều hòa"
+                    android:textSize="10sp"
+                    android:textColor="@color/primary"
+                    app:chipIcon="@drawable/ic_ac"
+                    app:chipIconTint="@color/primary"
+                    app:chipBackgroundColor="@color/primary_container"
+                    app:chipCornerRadius="12dp"
+                    app:chipMinHeight="24dp"
+                    app:chipStrokeWidth="0dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
