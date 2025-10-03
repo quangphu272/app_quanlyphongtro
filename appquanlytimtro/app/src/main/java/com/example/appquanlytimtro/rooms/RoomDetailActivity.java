@@ -217,7 +217,9 @@ public class RoomDetailActivity extends AppCompatActivity {
     private void setupClickListeners() {
         btnBook.setOnClickListener(v -> {
             // Navigate to booking activity
-            Toast.makeText(this, "Chức năng đặt phòng sẽ được phát triển", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, com.example.appquanlytimtro.bookings.BookRoomActivity.class);
+            intent.putExtra("room_id", room.getId());
+            startActivity(intent);
         });
         
         btnLike.setOnClickListener(v -> {
@@ -262,6 +264,9 @@ public class RoomDetailActivity extends AppCompatActivity {
     }
     
     private String getRoomTypeText(String roomType) {
+        if (roomType == null || roomType.isEmpty()) {
+            return "Không xác định";
+        }
         switch (roomType) {
             case "studio":
                 return "Studio";

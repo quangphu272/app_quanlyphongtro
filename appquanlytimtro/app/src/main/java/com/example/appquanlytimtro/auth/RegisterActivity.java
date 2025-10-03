@@ -96,7 +96,6 @@ public class RegisterActivity extends AppCompatActivity {
                         if (apiResponse.isSuccess() && apiResponse.getData() != null) {
                             RegisterResponse registerResponse = apiResponse.getData();
                             
-                            // Save token and user data
                             retrofitClient.saveToken(registerResponse.getToken());
                             Gson gson = new Gson();
                             retrofitClient.saveUserData(gson.toJson(registerResponse.getUser()));

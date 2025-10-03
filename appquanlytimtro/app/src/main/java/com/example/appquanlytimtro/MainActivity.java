@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -45,14 +47,11 @@ public class MainActivity extends AppCompatActivity {
         setupToolbar();
         
         retrofitClient = RetrofitClient.getInstance(this);
-        
-        // Check if user is logged in
+
         if (!retrofitClient.isLoggedIn()) {
             navigateToLogin();
             return;
         }
-        
-        // Delay to ensure views are properly initialized
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             loadUserData();
             setupBottomNavigation();
@@ -89,7 +88,51 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Quản Lý Tìm Trọ");
+            // Enable navigation icon
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
         }
+        
+        // Set navigation click listener for toolbar
+        toolbar.setNavigationOnClickListener(v -> {
+            // Show app info or navigation options
+            showNavigationMenu();
+        });
+    }
+    
+    private void showNavigationMenu() {
+        // Create a simple navigation menu
+        String[] options = {"Trang chủ", "Hồ sơ", "Cài đặt", "Đăng xuất"};
+        
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("Menu")
+                .setItems(options, (dialog, which) -> {
+                    switch (which) {
+                        case 0: // Trang chủ
+                            loadDefaultFragment();
+                            if (bottomNavigationView != null) {
+                                if (Constants.ROLE_TENANT.equals(currentUser.getRole())) {
+                                    bottomNavigationView.setSelectedItemId(R.id.nav_home);
+                                } else {
+                                    bottomNavigationView.setSelectedItemId(R.id.nav_dashboard);
+                                }
+                            }
+                            break;
+                        case 1:
+                            switchFragment(new ProfileFragment());
+                            if (bottomNavigationView != null) {
+                                bottomNavigationView.setSelectedItemId(R.id.nav_profile);
+                            }
+                            break;
+                        case 2:
+                            Toast.makeText(this, "Chức năng cài đặt sẽ được phát triển", Toast.LENGTH_SHORT).show();
+                            break;
+                        case 3:
+                            logout();
+                            break;
+                    }
+                })
+                .show();
     }
     
     private void loadUserData() {
@@ -170,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
                 // Search rooms - only for tenants
                 if (Constants.ROLE_TENANT.equals(role)) {
                     Intent intent = new Intent(this, RoomListActivity.class);
+                    intent.putExtra("show_available_only", true);
                     startActivity(intent);
                 }
                 return true;

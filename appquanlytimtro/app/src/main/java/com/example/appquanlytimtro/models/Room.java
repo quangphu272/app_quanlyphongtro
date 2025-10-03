@@ -247,7 +247,7 @@ public class Room {
         private double deposit;
         
         @SerializedName("utilities")
-        private Utilities utilities;
+        private Object utilities; // Changed to Object to handle both number and object
 
         public Price() {}
 
@@ -268,10 +268,27 @@ public class Room {
         }
 
         public Utilities getUtilities() {
-            return utilities;
+            if (utilities instanceof Utilities) {
+                return (Utilities) utilities;
+            } else if (utilities instanceof Number) {
+                // Convert number to Utilities object
+                Utilities utils = new Utilities();
+                double total = ((Number) utilities).doubleValue();
+                // Distribute the total utilities cost
+                utils.setElectricity(total * 0.4); // 40% for electricity
+                utils.setWater(total * 0.3);       // 30% for water
+                utils.setInternet(total * 0.2);    // 20% for internet
+                utils.setOther(total * 0.1);       // 10% for other
+                return utils;
+            }
+            return null;
         }
 
         public void setUtilities(Utilities utilities) {
+            this.utilities = utilities;
+        }
+        
+        public void setUtilities(Object utilities) {
             this.utilities = utilities;
         }
     }

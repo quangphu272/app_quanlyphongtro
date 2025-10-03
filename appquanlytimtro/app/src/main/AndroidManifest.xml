@@ -62,6 +62,29 @@
             android:name=".payments.PaymentListActivity"
             android:exported="false"
             android:theme="@style/Theme.QuanLyTimTro" />
+            
+        <activity
+            android:name=".landlord.AddRoomActivity"
+            android:exported="false"
+            android:theme="@style/Theme.QuanLyTimTro" />
+            
+        <activity
+            android:name=".bookings.BookRoomActivity"
+            android:exported="false"
+            android:theme="@style/Theme.QuanLyTimTro" />
+            
+        <activity
+            android:name=".payments.PaymentActivity"
+            android:exported="false"
+            android:theme="@style/Theme.QuanLyTimTro"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="vnpay" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

@@ -38,6 +38,7 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
     private List<Room> rooms;
     private RetrofitClient retrofitClient;
     private boolean showMyRooms = false;
+    private boolean showAvailableOnly = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +50,20 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
         
         retrofitClient = RetrofitClient.getInstance(this);
         
-        // Check if showing user's own rooms
+        // Check intent parameters
         Intent intent = getIntent();
-        if (intent != null && intent.getBooleanExtra("show_my_rooms", false)) {
-            showMyRooms = true;
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle("Phòng trọ của tôi");
+        if (intent != null) {
+            showMyRooms = intent.getBooleanExtra("show_my_rooms", false);
+            showAvailableOnly = intent.getBooleanExtra("show_available_only", false);
+            
+            if (showMyRooms) {
+                if (getSupportActionBar() != null) {
+                    getSupportActionBar().setTitle("Phòng trọ của tôi");
+                }
+            } else if (showAvailableOnly) {
+                if (getSupportActionBar() != null) {
+                    getSupportActionBar().setTitle("Phòng trọ có sẵn");
+                }
             }
         }
         
@@ -101,6 +110,12 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
         Map<String, String> params = new HashMap<>();
         params.put("page", "1");
         params.put("limit", "20");
+        
+        // Add filter for available rooms only
+        if (showAvailableOnly) {
+            params.put("status", "active");
+            params.put("available", "true");
+        }
         
         Call<ApiResponse<Map<String, Object>>> call = null;
         

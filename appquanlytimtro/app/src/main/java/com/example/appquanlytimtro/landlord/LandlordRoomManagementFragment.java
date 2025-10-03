@@ -16,9 +16,13 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.appquanlytimtro.R;
 import com.example.appquanlytimtro.rooms.RoomListActivity;
+import com.example.appquanlytimtro.landlord.AddRoomActivity;
 import com.example.appquanlytimtro.rooms.PostRoomFragment;
 import com.example.appquanlytimtro.network.RetrofitClient;
 import com.example.appquanlytimtro.models.User;
+import com.example.appquanlytimtro.models.Room;
+import com.example.appquanlytimtro.models.ApiResponse;
+import com.example.appquanlytimtro.adapters.LandlordRoomAdapter;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
@@ -27,7 +31,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class LandlordRoomManagementFragment extends Fragment {
+public class LandlordRoomManagementFragment extends Fragment implements LandlordRoomAdapter.OnRoomActionListener {
 
     private RecyclerView recyclerViewRooms;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -36,6 +40,8 @@ public class LandlordRoomManagementFragment extends Fragment {
     
     private RetrofitClient retrofitClient;
     private User currentUser;
+    private LandlordRoomAdapter roomAdapter;
+    private java.util.List<Room> roomList;
 
     @Nullable
     @Override
@@ -66,8 +72,13 @@ public class LandlordRoomManagementFragment extends Fragment {
         btnAddRoom = view.findViewById(R.id.btnAddRoom);
         fabAddRoom = view.findViewById(R.id.fabAddRoom);
         
+        // Initialize room list and adapter
+        roomList = new java.util.ArrayList<>();
+        roomAdapter = new LandlordRoomAdapter(roomList, this);
+        
         if (recyclerViewRooms != null) {
             recyclerViewRooms.setLayoutManager(new LinearLayoutManager(getContext()));
+            recyclerViewRooms.setAdapter(roomAdapter);
         }
         
         if (swipeRefreshLayout != null) {
@@ -86,37 +97,190 @@ public class LandlordRoomManagementFragment extends Fragment {
     }
     
     private void openAddRoom() {
-        Intent intent = new Intent(getActivity(), RoomListActivity.class);
-        intent.putExtra("action", "add");
+        Intent intent = new Intent(getActivity(), AddRoomActivity.class);
         startActivity(intent);
     }
     
     private void loadRooms() {
-        if (currentUser == null) return;
+        if (currentUser == null) {
+            android.util.Log.e("LandlordRoomManagement", "Current user is null");
+            return;
+        }
+        
+        android.util.Log.d("LandlordRoomManagement", "=== LOAD ROOMS START ===");
+        android.util.Log.d("LandlordRoomManagement", "User ID: " + currentUser.getId());
         
         String token = "Bearer " + retrofitClient.getToken();
         
-        retrofitClient.getApiService().getUserRooms(token, currentUser.getId(), null).enqueue(new Callback<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>>() {
+        // Create empty query map instead of null
+        java.util.Map<String, String> queryParams = new java.util.HashMap<>();
+        
+        retrofitClient.getApiService().getUserRooms(token, currentUser.getId(), queryParams).enqueue(new Callback<ApiResponse<java.util.Map<String, Object>>>() {
             @Override
-            public void onResponse(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Response<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> response) {
+            public void onResponse(Call<ApiResponse<java.util.Map<String, Object>>> call, Response<ApiResponse<java.util.Map<String, Object>>> response) {
+                android.util.Log.d("LandlordRoomManagement", "=== LOAD ROOMS RESPONSE ===");
+                android.util.Log.d("LandlordRoomManagement", "Response code: " + response.code());
+                android.util.Log.d("LandlordRoomManagement", "Response body: " + response.body());
+                
                 if (swipeRefreshLayout != null) {
                     swipeRefreshLayout.setRefreshing(false);
                 }
                 
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    // TODO: Update RecyclerView with room data
-                    Toast.makeText(getContext(), "Đã tải danh sách phòng", Toast.LENGTH_SHORT).show();
+                    java.util.Map<String, Object> data = response.body().getData();
+                    android.util.Log.d("LandlordRoomManagement", "Response data: " + data);
+                    
+                    if (data != null && data.containsKey("rooms")) {
+                        try {
+                            // Parse rooms from response
+                            Gson gson = new Gson();
+                            java.util.List<?> roomsData = (java.util.List<?>) data.get("rooms");
+                            android.util.Log.d("LandlordRoomManagement", "Number of rooms: " + roomsData.size());
+                            
+                            roomList.clear();
+                            
+                            int successCount = 0;
+                            int errorCount = 0;
+                            
+                            for (int i = 0; i < roomsData.size(); i++) {
+                                Object roomObj = roomsData.get(i);
+                                try {
+                                    String roomJson = gson.toJson(roomObj);
+                                    android.util.Log.d("LandlordRoomManagement", "Room " + i + " JSON: " + roomJson);
+                                    
+                                    Room room = gson.fromJson(roomJson, Room.class);
+                                    if (room != null) {
+                                        roomList.add(room);
+                                        successCount++;
+                                        android.util.Log.d("LandlordRoomManagement", "Added room: " + room.getTitle() + " (ID: " + room.getId() + ")");
+                                    } else {
+                                        errorCount++;
+                                        android.util.Log.e("LandlordRoomManagement", "Room " + i + " is null after parsing");
+                                    }
+                                } catch (Exception e) {
+                                    errorCount++;
+                                    android.util.Log.e("LandlordRoomManagement", "Error parsing room " + i + ": " + e.getMessage(), e);
+                                }
+                            }
+                            
+                            android.util.Log.d("LandlordRoomManagement", "Parsing summary: " + successCount + " success, " + errorCount + " errors out of " + roomsData.size() + " total");
+                            
+                            roomAdapter.notifyDataSetChanged();
+                            Toast.makeText(getContext(), "Đã tải " + roomList.size() + " phòng (thành công: " + successCount + ", lỗi: " + errorCount + ")", Toast.LENGTH_LONG).show();
+                        } catch (Exception e) {
+                            android.util.Log.e("LandlordRoomManagement", "Error processing rooms data: " + e.getMessage(), e);
+                            Toast.makeText(getContext(), "Lỗi xử lý dữ liệu: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        Toast.makeText(getContext(), "Không có phòng nào", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(getContext(), "Không thể tải danh sách phòng", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
                 if (swipeRefreshLayout != null) {
                     swipeRefreshLayout.setRefreshing(false);
                 }
-                Toast.makeText(getContext(), "Lỗi kết nối", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    
+    // Implementation of LandlordRoomAdapter.OnRoomActionListener
+    @Override
+    public void onRoomClick(Room room) {
+        // Navigate to room detail
+        Intent intent = new Intent(getActivity(), com.example.appquanlytimtro.rooms.RoomDetailActivity.class);
+        intent.putExtra("room_id", room.getId());
+        startActivity(intent);
+    }
+    
+    @Override
+    public void onEditRoom(Room room) {
+        // Navigate to edit room (can reuse AddRoomActivity with edit mode)
+        Intent intent = new Intent(getActivity(), AddRoomActivity.class);
+        intent.putExtra("room_id", room.getId());
+        intent.putExtra("edit_mode", true);
+        startActivity(intent);
+    }
+    
+    @Override
+    public void onDeleteRoom(Room room) {
+        // Show confirmation dialog
+        new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                .setTitle("Xóa phòng")
+                .setMessage("Bạn có chắc chắn muốn xóa phòng \"" + room.getTitle() + "\"?")
+                .setPositiveButton("Xóa", (dialog, which) -> deleteRoom(room))
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+    
+    @Override
+    public void onToggleAvailability(Room room) {
+        // Toggle room status
+        String currentStatus = room.getStatus();
+        String newStatus;
+        
+        switch (currentStatus != null ? currentStatus.toLowerCase() : "active") {
+            case "active":
+                newStatus = "inactive";
+                break;
+            case "inactive":
+                newStatus = "active";
+                break;
+            default:
+                newStatus = "active";
+                break;
+        }
+        
+        updateRoomStatus(room, newStatus);
+    }
+    
+    private void deleteRoom(Room room) {
+        String token = "Bearer " + retrofitClient.getToken();
+        
+        retrofitClient.getApiService().deleteRoom(token, room.getId()).enqueue(new Callback<ApiResponse<Void>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    Toast.makeText(getContext(), "Đã xóa phòng", Toast.LENGTH_SHORT).show();
+                    loadRooms(); // Reload the list
+                } else {
+                    Toast.makeText(getContext(), "Không thể xóa phòng", Toast.LENGTH_SHORT).show();
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    
+    private void updateRoomStatus(Room room, String newStatus) {
+        String token = "Bearer " + retrofitClient.getToken();
+        
+        // Create updated room object
+        Room updatedRoom = new Room();
+        updatedRoom.setStatus(newStatus);
+        
+        retrofitClient.getApiService().updateRoom(token, room.getId(), updatedRoom).enqueue(new Callback<ApiResponse<Room>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Room>> call, Response<ApiResponse<Room>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    Toast.makeText(getContext(), "Đã cập nhật trạng thái phòng", Toast.LENGTH_SHORT).show();
+                    loadRooms(); // Reload the list
+                } else {
+                    Toast.makeText(getContext(), "Không thể cập nhật trạng thái", Toast.LENGTH_SHORT).show();
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<ApiResponse<Room>> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

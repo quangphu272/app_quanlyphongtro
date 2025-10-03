@@ -42,8 +42,6 @@ public class LoginActivity extends AppCompatActivity {
         setupClickListeners();
         
         retrofitClient = RetrofitClient.getInstance(this);
-        
-        // Check if user is already logged in
         if (retrofitClient.isLoggedIn()) {
             navigateToMain();
         }
