@@ -256,6 +256,69 @@
 
         </LinearLayout>
 
+        <!-- Logout Button -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/error_container"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_logout"
+                    android:tint="@color/error"
+                    android:background="@drawable/card_background"
+                    android:padding="12dp"
+                    android:layout_marginEnd="16dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Đăng xuất"
+                        android:textAppearance="@style/TextAppearance.QuanLyTimTro.Title2"
+                        android:textColor="@color/error"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Thoát khỏi tài khoản"
+                        android:textAppearance="@style/TextAppearance.QuanLyTimTro.Body2"
+                        android:textColor="@color/on_error_container" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_arrow_back"
+                    android:tint="@color/on_error_container"
+                    android:rotation="180" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Quick Actions -->
         <TextView
             android:layout_width="wrap_content"

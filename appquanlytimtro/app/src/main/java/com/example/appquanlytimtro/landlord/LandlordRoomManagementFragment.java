@@ -17,6 +17,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.appquanlytimtro.R;
 import com.example.appquanlytimtro.rooms.RoomListActivity;
 import com.example.appquanlytimtro.landlord.AddRoomActivity;
+import com.example.appquanlytimtro.landlord.EditRoomActivity;
 import com.example.appquanlytimtro.rooms.PostRoomFragment;
 import com.example.appquanlytimtro.network.RetrofitClient;
 import com.example.appquanlytimtro.models.User;
@@ -166,16 +167,24 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
                             android.util.Log.d("LandlordRoomManagement", "Parsing summary: " + successCount + " success, " + errorCount + " errors out of " + roomsData.size() + " total");
                             
                             roomAdapter.notifyDataSetChanged();
-                            Toast.makeText(getContext(), "Đã tải " + roomList.size() + " phòng (thành công: " + successCount + ", lỗi: " + errorCount + ")", Toast.LENGTH_LONG).show();
+                            if (getContext() != null) {
+                                Toast.makeText(getContext(), "Đã tải " + roomList.size() + " phòng (thành công: " + successCount + ", lỗi: " + errorCount + ")", Toast.LENGTH_LONG).show();
+                            }
                         } catch (Exception e) {
                             android.util.Log.e("LandlordRoomManagement", "Error processing rooms data: " + e.getMessage(), e);
-                            Toast.makeText(getContext(), "Lỗi xử lý dữ liệu: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            if (getContext() != null) {
+                                Toast.makeText(getContext(), "Lỗi xử lý dữ liệu: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
                         }
                     } else {
-                        Toast.makeText(getContext(), "Không có phòng nào", Toast.LENGTH_SHORT).show();
+                        if (getContext() != null) {
+                            Toast.makeText(getContext(), "Không có phòng nào", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } else {
-                    Toast.makeText(getContext(), "Không thể tải danh sách phòng", Toast.LENGTH_SHORT).show();
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Không thể tải danh sách phòng", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
@@ -184,7 +193,9 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
                 if (swipeRefreshLayout != null) {
                     swipeRefreshLayout.setRefreshing(false);
                 }
-                Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -200,10 +211,9 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
     
     @Override
     public void onEditRoom(Room room) {
-        // Navigate to edit room (can reuse AddRoomActivity with edit mode)
-        Intent intent = new Intent(getActivity(), AddRoomActivity.class);
+        // Navigate to edit room
+        Intent intent = new Intent(getActivity(), EditRoomActivity.class);
         intent.putExtra("room_id", room.getId());
-        intent.putExtra("edit_mode", true);
         startActivity(intent);
     }
     
@@ -246,16 +256,22 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
             @Override
             public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    Toast.makeText(getContext(), "Đã xóa phòng", Toast.LENGTH_SHORT).show();
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Đã xóa phòng", Toast.LENGTH_SHORT).show();
+                    }
                     loadRooms(); // Reload the list
                 } else {
-                    Toast.makeText(getContext(), "Không thể xóa phòng", Toast.LENGTH_SHORT).show();
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Không thể xóa phòng", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
             
             @Override
             public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -271,16 +287,22 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
             @Override
             public void onResponse(Call<ApiResponse<Room>> call, Response<ApiResponse<Room>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    Toast.makeText(getContext(), "Đã cập nhật trạng thái phòng", Toast.LENGTH_SHORT).show();
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Đã cập nhật trạng thái phòng", Toast.LENGTH_SHORT).show();
+                    }
                     loadRooms(); // Reload the list
                 } else {
-                    Toast.makeText(getContext(), "Không thể cập nhật trạng thái", Toast.LENGTH_SHORT).show();
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Không thể cập nhật trạng thái", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
             
             @Override
             public void onFailure(Call<ApiResponse<Room>> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

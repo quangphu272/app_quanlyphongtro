@@ -3,7 +3,7 @@ package com.example.appquanlytimtro.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -11,29 +11,33 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.appquanlytimtro.R;
 import com.example.appquanlytimtro.models.Booking;
-import com.example.appquanlytimtro.utils.Constants;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingViewHolder> {
-    
+
     private List<Booking> bookings;
+    private List<Booking> filteredBookings;
     private OnBookingClickListener listener;
-    
+
     public interface OnBookingClickListener {
         void onBookingClick(Booking booking);
-        void onBookingAction(Booking booking, String action);
+        void onBookingStatusChange(Booking booking, String newStatus);
+        void onPaymentClick(Booking booking);
     }
-    
+
     public BookingAdapter(List<Booking> bookings, OnBookingClickListener listener) {
         this.bookings = bookings;
+        this.filteredBookings = new ArrayList<>(bookings);
         this.listener = listener;
     }
-    
+
     @NonNull
     @Override
     public BookingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -41,157 +45,172 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
                 .inflate(R.layout.item_booking, parent, false);
         return new BookingViewHolder(view);
     }
-    
+
     @Override
     public void onBindViewHolder(@NonNull BookingViewHolder holder, int position) {
-        Booking booking = bookings.get(position);
-        holder.bind(booking);
+        android.util.Log.d("BookingAdapter", "onBindViewHolder called for position: " + position + ", total items: " + filteredBookings.size());
+        Booking booking = filteredBookings.get(position);
+        holder.bind(booking, listener);
     }
-    
+
     @Override
     public int getItemCount() {
-        return bookings.size();
+        return filteredBookings.size();
     }
-    
-    class BookingViewHolder extends RecyclerView.ViewHolder {
-        private TextView tvRoomTitle, tvCheckIn, tvCheckOut, tvTotalAmount, tvStatus, tvBookingDate;
-        private Button btnAction;
+
+    public void updateBookings(List<Booking> newBookings) {
+        android.util.Log.d("BookingAdapter", "updateBookings called with " + newBookings.size() + " bookings");
         
+        // Create a copy to avoid reference issues
+        List<Booking> bookingsCopy = new ArrayList<>(newBookings);
+        
+        this.bookings.clear();
+        this.bookings.addAll(bookingsCopy);
+        this.filteredBookings.clear();
+        this.filteredBookings.addAll(bookingsCopy);
+        
+        android.util.Log.d("BookingAdapter", "After update - bookings: " + this.bookings.size() + ", filteredBookings: " + this.filteredBookings.size());
+        notifyDataSetChanged();
+    }
+
+    public void filterByStatus(String status) {
+        filteredBookings.clear();
+        if (status == null) {
+            filteredBookings.addAll(bookings);
+        } else {
+            for (Booking booking : bookings) {
+                if (status.equals(booking.getStatus())) {
+                    filteredBookings.add(booking);
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    static class BookingViewHolder extends RecyclerView.ViewHolder {
+        private TextView tvRoomTitle;
+        private TextView tvRoomAddress;
+        private TextView tvCheckInDate;
+        private TextView tvCheckOutDate;
+        private TextView tvTotalAmount;
+        private TextView tvDuration;
+        private Chip chipStatus;
+        private TextView tvLandlordName;
+        private LinearLayout layoutActionButtons;
+        private MaterialButton btnPayment;
+
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
             tvRoomTitle = itemView.findViewById(R.id.tvRoomTitle);
-            tvCheckIn = itemView.findViewById(R.id.tvCheckIn);
-            tvCheckOut = itemView.findViewById(R.id.tvCheckOut);
+            tvRoomAddress = itemView.findViewById(R.id.tvRoomAddress);
+            tvCheckInDate = itemView.findViewById(R.id.tvCheckInDate);
+            tvCheckOutDate = itemView.findViewById(R.id.tvCheckOutDate);
             tvTotalAmount = itemView.findViewById(R.id.tvTotalAmount);
-            tvStatus = itemView.findViewById(R.id.chipStatus);
-            tvBookingDate = itemView.findViewById(R.id.tvBookingDate);
-            btnAction = itemView.findViewById(R.id.btnAction);
-            
-            itemView.setOnClickListener(v -> {
-                if (listener != null) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) {
-                        listener.onBookingClick(bookings.get(position));
-                    }
-                }
-            });
-            
-            btnAction.setOnClickListener(v -> {
-                if (listener != null) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) {
-                        Booking booking = bookings.get(position);
-                        String action = getActionForStatus(booking.getStatus());
-                        listener.onBookingAction(booking, action);
-                    }
-                }
-            });
+            tvDuration = itemView.findViewById(R.id.tvDuration);
+            chipStatus = itemView.findViewById(R.id.chipStatus);
+            tvLandlordName = itemView.findViewById(R.id.tvLandlordName);
+            layoutActionButtons = itemView.findViewById(R.id.layoutActionButtons);
+            btnPayment = itemView.findViewById(R.id.btnPayment);
         }
-        
-        public void bind(Booking booking) {
-            // Set room title
+
+        public void bind(Booking booking, OnBookingClickListener listener) {
+            // Room info
             if (booking.getRoom() != null) {
                 tvRoomTitle.setText(booking.getRoom().getTitle());
-            } else {
-                tvRoomTitle.setText("Phòng trọ");
-            }
-            
-            // Set dates
-            // Get booking details
-            if (booking.getBookingDetails() != null) {
-                tvCheckIn.setText("Nhận phòng: " + formatDate(booking.getBookingDetails().getCheckInDate()));
-                tvCheckOut.setText("Trả phòng: " + formatDate(booking.getBookingDetails().getCheckOutDate()));
-            }
-            
-            // Set total amount
-            NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
-            double totalAmount = booking.getPricing() != null ? booking.getPricing().getTotalAmount() : 0;
-            String amount = formatter.format(totalAmount) + " VNĐ";
-            tvTotalAmount.setText("Tổng tiền: " + amount);
-            
-            // Set status
-            tvStatus.setText(getStatusText(booking.getStatus()));
-            tvStatus.setTextColor(getStatusColor(booking.getStatus()));
-            
-            // Set booking date
-            tvBookingDate.setText("Đặt ngày: " + formatDate(booking.getCreatedAt()));
-            
-            // Set action button
-            String action = getActionForStatus(booking.getStatus());
-            btnAction.setText(action);
-            btnAction.setVisibility(action.isEmpty() ? View.GONE : View.VISIBLE);
-        }
-        
-        private String formatDate(String dateString) {
-            if (dateString == null || dateString.isEmpty()) {
-                return "N/A";
-            }
-            
-            try {
-                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-                SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                Date date = inputFormat.parse(dateString);
-                return outputFormat.format(date);
-            } catch (Exception e) {
-                // If parsing fails, return the original string
-                if (dateString.length() > 10) {
-                    return dateString.substring(0, 10);
+                if (booking.getRoom().getAddress() != null) {
+                    String address = booking.getRoom().getAddress().getStreet() + ", " +
+                                   booking.getRoom().getAddress().getWard() + ", " +
+                                   booking.getRoom().getAddress().getDistrict() + ", " +
+                                   booking.getRoom().getAddress().getCity();
+                    tvRoomAddress.setText(address);
                 }
-                return dateString;
             }
+
+            // Booking details
+            if (booking.getBookingDetails() != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                tvCheckInDate.setText(sdf.format(booking.getBookingDetails().getCheckInDate()));
+                tvCheckOutDate.setText(sdf.format(booking.getBookingDetails().getCheckOutDate()));
+                tvDuration.setText(booking.getBookingDetails().getDuration() + " tháng");
+            }
+
+            // Pricing
+            if (booking.getPricing() != null) {
+                NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
+                tvTotalAmount.setText(formatter.format(booking.getPricing().getTotalAmount()) + " VNĐ");
+            }
+
+            // Landlord
+            if (booking.getLandlord() != null) {
+                tvLandlordName.setText("Chủ trọ: " + booking.getLandlord().getFullName());
+            }
+
+            // Status
+            chipStatus.setText(getStatusText(booking.getStatus()));
+            chipStatus.setChipBackgroundColorResource(getStatusColor(booking.getStatus()));
+
+            // Action buttons based on status
+            setupActionButtons(booking, listener);
+
+            // Click listener
+            itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onBookingClick(booking);
+                }
+            });
         }
-        
+
         private String getStatusText(String status) {
             switch (status) {
-                case Constants.BOOKING_STATUS_PENDING:
-                    return "Chờ xác nhận";
-                case Constants.BOOKING_STATUS_CONFIRMED:
-                    return "Đã xác nhận";
-                case Constants.BOOKING_STATUS_DEPOSIT_PAID:
-                    return "Đã đặt cọc";
-                case Constants.BOOKING_STATUS_ACTIVE:
-                    return "Đang thuê";
-                case Constants.BOOKING_STATUS_COMPLETED:
-                    return "Hoàn thành";
-                case Constants.BOOKING_STATUS_CANCELLED:
-                    return "Đã hủy";
-                default:
-                    return status;
+                case "pending": return "Chờ xác nhận";
+                case "confirmed": return "Đã xác nhận";
+                case "deposit_paid": return "Đã thanh toán";
+                case "active": return "Đang hoạt động";
+                case "completed": return "Đã hoàn thành";
+                case "cancelled": return "Đã hủy";
+                default: return status;
             }
         }
-        
+
         private int getStatusColor(String status) {
             switch (status) {
-                case Constants.BOOKING_STATUS_PENDING:
-                    return itemView.getContext().getResources().getColor(android.R.color.holo_orange_dark);
-                case Constants.BOOKING_STATUS_CONFIRMED:
-                case Constants.BOOKING_STATUS_DEPOSIT_PAID:
-                case Constants.BOOKING_STATUS_ACTIVE:
-                    return itemView.getContext().getResources().getColor(android.R.color.holo_green_dark);
-                case Constants.BOOKING_STATUS_COMPLETED:
-                    return itemView.getContext().getResources().getColor(android.R.color.holo_blue_dark);
-                case Constants.BOOKING_STATUS_CANCELLED:
-                    return itemView.getContext().getResources().getColor(android.R.color.holo_red_dark);
-                default:
-                    return itemView.getContext().getResources().getColor(android.R.color.darker_gray);
+                case "pending": return R.color.warning;
+                case "confirmed": return R.color.info;
+                case "deposit_paid": return R.color.success;
+                case "active": return R.color.primary;
+                case "completed": return R.color.success;
+                case "cancelled": return R.color.error;
+                default: return R.color.on_surface_variant;
             }
         }
-        
-        private String getActionForStatus(String status) {
+
+        private void setupActionButtons(Booking booking, OnBookingClickListener listener) {
+            String status = booking.getStatus();
+            
+            // Reset button visibility
+            layoutActionButtons.setVisibility(View.GONE);
+            
             switch (status) {
-                case Constants.BOOKING_STATUS_PENDING:
-                    return "Hủy đặt";
-                case Constants.BOOKING_STATUS_CONFIRMED:
-                    return "Thanh toán";
-                case Constants.BOOKING_STATUS_DEPOSIT_PAID:
-                    return "Xem chi tiết";
-                case Constants.BOOKING_STATUS_ACTIVE:
-                    return "Xem chi tiết";
-                case Constants.BOOKING_STATUS_COMPLETED:
-                    return "Đánh giá";
-                default:
-                    return "";
+                case "pending":
+                    layoutActionButtons.setVisibility(View.VISIBLE);
+                    btnPayment.setVisibility(View.VISIBLE);
+                    btnPayment.setText("Thanh toán");
+                    break;
+                case "confirmed":
+                case "deposit_paid":
+                case "active":
+                case "completed":
+                case "cancelled":
+                    // No action buttons for these statuses
+                    break;
             }
+
+            // Set click listener for payment button
+            btnPayment.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onPaymentClick(booking);
+                }
+            });
         }
     }
 }

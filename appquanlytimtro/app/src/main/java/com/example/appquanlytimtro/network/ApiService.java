@@ -87,10 +87,10 @@ public interface ApiService {
     Call<ApiResponse<List<Room>>> getFeaturedRooms(@Query("limit") int limit);
     
     @GET("rooms/{id}")
-    Call<ApiResponse<Room>> getRoom(@Path("id") String roomId);
+    Call<ApiResponse<Map<String, Object>>> getRoom(@Path("id") String roomId);
     
     @POST("rooms")
-    Call<ApiResponse<Room>> createRoom(@Header("Authorization") String token, @Body Room room);
+    Call<ApiResponse<Map<String, Object>>> createRoom(@Header("Authorization") String token, @Body Room room);
     
     @PUT("rooms/{id}")
     Call<ApiResponse<Room>> updateRoom(@Header("Authorization") String token, 
@@ -127,7 +127,7 @@ public interface ApiService {
     Call<ApiResponse<Booking>> getBooking(@Header("Authorization") String token, @Path("id") String bookingId);
     
     @POST("bookings")
-    Call<ApiResponse<Booking>> createBooking(@Header("Authorization") String token, @Body Booking booking);
+    Call<ApiResponse<Booking>> createBooking(@Header("Authorization") String token, @Body Map<String, Object> booking);
     
     @PUT("bookings/{id}")
     Call<ApiResponse<Booking>> updateBooking(@Header("Authorization") String token, 

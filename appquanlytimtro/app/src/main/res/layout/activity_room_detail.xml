@@ -35,8 +35,36 @@
         android:layout_height="300dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <!-- Placeholder Image when no images -->
+    <LinearLayout
+        android:id="@+id/layoutPlaceholder"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@color/surface_variant"
+        android:visibility="gone"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_room_placeholder"
+            android:tint="@color/text_hint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chưa có ảnh"
+            android:textSize="16sp"
+            android:textColor="@color/text_hint"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+
     <!-- Image Overlay -->
     <LinearLayout
+        android:id="@+id/layoutImageOverlay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -82,23 +110,23 @@
         android:fillViewport="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="100dp">
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="120dp">
 
             <!-- Room Info Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardRoomInfo"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/surface"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:cardBackgroundColor="@color/surface">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -223,16 +251,13 @@
             <!-- Description Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardDescription"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/surface"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/cardRoomInfo">
+                app:cardBackgroundColor="@color/surface">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -261,18 +286,16 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-        <!-- Amenities Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardAmenities"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="8dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardDescription">
+            <!-- Amenities Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardAmenities"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/surface">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -297,20 +320,18 @@
 
             </LinearLayout>
 
-        </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
-        <!-- Rules Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardRules"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="8dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardAmenities">
+            <!-- Rules Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardRules"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/surface">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -335,20 +356,18 @@
 
             </LinearLayout>
 
-        </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
-        <!-- Contact Info Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardContact"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="8dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardRules">
+            <!-- Contact Info Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardContact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/surface">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -375,9 +394,9 @@
 
             </LinearLayout>
 
-        </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
 
@@ -388,6 +407,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
+        android:layout_marginBottom="24dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="8dp"
         app:cardBackgroundColor="@color/surface">

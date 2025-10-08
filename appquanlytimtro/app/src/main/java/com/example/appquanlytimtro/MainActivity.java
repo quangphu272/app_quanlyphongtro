@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import com.google.android.material.appbar.MaterialToolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             loadUserData();
             setupBottomNavigation();
+            setupFAB();
         }, 100);
     }
     
@@ -77,63 +79,30 @@ public class MainActivity extends AppCompatActivity {
     private void initViews() {
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         if (bottomNavigationView == null) {
+            android.util.Log.e("MainActivity", "BottomNavigationView not found in layout!");
             // Layout loading error, redirect to login
             navigateToLogin();
             return;
         }
+        
+        android.util.Log.d("MainActivity", "BottomNavigationView initialized successfully");
     }
     
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar == null) {
+            android.util.Log.e("MainActivity", "Toolbar not found!");
+            return;
+        }
+        
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Quản Lý Tìm Trọ");
-            // Enable navigation icon
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
         }
         
-        // Set navigation click listener for toolbar
-        toolbar.setNavigationOnClickListener(v -> {
-            // Show app info or navigation options
-            showNavigationMenu();
-        });
+        android.util.Log.d("MainActivity", "Toolbar setup completed");
     }
     
-    private void showNavigationMenu() {
-        // Create a simple navigation menu
-        String[] options = {"Trang chủ", "Hồ sơ", "Cài đặt", "Đăng xuất"};
-        
-        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
-        builder.setTitle("Menu")
-                .setItems(options, (dialog, which) -> {
-                    switch (which) {
-                        case 0: // Trang chủ
-                            loadDefaultFragment();
-                            if (bottomNavigationView != null) {
-                                if (Constants.ROLE_TENANT.equals(currentUser.getRole())) {
-                                    bottomNavigationView.setSelectedItemId(R.id.nav_home);
-                                } else {
-                                    bottomNavigationView.setSelectedItemId(R.id.nav_dashboard);
-                                }
-                            }
-                            break;
-                        case 1:
-                            switchFragment(new ProfileFragment());
-                            if (bottomNavigationView != null) {
-                                bottomNavigationView.setSelectedItemId(R.id.nav_profile);
-                            }
-                            break;
-                        case 2:
-                            Toast.makeText(this, "Chức năng cài đặt sẽ được phát triển", Toast.LENGTH_SHORT).show();
-                            break;
-                        case 3:
-                            logout();
-                            break;
-                    }
-                })
-                .show();
-    }
     
     private void loadUserData() {
         String userJson = retrofitClient.getUserData();
@@ -194,8 +163,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupBottomNavigation() {
-        if (bottomNavigationView == null) return;
+        if (bottomNavigationView == null) {
+            android.util.Log.e("MainActivity", "BottomNavigationView is null!");
+            return;
+        }
+        
+        android.util.Log.d("MainActivity", "Setting up bottom navigation for role: " + (currentUser != null ? currentUser.getRole() : "null"));
+        
+        // Initialize menu based on role
+        if (currentUser != null) {
+            initBottomMenuByRole(currentUser.getRole());
+        }
+        
+        // Test if bottom navigation is working
+        android.util.Log.d("MainActivity", "Bottom navigation menu items count: " + bottomNavigationView.getMenu().size());
+        
         bottomNavigationView.setOnItemSelectedListener(item -> {
+            android.util.Log.d("MainActivity", "Bottom nav item selected: " + item.getTitle());
             int id = item.getItemId();
             String role = currentUser != null ? currentUser.getRole() : "";
             
@@ -283,6 +267,23 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
     }
     
+    private void setupFAB() {
+        com.google.android.material.floatingactionbutton.FloatingActionButton fab = findViewById(R.id.fabAdd);
+        if (fab != null && currentUser != null) {
+            // Show FAB only for landlords and admins
+            if (Constants.ROLE_LANDLORD.equals(currentUser.getRole()) || Constants.ROLE_ADMIN.equals(currentUser.getRole())) {
+                fab.setVisibility(android.view.View.VISIBLE);
+                fab.setOnClickListener(v -> {
+                    // Navigate to add room
+                    Intent intent = new Intent(this, com.example.appquanlytimtro.landlord.AddRoomActivity.class);
+                    startActivity(intent);
+                });
+            } else {
+                fab.setVisibility(android.view.View.GONE);
+            }
+        }
+    }
+    
     
     private void navigateToLogin() {
         Intent intent = new Intent(this, LoginActivity.class);
@@ -309,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
     
-    private void logout() {
+    public void logout() {
         retrofitClient.logout();
         navigateToLogin();
     }

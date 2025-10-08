@@ -121,13 +121,23 @@ public class PostRoomFragment extends Fragment {
     private void createRoom(Room room) {
         showLoading(true);
         RetrofitClient client = RetrofitClient.getInstance(requireContext());
-        client.getApiService().createRoom("Bearer " + client.getToken(), room).enqueue(new Callback<ApiResponse<Room>>() {
+        client.getApiService().createRoom("Bearer " + client.getToken(), room).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
             @Override
-            public void onResponse(Call<ApiResponse<Room>> call, Response<ApiResponse<Room>> response) {
+            public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
                 showLoading(false);
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     Toast.makeText(getContext(), R.string.saved_successfully, Toast.LENGTH_SHORT).show();
-                    Room created = response.body().getData();
+                    
+                    // Parse Room from response data
+                    Map<String, Object> responseData = response.body().getData();
+                    Room created = null;
+                    
+                    if (responseData != null && responseData.containsKey("room")) {
+                        com.google.gson.Gson gson = new com.google.gson.Gson();
+                        String roomJson = gson.toJson(responseData.get("room"));
+                        created = gson.fromJson(roomJson, Room.class);
+                    }
+                    
                     if (created != null && created.getId() != null && !imageUris.isEmpty()) {
                         uploadImages(created.getId());
                     } else {
@@ -139,7 +149,7 @@ public class PostRoomFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<ApiResponse<Room>> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
                 showLoading(false);
                 Toast.makeText(getContext(), R.string.network_error, Toast.LENGTH_LONG).show();
             }

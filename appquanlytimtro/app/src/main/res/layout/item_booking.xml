@@ -1,223 +1,207 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="4dp"
-    app:cardBackgroundColor="@color/surface"
-    android:clickable="true"
-    android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:strokeColor="?attr/colorOutlineVariant"
+    app:strokeWidth="1dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <!-- Header with Status -->
+        <!-- Header with Room Title and Status -->
         <LinearLayout
-            android:id="@+id/headerLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="16dp"
-            android:gravity="center_vertical"
-            app:layout_constraintTop_toTopOf="parent">
+            android:gravity="center_vertical">
 
-            <!-- Room Title -->
             <TextView
                 android:id="@+id/tvRoomTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Phòng trọ đẹp"
-                android:textAppearance="@style/TextAppearance.QuanLyTimTro.Title2"
-                android:textColor="@color/text_primary"
+                android:text="Phòng trọ ABC"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
                 android:maxLines="2"
                 android:ellipsize="end" />
 
-            <!-- Status Chip -->
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Chờ xác nhận"
-                android:textSize="12sp"
-                android:textColor="@color/white"
+                android:textColor="@color/on_primary"
                 app:chipBackgroundColor="@color/warning"
-                app:chipCornerRadius="12dp"
-                app:chipMinHeight="24dp" />
+                app:chipCornerRadius="16dp"
+                app:chipMinHeight="32dp"
+                app:chipStrokeWidth="0dp" />
 
         </LinearLayout>
 
-        <!-- Room Image -->
-        <ImageView
-            android:id="@+id/ivRoomImage"
+        <!-- Room Address -->
+        <TextView
+            android:id="@+id/tvRoomAddress"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:scaleType="centerCrop"
-            android:background="@color/surface_variant"
-            android:layout_marginHorizontal="16dp"
-            app:layout_constraintTop_toBottomOf="@id/headerLayout" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="123 Đường ABC, Quận 1, TP.HCM"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:maxLines="2"
+            android:ellipsize="end" />
 
-        <!-- Content -->
+        <!-- Landlord Name -->
+        <TextView
+            android:id="@+id/tvLandlordName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Chủ trọ: Nguyễn Văn A"
+            android:textSize="12sp"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <!-- Booking Details -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-            app:layout_constraintTop_toBottomOf="@id/ivRoomImage">
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
 
-            <!-- Dates Row -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-                <!-- Check In -->
-                <LinearLayout
-                    android:layout_width="0dp"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:text="Ngày nhận phòng"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Nhận phòng"
-                        android:textAppearance="@style/TextAppearance.QuanLyTimTro.Caption"
-                        android:textColor="@color/text_hint" />
-
-                    <TextView
-                        android:id="@+id/tvCheckIn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="01/01/2024"
-                        android:textAppearance="@style/TextAppearance.QuanLyTimTro.Body2"
-                        android:textColor="@color/text_primary"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <!-- Divider -->
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="40dp"
-                    android:background="@color/divider"
-                    android:layout_marginHorizontal="16dp" />
-
-                <!-- Check Out -->
-                <LinearLayout
-                    android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/tvCheckInDate"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Trả phòng"
-                        android:textAppearance="@style/TextAppearance.QuanLyTimTro.Caption"
-                        android:textColor="@color/text_hint" />
-
-                    <TextView
-                        android:id="@+id/tvCheckOut"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="31/01/2024"
-                        android:textAppearance="@style/TextAppearance.QuanLyTimTro.Body2"
-                        android:textColor="@color/text_primary"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
+                    android:layout_marginTop="2dp"
+                    android:text="01/01/2025"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface" />
 
             </LinearLayout>
 
-            <!-- Total Amount -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_payment"
-                    android:tint="@color/primary"
-                    android:layout_marginEnd="8dp" />
+                android:layout_weight="1"
+                android:orientation="vertical">
 
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Tổng tiền"
-                    android:textAppearance="@style/TextAppearance.QuanLyTimTro.Body2"
-                    android:textColor="@color/text_secondary" />
-
-                <TextView
-                    android:id="@+id/tvTotalAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3,000,000 VNĐ"
-                    android:textAppearance="@style/TextAppearance.QuanLyTimTro.Title2"
-                    android:textColor="@color/primary"
-                    android:textStyle="bold" />
+                    android:text="Ngày trả phòng"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/tvCheckOutDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="01/02/2025"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface" />
 
             </LinearLayout>
 
-            <!-- Booking Info Row -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:layout_weight="1"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tvBookingDate"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Đặt ngày: 15/12/2023"
-                    android:textAppearance="@style/TextAppearance.QuanLyTimTro.Caption"
-                    android:textColor="@color/text_hint" />
-
-                <!-- Action Buttons -->
-                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:text="Thời gian"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="Xem"
-                        android:textSize="12sp"
-                        style="@style/Button.Secondary"
-                        app:icon="@drawable/ic_arrow_back"
-                        app:iconSize="16dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnAction"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:text="Hủy"
-                        android:textSize="12sp"
-                        style="@style/Button.Danger"
-                        app:icon="@drawable/ic_cancel"
-                        app:iconSize="16dp" />
-
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/tvDuration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="1 tháng"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface" />
 
             </LinearLayout>
 
         </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Total Amount -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Tổng tiền"
+                android:textSize="14sp"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <TextView
+                android:id="@+id/tvTotalAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5,000,000 VNĐ"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary" />
+
+        </LinearLayout>
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:id="@+id/layoutActionButtons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:visibility="gone">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPayment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thanh toán"
+                android:textColor="@color/on_primary"
+                app:backgroundTint="@color/primary"
+                app:cornerRadius="8dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

@@ -12,71 +12,55 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.example.appquanlytimtro.MainActivity;
 import com.example.appquanlytimtro.R;
-import com.example.appquanlytimtro.models.ApiResponse;
+import com.example.appquanlytimtro.config.VNPayConfig;
+import com.example.appquanlytimtro.models.Booking;
+import com.example.appquanlytimtro.models.Room;
+import com.example.appquanlytimtro.models.User;
 import com.example.appquanlytimtro.network.RetrofitClient;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 
 import java.text.NumberFormat;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class PaymentActivity extends AppCompatActivity {
 
-    private String bookingId;
-    private double amount;
-    private RetrofitClient retrofitClient;
-
-    // Views
-    private TextView tvBookingId, tvAmount, tvDescription;
-    private MaterialCardView cardVNPay, cardBankTransfer, cardCash;
-    private MaterialButton btnVNPay, btnBankTransfer, btnCash;
+    private TextView tvRoomTitle, tvRoomAddress, tvCheckIn, tvCheckOut, tvTotalAmount, tvDepositAmount;
+    private MaterialButton btnPayNow, btnPayLater;
     private ProgressBar progressBar;
+    private MaterialCardView cardPaymentInfo;
+    
+    private Room room;
+    private Booking booking;
+    private User currentUser;
+    private RetrofitClient retrofitClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payment);
 
-        retrofitClient = RetrofitClient.getInstance(this);
-
         initViews();
         setupToolbar();
-        setupClickListeners();
-
-        // Get data from intent
-        Intent intent = getIntent();
-        if (intent != null) {
-            bookingId = intent.getStringExtra("booking_id");
-            amount = intent.getDoubleExtra("amount", 0);
-
-            if (bookingId != null && amount > 0) {
-                displayPaymentInfo();
-            } else {
-                showError("Thông tin thanh toán không hợp lệ");
-                finish();
-            }
-        }
+        loadData();
+        setupPaymentButtons();
     }
 
     private void initViews() {
-        tvBookingId = findViewById(R.id.tvBookingId);
-        tvAmount = findViewById(R.id.tvAmount);
-        tvDescription = findViewById(R.id.tvDescription);
-        cardVNPay = findViewById(R.id.cardVNPay);
-        cardBankTransfer = findViewById(R.id.cardBankTransfer);
-        cardCash = findViewById(R.id.cardCash);
-        btnVNPay = findViewById(R.id.btnVNPay);
-        btnBankTransfer = findViewById(R.id.btnBankTransfer);
-        btnCash = findViewById(R.id.btnCash);
+        tvRoomTitle = findViewById(R.id.tvRoomTitle);
+        tvRoomAddress = findViewById(R.id.tvRoomAddress);
+        tvCheckIn = findViewById(R.id.tvCheckIn);
+        tvCheckOut = findViewById(R.id.tvCheckOut);
+        tvTotalAmount = findViewById(R.id.tvTotalAmount);
+        tvDepositAmount = findViewById(R.id.tvDepositAmount);
+        btnPayNow = findViewById(R.id.btnPayNow);
+        btnPayLater = findViewById(R.id.btnPayLater);
         progressBar = findViewById(R.id.progressBar);
+        cardPaymentInfo = findViewById(R.id.cardPaymentInfo);
+        
+        retrofitClient = RetrofitClient.getInstance(this);
+        // currentUser will be loaded from API
     }
 
     private void setupToolbar() {
@@ -88,211 +72,318 @@ public class PaymentActivity extends AppCompatActivity {
         }
     }
 
-    private void setupClickListeners() {
-        btnVNPay.setOnClickListener(v -> processVNPayPayment());
-        btnBankTransfer.setOnClickListener(v -> processBankTransferPayment());
-        btnCash.setOnClickListener(v -> processCashPayment());
+    private void loadData() {
+        // Get data from intent
+        Intent intent = getIntent();
+        if (intent != null) {
+            String roomId = intent.getStringExtra("room_id");
+            String bookingId = intent.getStringExtra("booking_id");
+            
+            if (roomId != null) {
+                loadRoomDetails(roomId);
+            }
+            
+            if (bookingId != null) {
+                loadBookingDetails(bookingId);
+            }
+        }
     }
-
-    private void displayPaymentInfo() {
-        tvBookingId.setText("Mã đặt phòng: " + bookingId);
-        
-        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
-        tvAmount.setText(formatter.format(amount) + " VNĐ");
-        
-        tvDescription.setText("Thanh toán cho đặt phòng trọ");
-    }
-
-    private void processVNPayPayment() {
+    
+    private void loadRoomDetails(String roomId) {
         showLoading(true);
 
-        Map<String, Object> paymentData = new HashMap<>();
-        paymentData.put("bookingId", bookingId);
-        paymentData.put("amount", amount);
-        paymentData.put("orderInfo", "Thanh toan dat phong " + bookingId);
-        paymentData.put("returnUrl", "vnpay://payment-result");
-
-        String token = "Bearer " + retrofitClient.getToken();
-
-        retrofitClient.getApiService().createVNPayPayment(token, paymentData)
-                .enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
+        retrofitClient.getApiService().getRoom(roomId).enqueue(new retrofit2.Callback<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>>() {
                     @Override
-                    public void onResponse(Call<ApiResponse<Map<String, Object>>> call, 
-                                         Response<ApiResponse<Map<String, Object>>> response) {
-                        showLoading(false);
-
+            public void onResponse(retrofit2.Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, retrofit2.Response<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> response) {
                         if (response.isSuccessful() && response.body() != null) {
-                            ApiResponse<Map<String, Object>> apiResponse = response.body();
+                    com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>> apiResponse = response.body();
 
                             if (apiResponse.isSuccess() && apiResponse.getData() != null) {
-                                Map<String, Object> data = apiResponse.getData();
-                                String paymentUrl = (String) data.get("paymentUrl");
-
-                                if (paymentUrl != null) {
-                                    // Open VNPay payment URL
-                                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(paymentUrl));
-                                    startActivity(browserIntent);
-                                } else {
-                                    showError("Không thể tạo liên kết thanh toán VNPay");
-                                }
-                            } else {
-                                showError(apiResponse.getMessage());
-                            }
-                        } else {
-                            showError("Không thể tạo thanh toán VNPay");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
-                        showLoading(false);
-                        showError("Lỗi kết nối: " + t.getMessage());
-                    }
-                });
-    }
-
-    private void processBankTransferPayment() {
-        showLoading(true);
-
-        Map<String, Object> paymentData = new HashMap<>();
-        paymentData.put("bookingId", bookingId);
-        paymentData.put("amount", amount);
-        paymentData.put("paymentMethod", "bank_transfer");
-
-        String token = "Bearer " + retrofitClient.getToken();
-
-        retrofitClient.getApiService().createBankTransferPayment(token, paymentData)
-                .enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
-                    @Override
-                    public void onResponse(Call<ApiResponse<Map<String, Object>>> call, 
-                                         Response<ApiResponse<Map<String, Object>>> response) {
-                        showLoading(false);
-
-                        if (response.isSuccessful() && response.body() != null) {
-                            ApiResponse<Map<String, Object>> apiResponse = response.body();
-
-                            if (apiResponse.isSuccess() && apiResponse.getData() != null) {
-                                Map<String, Object> data = apiResponse.getData();
+                        java.util.Map<String, Object> data = apiResponse.getData();
+                        if (data.containsKey("room")) {
+                            try {
+                                com.google.gson.Gson gson = new com.google.gson.Gson();
+                                String roomJson = gson.toJson(data.get("room"));
+                                room = gson.fromJson(roomJson, Room.class);
                                 
-                                // Show bank transfer information
-                                showBankTransferInfo(data);
-                            } else {
-                                showError(apiResponse.getMessage());
+                                displayRoomInfo();
+                                
+                            } catch (Exception e) {
+                                android.util.Log.e("PaymentActivity", "Error parsing room: " + e.getMessage(), e);
+                                Toast.makeText(PaymentActivity.this, "Lỗi xử lý dữ liệu phòng", Toast.LENGTH_SHORT).show();
                             }
-                        } else {
-                            showError("Không thể tạo thanh toán chuyển khoản");
                         }
+                    }
+                }
+                showLoading(false);
                     }
 
                     @Override
-                    public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
+            public void onFailure(retrofit2.Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
                         showLoading(false);
-                        showError("Lỗi kết nối: " + t.getMessage());
+                Toast.makeText(PaymentActivity.this, "Lỗi tải thông tin phòng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    private void processCashPayment() {
-        // Show cash payment instructions
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Thanh toán tiền mặt")
-                .setMessage("Vui lòng liên hệ trực tiếp với chủ trọ để thanh toán bằng tiền mặt. " +
-                           "Sau khi thanh toán, chủ trọ sẽ xác nhận đặt phòng của bạn.")
-                .setPositiveButton("Đã hiểu", (dialog, which) -> {
-                    // Navigate back to main activity
-                    Intent intent = new Intent(this, MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    finish();
-                })
-                .setNegativeButton("Hủy", null)
-                .show();
+    private void loadBookingDetails(String bookingId) {
+        // Load booking details if needed
+        // This would be implemented based on your booking API
+    }
+    
+    private void displayRoomInfo() {
+        if (room != null) {
+            tvRoomTitle.setText(room.getTitle());
+            
+            // Set address
+            if (room.getAddress() != null) {
+                String address = "";
+                if (room.getAddress().getStreet() != null && !room.getAddress().getStreet().isEmpty()) {
+                    address += room.getAddress().getStreet() + ", ";
+                }
+                if (room.getAddress().getWard() != null && !room.getAddress().getWard().isEmpty()) {
+                    address += room.getAddress().getWard() + ", ";
+                }
+                if (room.getAddress().getDistrict() != null && !room.getAddress().getDistrict().isEmpty()) {
+                    address += room.getAddress().getDistrict() + ", ";
+                }
+                if (room.getAddress().getCity() != null && !room.getAddress().getCity().isEmpty()) {
+                    address += room.getAddress().getCity();
+                }
+                // Remove trailing comma and space
+                if (address.endsWith(", ")) {
+                    address = address.substring(0, address.length() - 2);
+                }
+                tvRoomAddress.setText(address);
+            }
+            
+            // Set amounts
+            if (room.getPrice() != null) {
+                NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
+                
+                // Total amount (monthly rent)
+                double totalAmount = room.getPrice().getMonthly();
+                tvTotalAmount.setText(formatter.format((long)totalAmount) + " VNĐ");
+                
+                // Deposit amount
+                double depositAmount = room.getPrice().getDeposit();
+                tvDepositAmount.setText(formatter.format((long)depositAmount) + " VNĐ");
+            }
+            
+            // Set check-in/check-out dates (from booking or default)
+            tvCheckIn.setText("Ngay nhận phòng");
+            tvCheckOut.setText("Ngay trả phòng");
+        }
+    }
+    
+    private void setupPaymentButtons() {
+        btnPayNow.setOnClickListener(v -> processPayment());
+        btnPayLater.setOnClickListener(v -> {
+            // Save booking without payment
+            Toast.makeText(this, "Đã lưu thông tin đặt phòng. Vui lòng thanh toán sau.", Toast.LENGTH_SHORT).show();
+            finish();
+        });
+    }
+    
+    private void loadCurrentUser() {
+        String token = "Bearer " + retrofitClient.getToken();
+        retrofitClient.getApiService().getCurrentUser(token).enqueue(new retrofit2.Callback<com.example.appquanlytimtro.models.ApiResponse<User>>() {
+                    @Override
+            public void onResponse(retrofit2.Call<com.example.appquanlytimtro.models.ApiResponse<User>> call, retrofit2.Response<com.example.appquanlytimtro.models.ApiResponse<User>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                    com.example.appquanlytimtro.models.ApiResponse<User> apiResponse = response.body();
+                            if (apiResponse.isSuccess() && apiResponse.getData() != null) {
+                        currentUser = apiResponse.getData();
+                        // Now proceed with payment
+                        proceedWithPayment();
+                            } else {
+                        Toast.makeText(PaymentActivity.this, "Không thể tải thông tin người dùng", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                    Toast.makeText(PaymentActivity.this, "Lỗi tải thông tin người dùng", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+            public void onFailure(retrofit2.Call<com.example.appquanlytimtro.models.ApiResponse<User>> call, Throwable t) {
+                Toast.makeText(PaymentActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
-    private void showBankTransferInfo(Map<String, Object> data) {
-        String bankName = (String) data.get("bankName");
-        String accountNumber = (String) data.get("accountNumber");
-        String accountName = (String) data.get("accountName");
-        String transferContent = (String) data.get("transferContent");
-
-        String message = "Thông tin chuyển khoản:\n\n" +
-                        "Ngân hàng: " + (bankName != null ? bankName : "Vietcombank") + "\n" +
-                        "Số tài khoản: " + (accountNumber != null ? accountNumber : "1234567890") + "\n" +
-                        "Tên tài khoản: " + (accountName != null ? accountName : "CONG TY TNHH QUAN LY TIM TRO") + "\n" +
-                        "Nội dung: " + (transferContent != null ? transferContent : bookingId) + "\n" +
-                        "Số tiền: " + NumberFormat.getNumberInstance(Locale.getDefault()).format(amount) + " VNĐ\n\n" +
-                        "Vui lòng chuyển khoản đúng nội dung để hệ thống tự động xác nhận thanh toán.";
-
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Thông tin chuyển khoản")
-                .setMessage(message)
-                .setPositiveButton("Đã chuyển khoản", (dialog, which) -> {
-                    // Navigate back to main activity
-                    Intent intent = new Intent(this, MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    finish();
-                })
-                .setNegativeButton("Sao chép thông tin", (dialog, which) -> {
-                    // Copy to clipboard
-                    android.content.ClipboardManager clipboard = 
-                        (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                    android.content.ClipData clip = android.content.ClipData.newPlainText("Bank Transfer Info", message);
-                    clipboard.setPrimaryClip(clip);
-                    Toast.makeText(this, "Đã sao chép thông tin chuyển khoản", Toast.LENGTH_SHORT).show();
-                })
-                .show();
+    private void proceedWithPayment() {
+        // Create payment request
+        String orderId = "ORDER_" + System.currentTimeMillis();
+        String orderInfo = "Thanh toan phong tro: " + room.getTitle();
+        long amount = (long)room.getPrice().getDeposit(); // Pay deposit first
+        
+        VNPayService.PaymentRequest paymentRequest = new VNPayService.PaymentRequest(
+            orderId,
+            orderInfo,
+            amount,
+            "127.0.0.1" // In real app, get actual IP address
+        );
+        
+        // Open VNPay payment
+        VNPayService.openPayment(this, paymentRequest);
     }
-
-    private void showLoading(boolean show) {
-        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-        btnVNPay.setEnabled(!show);
-        btnBankTransfer.setEnabled(!show);
-        btnCash.setEnabled(!show);
-    }
-
-    private void showError(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    
+    private void processPayment() {
+        if (room == null) {
+            Toast.makeText(this, "Không có thông tin phòng để thanh toán", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Kiểm tra cấu hình VNPay
+        if (!VNPayConfig.isConfigured()) {
+            Toast.makeText(this, "VNPay chưa được cấu hình. Vui lòng liên hệ admin.", Toast.LENGTH_LONG).show();
+            android.util.Log.w("PaymentActivity", VNPayConfig.getConfigurationMessage());
+            return;
+        }
+        
+        // Load current user first
+        loadCurrentUser();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        setIntent(intent);
         
-        // Handle VNPay return result
-        if (intent != null && intent.getData() != null) {
-            Uri data = intent.getData();
-            if ("vnpay".equals(data.getScheme())) {
-                handleVNPayResult(data);
-            }
+        // Handle VNPay return URL
+        Uri uri = intent.getData();
+        if (uri != null && uri.getScheme().equals("com.example.appquanlytimtro") && uri.getHost().equals("vnpay")) {
+            handlePaymentResult(uri);
         }
     }
-
-    private void handleVNPayResult(Uri data) {
-        String responseCode = data.getQueryParameter("vnp_ResponseCode");
+    
+    private void handlePaymentResult(Uri uri) {
+        VNPayService.PaymentResponse response = VNPayService.handlePaymentResult(uri);
         
-        if ("00".equals(responseCode)) {
+        if (response.isSuccess()) {
             // Payment successful
             Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
             
-            // Navigate back to main activity
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
+            // Create booking record
+            createBookingRecord(response);
+            
         } else {
             // Payment failed
-            Toast.makeText(this, "Thanh toán thất bại. Vui lòng thử lại.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Thanh toán thất bại: " + response.getMessage(), Toast.LENGTH_LONG).show();
         }
+    }
+    
+    private void createBookingRecord(VNPayService.PaymentResponse paymentResponse) {
+        showLoading(true);
+        
+        // Create booking object
+        Booking booking = new Booking();
+        
+        // Set room
+        booking.setRoom(room);
+        
+        // Set tenant
+        booking.setTenant(currentUser);
+        
+        // Set landlord
+        booking.setLandlord(room.getLandlord());
+        
+        // Set booking details
+        Booking.BookingDetails bookingDetails = new Booking.BookingDetails();
+        try {
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+            bookingDetails.setCheckInDate(sdf.parse("2025-01-01"));
+            bookingDetails.setCheckOutDate(sdf.parse("2025-02-01"));
+        } catch (java.text.ParseException e) {
+            // If parsing fails, set to current date
+            bookingDetails.setCheckInDate(new java.util.Date());
+            bookingDetails.setCheckOutDate(new java.util.Date());
+        }
+        booking.setBookingDetails(bookingDetails);
+        
+        // Set pricing
+        Booking.Pricing pricing = new Booking.Pricing();
+        pricing.setTotalAmount(room.getPrice().getMonthly());
+        pricing.setDeposit(room.getPrice().getDeposit());
+        booking.setPricing(pricing);
+        
+        // Set status
+        booking.setStatus("confirmed");
+        // PaymentStatus is a class, not enum, so we'll set it later if needed
+        
+        // Send to backend
+        String token = "Bearer " + retrofitClient.getToken();
+        
+        // Create a map for the request body with proper structure
+        java.util.Map<String, Object> bookingRequest = new java.util.HashMap<>();
+        bookingRequest.put("roomId", room.getId());
+        
+        // Booking details
+        java.util.Map<String, Object> bookingDetailsMap = new java.util.HashMap<>();
+        bookingDetailsMap.put("checkInDate", "2025-01-01");
+        bookingDetailsMap.put("checkOutDate", "2025-02-01");
+        bookingDetailsMap.put("duration", 1);
+        bookingDetailsMap.put("numberOfOccupants", 1);
+        bookingRequest.put("bookingDetails", bookingDetailsMap);
+        
+        // Pricing
+        java.util.Map<String, Object> pricingMap = new java.util.HashMap<>();
+        pricingMap.put("deposit", room.getPrice().getDeposit());
+        pricingMap.put("monthlyRent", room.getPrice().getMonthly());
+        pricingMap.put("totalAmount", room.getPrice().getMonthly());
+        // Convert utilities to number
+        double utilitiesAmount = 0;
+        Room.Utilities utilities = room.getPrice().getUtilities();
+        if (utilities != null) {
+            utilitiesAmount = utilities.getElectricity() + utilities.getWater() + 
+                             utilities.getInternet() + utilities.getOther();
+        }
+        pricingMap.put("utilities", utilitiesAmount);
+        bookingRequest.put("pricing", pricingMap);
+        
+        // Notes
+        java.util.Map<String, Object> notesMap = new java.util.HashMap<>();
+        notesMap.put("tenant", "Thanh toán qua VNPay");
+        bookingRequest.put("notes", notesMap);
+        
+        retrofitClient.getApiService().createBooking(token, bookingRequest).enqueue(new retrofit2.Callback<com.example.appquanlytimtro.models.ApiResponse<Booking>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.example.appquanlytimtro.models.ApiResponse<Booking>> call, retrofit2.Response<com.example.appquanlytimtro.models.ApiResponse<Booking>> response) {
+                showLoading(false);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    com.example.appquanlytimtro.models.ApiResponse<Booking> apiResponse = response.body();
+                    
+                    if (apiResponse.isSuccess()) {
+                        Toast.makeText(PaymentActivity.this, "Đặt phòng thành công!", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        Toast.makeText(PaymentActivity.this, "Lỗi tạo đặt phòng: " + apiResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(PaymentActivity.this, "Lỗi tạo đặt phòng", Toast.LENGTH_SHORT).show();
+                }
+            }
+            
+            @Override
+            public void onFailure(retrofit2.Call<com.example.appquanlytimtro.models.ApiResponse<Booking>> call, Throwable t) {
+                showLoading(false);
+                Toast.makeText(PaymentActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    
+    private void showLoading(boolean show) {
+        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        cardPaymentInfo.setVisibility(show ? View.GONE : View.VISIBLE);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 }
-

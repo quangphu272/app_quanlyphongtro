@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
         android:allowBackup="true"
@@ -44,12 +45,44 @@
             android:theme="@style/Theme.QuanLyTimTro" />
             
         <activity
+            android:name=".rooms.RoomSearchActivity"
+            android:exported="false"
+            android:theme="@style/Theme.QuanLyTimTro" />
+            
+        <activity
+            android:name=".payments.PaymentActivity"
+            android:exported="false"
+            android:theme="@style/Theme.QuanLyTimTro">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.example.appquanlytimtro" android:host="vnpay" />
+            </intent-filter>
+        </activity>
+            
+        <activity
+            android:name=".landlord.EditRoomActivity"
+            android:exported="false"
+            android:theme="@style/Theme.QuanLyTimTro" />
+            
+        <activity
             android:name=".profile.ProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.QuanLyTimTro" />
             
         <activity
             android:name=".bookings.BookingListActivity"
+            android:exported="false"
+            android:theme="@style/Theme.QuanLyTimTro" />
+            
+        <activity
+            android:name=".bookings.BookingDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.QuanLyTimTro" />
+            
+        <activity
+            android:name=".payments.PaymentListActivity"
             android:exported="false"
             android:theme="@style/Theme.QuanLyTimTro" />
             
@@ -73,18 +106,6 @@
             android:exported="false"
             android:theme="@style/Theme.QuanLyTimTro" />
             
-        <activity
-            android:name=".payments.PaymentActivity"
-            android:exported="false"
-            android:theme="@style/Theme.QuanLyTimTro"
-            android:launchMode="singleTop">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="vnpay" />
-            </intent-filter>
-        </activity>
     </application>
 
 </manifest>

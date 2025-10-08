@@ -2,32 +2,25 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background">
+    android:layout_height="match_parent">
 
-    <!-- App Bar -->
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/surface"
-        android:elevation="4dp">
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <com.google.android.material.appbar.MaterialToolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/surface"
-            app:title="Thanh toán"
-            app:titleTextColor="@color/text_primary" />
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Main Content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -36,11 +29,11 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Payment Info Card -->
+            <!-- Room Information -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="16dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp">
 
@@ -48,8 +41,100 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp"
-                    android:gravity="center">
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Thông tin phòng"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorPrimary"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:id="@+id/tvRoomTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Phòng trọ đẹp"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvRoomAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="123 Đường ABC, Quận 1, TP.HCM"
+                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginBottom="12dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Ngày nhận phòng:"
+                            android:textSize="14sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/tvCheckIn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="01/01/2025"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Ngày trả phòng:"
+                            android:textSize="14sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/tvCheckOut"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="01/02/2025"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Payment Information -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardPaymentInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -57,258 +142,109 @@
                         android:text="Thông tin thanh toán"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="@color/text_primary"
-                        android:gravity="center"
+                        android:textColor="?attr/colorPrimary"
+                        android:layout_marginBottom="12dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Tổng tiền phòng:"
+                            android:textSize="14sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/tvTotalAmount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="5,000,000 VNĐ"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/primary" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Tiền cọc (cần thanh toán):"
+                            android:textSize="14sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/tvDepositAmount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1,000,000 VNĐ"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/error" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?attr/colorOutline"
                         android:layout_marginBottom="16dp" />
 
                     <TextView
-                        android:id="@+id/tvBookingId"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Mã đặt phòng: #12345"
+                        android:text="Phương thức thanh toán: VNPay"
                         android:textSize="14sp"
-                        android:textColor="@color/text_secondary"
-                        android:gravity="center"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:layout_marginBottom="8dp" />
 
                     <TextView
-                        android:id="@+id/tvDescription"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Thanh toán cho đặt phòng trọ"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_secondary"
-                        android:gravity="center"
-                        android:layout_marginBottom="16dp" />
-
-                    <TextView
-                        android:id="@+id/tvAmount"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="35,000,000 VNĐ"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/primary"
-                        android:gravity="center" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Payment Methods Title -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Chọn phương thức thanh toán"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:layout_marginBottom="16dp" />
-
-            <!-- VNPay Payment -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardVNPay"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/primary">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:gravity="center_vertical">
-
-                    <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:src="@drawable/ic_vnpay"
-                        android:layout_marginEnd="16dp"
-                        android:contentDescription="VNPay logo" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="VNPay"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Thanh toán qua ví điện tử VNPay"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary" />
-
-                    </LinearLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnVNPay"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Chọn"
+                        android:text="• Thanh toán an toàn qua VNPay\n• Hỗ trợ thẻ ATM, Visa, MasterCard\n• Xác nhận thanh toán ngay lập tức"
                         android:textSize="12sp"
-                        style="@style/Widget.Material3.Button.OutlinedButton" />
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:lineSpacingExtra="4dp" />
 
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Bank Transfer Payment -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardBankTransfer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/surface_variant">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:gravity="center_vertical">
-
-                    <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:src="@drawable/ic_bank"
-                        android:layout_marginEnd="16dp"
-                        android:contentDescription="Bank transfer icon" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Chuyển khoản ngân hàng"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Chuyển khoản trực tiếp qua ngân hàng"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary" />
-
-                    </LinearLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnBankTransfer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Chọn"
-                        android:textSize="12sp"
-                        style="@style/Widget.Material3.Button.OutlinedButton" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Cash Payment -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardCash"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/surface_variant">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:gravity="center_vertical">
-
-                    <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:src="@drawable/ic_cash"
-                        android:layout_marginEnd="16dp"
-                        android:contentDescription="Cash payment icon" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Tiền mặt"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Thanh toán trực tiếp với chủ trọ"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_secondary" />
-
-                    </LinearLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnCash"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Chọn"
-                        android:textSize="12sp"
-                        style="@style/Widget.Material3.Button.OutlinedButton" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Security Notice -->
+            <!-- Payment Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@drawable/rounded_background_light"
-                android:padding="12dp"
-                android:gravity="center_vertical">
+                android:orientation="vertical">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_security"
-                    android:layout_marginEnd="8dp"
-                    android:contentDescription="Security icon"
-                    app:tint="@color/success" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPayNow"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Thanh toán ngay"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="12dp"
+                    app:icon="@drawable/ic_payment"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Giao dịch được bảo mật và mã hóa 256-bit SSL"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_secondary" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPayLater"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="Thanh toán sau"
+                    android:textSize="14sp"
+                    style="@style/Widget.Material3.Button.OutlinedButton" />
 
             </LinearLayout>
 
@@ -317,8 +253,8 @@
                 android:id="@+id/progressBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="24dp"
+                android:layout_gravity="center"
+                android:layout_margin="32dp"
                 android:visibility="gone" />
 
         </LinearLayout>
@@ -326,4 +262,3 @@
     </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-

@@ -18,6 +18,7 @@ import com.example.appquanlytimtro.R;
 import com.example.appquanlytimtro.adapters.RoomAdapter;
 import com.example.appquanlytimtro.models.ApiResponse;
 import com.example.appquanlytimtro.models.Room;
+import com.google.gson.Gson;
 import com.example.appquanlytimtro.network.RetrofitClient;
 
 import java.util.ArrayList;
@@ -150,11 +151,17 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
                     
                     if (apiResponse.isSuccess() && apiResponse.getData() != null) {
                         Map<String, Object> data = apiResponse.getData();
-                        List<Room> roomList = (List<Room>) data.get("rooms");
+                        List<?> roomsData = (List<?>) data.get("rooms");
                         
-                        if (roomList != null) {
+                        if (roomsData != null) {
                             rooms.clear();
-                            rooms.addAll(roomList);
+                            Gson gson = new Gson();
+                            for (Object roomObj : roomsData) {
+                                if (roomObj instanceof Map) {
+                                    Room room = gson.fromJson(gson.toJson(roomObj), Room.class);
+                                    rooms.add(room);
+                                }
+                            }
                             roomAdapter.notifyDataSetChanged();
                         }
                     } else {
@@ -197,7 +204,6 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
         startActivity(intent);
     }
     
-    @Override
     public void onRoomLike(Room room) {
         // Handle room like functionality
         retrofitClient.getApiService().toggleRoomLike(retrofitClient.getToken(), room.getId())

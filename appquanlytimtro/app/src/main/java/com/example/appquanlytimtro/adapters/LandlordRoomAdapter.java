@@ -194,13 +194,19 @@ public class LandlordRoomAdapter extends RecyclerView.Adapter<LandlordRoomAdapte
             }
             
             // Set room image
+            android.util.Log.d("LandlordRoomAdapter", "Room: " + room.getTitle() + " - Images: " + (room.getImages() != null ? room.getImages().size() : "null"));
+            
             if (room.getImages() != null && !room.getImages().isEmpty()) {
                 String imageUrl = room.getImages().get(0).getUrl();
+                android.util.Log.d("LandlordRoomAdapter", "Image URL: " + imageUrl);
+                
                 if (imageUrl != null && !imageUrl.isEmpty()) {
                     // Convert relative URL to full URL
                     if (!imageUrl.startsWith("http")) {
                         imageUrl = "http://10.0.2.2:5000" + imageUrl;
                     }
+                    android.util.Log.d("LandlordRoomAdapter", "Final image URL: " + imageUrl);
+                    
                     Glide.with(itemView.getContext())
                             .load(imageUrl)
                             .placeholder(R.drawable.ic_room_placeholder)
@@ -208,9 +214,11 @@ public class LandlordRoomAdapter extends RecyclerView.Adapter<LandlordRoomAdapte
                             .centerCrop()
                             .into(ivRoomImage);
                 } else {
+                    android.util.Log.d("LandlordRoomAdapter", "Image URL is empty, showing placeholder");
                     ivRoomImage.setImageResource(R.drawable.ic_room_placeholder);
                 }
             } else {
+                android.util.Log.d("LandlordRoomAdapter", "No images, showing placeholder");
                 ivRoomImage.setImageResource(R.drawable.ic_room_placeholder);
             }
         }

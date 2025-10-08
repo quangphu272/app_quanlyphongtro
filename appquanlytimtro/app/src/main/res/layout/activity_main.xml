@@ -20,11 +20,10 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/surface"
+            android:elevation="4dp"
             app:title="Quản Lý Tìm Trọ"
             app:titleTextAppearance="@style/TextAppearance.QuanLyTimTro.Title1"
-            app:titleTextColor="@color/text_primary"
-            app:navigationIcon="@drawable/ic_menu"
-            app:navigationIconTint="@color/primary" />
+            app:titleTextColor="@color/text_primary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -33,17 +32,16 @@
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="80dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/surface"
-        android:elevation="8dp"
+        android:elevation="12dp"
         app:labelVisibilityMode="labeled"
         app:itemIconTint="@color/on_surface_variant"
         app:itemTextColor="@color/on_surface_variant"
@@ -57,11 +55,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="24dp"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="120dp"
         android:src="@drawable/ic_add"
         app:backgroundTint="@color/primary"
         app:tint="@color/on_primary"
-        app:elevation="6dp"
+        app:elevation="8dp"
         app:fabSize="normal" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

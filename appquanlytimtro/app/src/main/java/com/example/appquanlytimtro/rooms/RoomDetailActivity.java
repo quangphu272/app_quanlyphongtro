@@ -22,6 +22,7 @@ import com.example.appquanlytimtro.adapters.RoomImageAdapter;
 import com.example.appquanlytimtro.models.ApiResponse;
 import com.example.appquanlytimtro.models.Room;
 import com.example.appquanlytimtro.network.RetrofitClient;
+import com.google.gson.Gson;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -40,6 +41,8 @@ public class RoomDetailActivity extends AppCompatActivity {
     private RetrofitClient retrofitClient;
     
     private ViewPager2 viewPagerImages;
+    private LinearLayout layoutPlaceholder;
+    private LinearLayout layoutImageOverlay;
     private TextView tvTitle, tvAddress, tvPrice, tvArea, tvRoomType, tvDescription;
     private TextView tvContactInfo, tvRating, tvViews;
     private LinearLayout layoutAmenities, layoutRules;
@@ -71,6 +74,8 @@ public class RoomDetailActivity extends AppCompatActivity {
     
     private void initViews() {
         viewPagerImages = findViewById(R.id.viewPagerImages);
+        layoutPlaceholder = findViewById(R.id.layoutPlaceholder);
+        layoutImageOverlay = findViewById(R.id.layoutImageOverlay);
         tvTitle = findViewById(R.id.tvTitle);
         tvAddress = findViewById(R.id.tvAddress);
         tvPrice = findViewById(R.id.tvPrice);
@@ -100,27 +105,46 @@ public class RoomDetailActivity extends AppCompatActivity {
     private void loadRoomDetails() {
         showLoading(true);
         
-        retrofitClient.getApiService().getRoom(roomId).enqueue(new Callback<ApiResponse<Room>>() {
+        retrofitClient.getApiService().getRoom(roomId).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
             @Override
-            public void onResponse(Call<ApiResponse<Room>> call, Response<ApiResponse<Room>> response) {
+            public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
                 showLoading(false);
                 
+                android.util.Log.d("RoomDetailActivity", "Response code: " + response.code());
+                android.util.Log.d("RoomDetailActivity", "Response body: " + response.body());
+                
                 if (response.isSuccessful() && response.body() != null) {
-                    ApiResponse<Room> apiResponse = response.body();
+                    ApiResponse<Map<String, Object>> apiResponse = response.body();
+                    android.util.Log.d("RoomDetailActivity", "API Response success: " + apiResponse.isSuccess());
+                    android.util.Log.d("RoomDetailActivity", "API Response data: " + apiResponse.getData());
                     
                     if (apiResponse.isSuccess() && apiResponse.getData() != null) {
-                        room = apiResponse.getData();
-                        displayRoomDetails();
+                        Map<String, Object> data = apiResponse.getData();
+                        if (data.containsKey("room")) {
+                            // Parse room from data.room
+                            Gson gson = new Gson();
+                            String roomJson = gson.toJson(data.get("room"));
+                            android.util.Log.d("RoomDetailActivity", "Room JSON: " + roomJson);
+                            
+                            room = gson.fromJson(roomJson, Room.class);
+                            android.util.Log.d("RoomDetailActivity", "Room parsed successfully: " + (room != null ? room.getTitle() : "null"));
+                            displayRoomDetails();
+                        } else {
+                            android.util.Log.e("RoomDetailActivity", "No room data in response");
+                            showError("Không tìm thấy thông tin phòng");
+                        }
                     } else {
+                        android.util.Log.e("RoomDetailActivity", "API Error: " + apiResponse.getMessage());
                         showError(apiResponse.getMessage());
                     }
                 } else {
+                    android.util.Log.e("RoomDetailActivity", "HTTP Error: " + response.code());
                     showError("Không thể tải thông tin phòng trọ");
                 }
             }
             
             @Override
-            public void onFailure(Call<ApiResponse<Room>> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
                 showLoading(false);
                 showError("Lỗi kết nối. Vui lòng thử lại.");
             }
@@ -147,7 +171,7 @@ public class RoomDetailActivity extends AppCompatActivity {
             tvPrice.setText(price);
         }
         
-        tvArea.setText(room.getArea() + " m²");
+        tvArea.setText(String.format("%.0f m²", room.getArea()));
         tvRoomType.setText(getRoomTypeText(room.getRoomType()));
         tvDescription.setText(room.getDescription());
         
@@ -159,22 +183,45 @@ public class RoomDetailActivity extends AppCompatActivity {
         tvViews.setText("Lượt xem: " + room.getViews());
         
         // Set images
+        android.util.Log.d("RoomDetailActivity", "Room images: " + (room.getImages() != null ? room.getImages().size() : "null"));
+        
         if (room.getImages() != null && !room.getImages().isEmpty()) {
             List<String> imageUrls = new ArrayList<>();
             for (Room.RoomImage image : room.getImages()) {
                 String imageUrl = image.getUrl();
+                android.util.Log.d("RoomDetailActivity", "Image URL: " + imageUrl);
                 if (imageUrl != null && !imageUrl.isEmpty()) {
                     if (!imageUrl.startsWith("http")) {
+                        // URL từ backend bắt đầu bằng /uploads/rooms/
                         imageUrl = "http://10.0.2.2:5000" + imageUrl;
                     }
                     imageUrls.add(imageUrl);
+                    android.util.Log.d("RoomDetailActivity", "Final image URL: " + imageUrl);
                 }
             }
+            
+            android.util.Log.d("RoomDetailActivity", "Processed image URLs: " + imageUrls.size());
             
             if (!imageUrls.isEmpty()) {
                 RoomImageAdapter adapter = new RoomImageAdapter(imageUrls);
                 viewPagerImages.setAdapter(adapter);
+                viewPagerImages.setVisibility(View.VISIBLE);
+                layoutPlaceholder.setVisibility(View.GONE);
+                layoutImageOverlay.setVisibility(View.VISIBLE);
+                android.util.Log.d("RoomDetailActivity", "Showing ViewPager with images");
+            } else {
+                // Show placeholder when no images
+                viewPagerImages.setVisibility(View.GONE);
+                layoutPlaceholder.setVisibility(View.VISIBLE);
+                layoutImageOverlay.setVisibility(View.GONE);
+                android.util.Log.d("RoomDetailActivity", "Showing placeholder - no valid images");
             }
+        } else {
+            // Show placeholder when no images
+            viewPagerImages.setVisibility(View.GONE);
+            layoutPlaceholder.setVisibility(View.VISIBLE);
+            layoutImageOverlay.setVisibility(View.GONE);
+            android.util.Log.d("RoomDetailActivity", "Showing placeholder - no images array");
         }
         
         // Set amenities
@@ -270,11 +317,11 @@ public class RoomDetailActivity extends AppCompatActivity {
         switch (roomType) {
             case "studio":
                 return "Studio";
-            case "1_bedroom":
+            case "1bedroom":
                 return "1 phòng ngủ";
-            case "2_bedroom":
+            case "2bedroom":
                 return "2 phòng ngủ";
-            case "3_bedroom":
+            case "3bedroom":
                 return "3 phòng ngủ";
             case "shared":
                 return "Phòng chung";

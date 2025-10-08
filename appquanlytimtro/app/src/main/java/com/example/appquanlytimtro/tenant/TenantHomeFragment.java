@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.appquanlytimtro.R;
+import com.example.appquanlytimtro.MainActivity;
 import com.example.appquanlytimtro.rooms.RoomListActivity;
 import com.example.appquanlytimtro.bookings.BookingListActivity;
 import com.example.appquanlytimtro.payments.PaymentListActivity;
@@ -35,6 +36,7 @@ public class TenantHomeFragment extends Fragment {
     private MaterialCardView cardMyBookings;
     private MaterialCardView cardMyPayments;
     private MaterialCardView cardMyProfile;
+    private MaterialCardView cardLogout;
     private RecyclerView recyclerViewRecentRooms;
     
     private RetrofitClient retrofitClient;
@@ -60,6 +62,7 @@ public class TenantHomeFragment extends Fragment {
         cardMyBookings = view.findViewById(R.id.cardMyBookings);
         cardMyPayments = view.findViewById(R.id.cardMyPayments);
         cardMyProfile = view.findViewById(R.id.cardMyProfile);
+        cardLogout = view.findViewById(R.id.cardLogout);
         recyclerViewRecentRooms = view.findViewById(R.id.recyclerViewRecentRooms);
         
         recyclerViewRecentRooms.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -102,6 +105,21 @@ public class TenantHomeFragment extends Fragment {
         cardMyProfile.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ProfileActivity.class);
             startActivity(intent);
+        });
+
+        cardLogout.setOnClickListener(v -> {
+            // Show confirmation dialog
+            new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                .setTitle("Đăng xuất")
+                .setMessage("Bạn có chắc chắn muốn đăng xuất?")
+                .setPositiveButton("Đăng xuất", (dialog, which) -> {
+                    // Call logout method from MainActivity
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).logout();
+                    }
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
         });
     }
 }

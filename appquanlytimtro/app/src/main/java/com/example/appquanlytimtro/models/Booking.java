@@ -55,8 +55,16 @@ public class Booking {
     public Booking(String roomId, String tenantId, String checkIn, String checkOut, 
                    int duration, double totalAmount) {
         this.bookingDetails = new BookingDetails();
-        this.bookingDetails.setCheckInDate(checkIn);
-        this.bookingDetails.setCheckOutDate(checkOut);
+        try {
+            // Parse string dates to Date objects
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+            this.bookingDetails.setCheckInDate(sdf.parse(checkIn));
+            this.bookingDetails.setCheckOutDate(sdf.parse(checkOut));
+        } catch (java.text.ParseException e) {
+            // If parsing fails, set to current date
+            this.bookingDetails.setCheckInDate(new java.util.Date());
+            this.bookingDetails.setCheckOutDate(new java.util.Date());
+        }
         this.bookingDetails.setDuration(duration);
         
         this.pricing = new Pricing();
@@ -187,10 +195,10 @@ public class Booking {
     // Nested classes
     public static class BookingDetails {
         @SerializedName("checkInDate")
-        private String checkInDate;
+        private java.util.Date checkInDate;
         
         @SerializedName("checkOutDate")
-        private String checkOutDate;
+        private java.util.Date checkOutDate;
         
         @SerializedName("duration")
         private int duration;
@@ -198,19 +206,19 @@ public class Booking {
         @SerializedName("numberOfOccupants")
         private int numberOfOccupants;
 
-        public String getCheckInDate() {
+        public java.util.Date getCheckInDate() {
             return checkInDate;
         }
 
-        public void setCheckInDate(String checkInDate) {
+        public void setCheckInDate(java.util.Date checkInDate) {
             this.checkInDate = checkInDate;
         }
 
-        public String getCheckOutDate() {
+        public java.util.Date getCheckOutDate() {
             return checkOutDate;
         }
 
-        public void setCheckOutDate(String checkOutDate) {
+        public void setCheckOutDate(java.util.Date checkOutDate) {
             this.checkOutDate = checkOutDate;
         }
 

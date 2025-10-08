@@ -28,6 +28,7 @@ import com.google.gson.Gson;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.Date;
 import java.util.Locale;
 
@@ -211,18 +212,26 @@ public class BookRoomActivity extends AppCompatActivity {
     private void loadRoomDetails() {
         showLoading(true);
 
-        retrofitClient.getApiService().getRoom(roomId).enqueue(new Callback<ApiResponse<Room>>() {
+        retrofitClient.getApiService().getRoom(roomId).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
             @Override
-            public void onResponse(Call<ApiResponse<Room>> call, Response<ApiResponse<Room>> response) {
+            public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
                 showLoading(false);
 
                 if (response.isSuccessful() && response.body() != null) {
-                    ApiResponse<Room> apiResponse = response.body();
+                    ApiResponse<Map<String, Object>> apiResponse = response.body();
 
                     if (apiResponse.isSuccess() && apiResponse.getData() != null) {
-                        room = apiResponse.getData();
-                        displayRoomInfo();
-                        calculateTotalAmount();
+                        Map<String, Object> data = apiResponse.getData();
+                        if (data.containsKey("room")) {
+                            // Parse room from data.room
+                            Gson gson = new Gson();
+                            String roomJson = gson.toJson(data.get("room"));
+                            room = gson.fromJson(roomJson, Room.class);
+                            displayRoomInfo();
+                            calculateTotalAmount();
+                        } else {
+                            showError("Không tìm thấy thông tin phòng");
+                        }
                     } else {
                         showError(apiResponse.getMessage());
                     }
@@ -232,7 +241,7 @@ public class BookRoomActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<ApiResponse<Room>> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
                 showLoading(false);
                 showError("Lỗi kết nối: " + t.getMessage());
             }
@@ -289,9 +298,8 @@ public class BookRoomActivity extends AppCompatActivity {
         
         // Set booking details
         Booking.BookingDetails bookingDetails = new Booking.BookingDetails();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        bookingDetails.setCheckInDate(sdf.format(checkInCalendar.getTime()));
-        bookingDetails.setCheckOutDate(sdf.format(checkOutCalendar.getTime()));
+        bookingDetails.setCheckInDate(checkInCalendar.getTime());
+        bookingDetails.setCheckOutDate(checkOutCalendar.getTime());
         bookingDetails.setDuration(durationMonths);
         booking.setBookingDetails(bookingDetails);
 
@@ -308,21 +316,41 @@ public class BookRoomActivity extends AppCompatActivity {
         notes.setTenant(noteText);
         booking.setNotes(notes);
 
-        // Set room ID (will be handled by backend)
-        // booking.setRoom(room); // This will be set by backend based on room ID
-
         String token = "Bearer " + retrofitClient.getToken();
         
-        // Create a map for the request body
+        // Create a map for the request body with proper structure
         java.util.Map<String, Object> bookingRequest = new java.util.HashMap<>();
         bookingRequest.put("roomId", roomId);
-        bookingRequest.put("checkInDate", bookingDetails.getCheckInDate());
-        bookingRequest.put("checkOutDate", bookingDetails.getCheckOutDate());
-        bookingRequest.put("duration", durationMonths);
-        bookingRequest.put("totalAmount", totalAmount);
-        bookingRequest.put("notes", noteText);
+        
+        // Booking details
+        java.util.Map<String, Object> bookingDetailsMap = new java.util.HashMap<>();
+        bookingDetailsMap.put("checkInDate", bookingDetails.getCheckInDate());
+        bookingDetailsMap.put("checkOutDate", bookingDetails.getCheckOutDate());
+        bookingDetailsMap.put("duration", durationMonths);
+        bookingDetailsMap.put("numberOfOccupants", 1); // Set default value
+        bookingRequest.put("bookingDetails", bookingDetailsMap);
+        
+        // Pricing
+        java.util.Map<String, Object> pricingMap = new java.util.HashMap<>();
+        pricingMap.put("deposit", room.getPrice().getDeposit());
+        pricingMap.put("monthlyRent", room.getPrice().getMonthly());
+        pricingMap.put("totalAmount", totalAmount);
+        // Convert utilities to number
+        double utilitiesAmount = 0;
+        Room.Utilities utilities = room.getPrice().getUtilities();
+        if (utilities != null) {
+            utilitiesAmount = utilities.getElectricity() + utilities.getWater() + 
+                             utilities.getInternet() + utilities.getOther();
+        }
+        pricingMap.put("utilities", utilitiesAmount);
+        bookingRequest.put("pricing", pricingMap);
+        
+        // Notes
+        java.util.Map<String, Object> notesMap = new java.util.HashMap<>();
+        notesMap.put("tenant", noteText);
+        bookingRequest.put("notes", notesMap);
 
-        retrofitClient.getApiService().createBooking(token, booking).enqueue(new Callback<ApiResponse<Booking>>() {
+        retrofitClient.getApiService().createBooking(token, bookingRequest).enqueue(new Callback<ApiResponse<Booking>>() {
             @Override
             public void onResponse(Call<ApiResponse<Booking>> call, Response<ApiResponse<Booking>> response) {
                 showLoading(false);

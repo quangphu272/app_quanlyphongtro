@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.appquanlytimtro.R;
 import com.example.appquanlytimtro.models.Room;
-import com.example.appquanlytimtro.utils.Constants;
+import com.google.android.material.chip.Chip;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -25,7 +25,6 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
     
     public interface OnRoomClickListener {
         void onRoomClick(Room room);
-        void onRoomLike(Room room);
     }
     
     public RoomAdapter(List<Room> rooms, OnRoomClickListener listener) {
@@ -52,10 +51,16 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
         return rooms.size();
     }
     
+    public void updateRooms(List<Room> newRooms) {
+        this.rooms.clear();
+        this.rooms.addAll(newRooms);
+        notifyDataSetChanged();
+    }
+    
     class RoomViewHolder extends RecyclerView.ViewHolder {
         private ImageView ivRoomImage;
-        private TextView tvTitle, tvAddress, tvPrice, tvArea, tvRoomType, tvRating;
-        private ImageView ivLike;
+        private TextView tvTitle, tvAddress, tvPrice, tvArea, tvViews;
+        private Chip chipRoomType, chipStatus;
         
         public RoomViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -63,25 +68,16 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
             tvTitle = itemView.findViewById(R.id.tvTitle);
             tvAddress = itemView.findViewById(R.id.tvAddress);
             tvPrice = itemView.findViewById(R.id.tvPrice);
-            tvArea = itemView.findViewById(R.id.chipArea);
-            tvRoomType = itemView.findViewById(R.id.chipRoomType);
-            tvRating = itemView.findViewById(R.id.tvRating);
-            ivLike = itemView.findViewById(R.id.ivLike);
+            tvArea = itemView.findViewById(R.id.tvArea);
+            tvViews = itemView.findViewById(R.id.tvViews);
+            chipRoomType = itemView.findViewById(R.id.chipRoomType);
+            chipStatus = itemView.findViewById(R.id.chipStatus);
             
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
                         listener.onRoomClick(rooms.get(position));
-                    }
-                }
-            });
-            
-            ivLike.setOnClickListener(v -> {
-                if (listener != null) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) {
-                        listener.onRoomLike(rooms.get(position));
                     }
                 }
             });
@@ -92,10 +88,23 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
             
             // Set address
             if (room.getAddress() != null) {
-                String address = room.getAddress().getStreet() + ", " + 
-                               room.getAddress().getWard() + ", " + 
-                               room.getAddress().getDistrict() + ", " + 
-                               room.getAddress().getCity();
+                String address = "";
+                if (room.getAddress().getStreet() != null && !room.getAddress().getStreet().isEmpty()) {
+                    address += room.getAddress().getStreet() + ", ";
+                }
+                if (room.getAddress().getWard() != null && !room.getAddress().getWard().isEmpty()) {
+                    address += room.getAddress().getWard() + ", ";
+                }
+                if (room.getAddress().getDistrict() != null && !room.getAddress().getDistrict().isEmpty()) {
+                    address += room.getAddress().getDistrict() + ", ";
+                }
+                if (room.getAddress().getCity() != null && !room.getAddress().getCity().isEmpty()) {
+                    address += room.getAddress().getCity();
+                }
+                // Remove trailing comma and space
+                if (address.endsWith(", ")) {
+                    address = address.substring(0, address.length() - 2);
+                }
                 tvAddress.setText(address);
             }
             
@@ -107,16 +116,38 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
             }
             
             // Set area
-            tvArea.setText(room.getArea() + " m²");
+            tvArea.setText(String.format("%.0f m²", room.getArea()));
+            
+            // Set views
+            tvViews.setText(room.getViews() + " lượt xem");
             
             // Set room type
-            tvRoomType.setText(getRoomTypeText(room.getRoomType()));
+            if (room.getRoomType() != null) {
+                String roomTypeText = getRoomTypeText(room.getRoomType());
+                chipRoomType.setText(roomTypeText);
+            }
             
-            // Set rating
-            if (room.getRating() != null) {
-                tvRating.setText(String.format("%.1f", room.getRating().getAverage()));
-            } else {
-                tvRating.setText("0.0");
+            // Set status
+            String status = room.getStatus();
+            if (status == null) status = "active";
+            
+            switch (status.toLowerCase()) {
+                case "active":
+                    chipStatus.setText("Còn trống");
+                    chipStatus.setChipBackgroundColorResource(R.color.success);
+                    break;
+                case "rented":
+                    chipStatus.setText("Đã cho thuê");
+                    chipStatus.setChipBackgroundColorResource(R.color.info);
+                    break;
+                case "maintenance":
+                    chipStatus.setText("Bảo trì");
+                    chipStatus.setChipBackgroundColorResource(R.color.warning);
+                    break;
+                default:
+                    chipStatus.setText("Không xác định");
+                    chipStatus.setChipBackgroundColorResource(R.color.surface_variant);
+                    break;
             }
             
             // Set room image
@@ -131,6 +162,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
                             .load(imageUrl)
                             .placeholder(R.drawable.ic_room_placeholder)
                             .error(R.drawable.ic_room_placeholder)
+                            .centerCrop()
                             .into(ivRoomImage);
                 } else {
                     ivRoomImage.setImageResource(R.drawable.ic_room_placeholder);
@@ -138,24 +170,18 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
             } else {
                 ivRoomImage.setImageResource(R.drawable.ic_room_placeholder);
             }
-            
-            // Set like status
-            // This would need to be implemented based on user's liked rooms
-            ivLike.setImageResource(android.R.drawable.btn_star_big_off);
         }
         
         private String getRoomTypeText(String roomType) {
             switch (roomType) {
-                case Constants.ROOM_TYPE_STUDIO:
+                case "studio":
                     return "Studio";
-                case Constants.ROOM_TYPE_1_BEDROOM:
+                case "1bedroom":
                     return "1 phòng ngủ";
-                case Constants.ROOM_TYPE_2_BEDROOM:
+                case "2bedroom":
                     return "2 phòng ngủ";
-                case Constants.ROOM_TYPE_3_BEDROOM:
+                case "3bedroom":
                     return "3 phòng ngủ";
-                case Constants.ROOM_TYPE_SHARED:
-                    return "Phòng chung";
                 default:
                     return roomType;
             }

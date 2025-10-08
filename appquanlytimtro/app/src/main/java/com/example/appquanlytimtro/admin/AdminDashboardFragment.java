@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.android.material.card.MaterialCardView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +27,7 @@ public class AdminDashboardFragment extends Fragment {
     private TextView tvTotalLandlords;
     private TextView tvTotalRooms;
     private TextView tvTotalRevenue;
+    private MaterialCardView cardLogout;
     
     private RetrofitClient retrofitClient;
     private User currentUser;
@@ -39,6 +41,7 @@ public class AdminDashboardFragment extends Fragment {
         loadUserData();
         
         initViews(view);
+        setupClickListeners();
         loadDashboardData();
         
         return view;
@@ -49,6 +52,24 @@ public class AdminDashboardFragment extends Fragment {
         tvTotalLandlords = view.findViewById(R.id.tvTotalLandlords);
         tvTotalRooms = view.findViewById(R.id.tvTotalRooms);
         tvTotalRevenue = view.findViewById(R.id.tvTotalRevenue);
+        cardLogout = view.findViewById(R.id.cardLogout);
+    }
+
+    private void setupClickListeners() {
+        cardLogout.setOnClickListener(v -> {
+            // Show confirmation dialog
+            new androidx.appcompat.app.AlertDialog.Builder(getContext())
+                .setTitle("Đăng xuất")
+                .setMessage("Bạn có chắc chắn muốn đăng xuất?")
+                .setPositiveButton("Đăng xuất", (dialog, which) -> {
+                    // Call logout method from MainActivity
+                    if (getActivity() instanceof com.example.appquanlytimtro.MainActivity) {
+                        ((com.example.appquanlytimtro.MainActivity) getActivity()).logout();
+                    }
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
+        });
     }
 
     private void loadUserData() {
