@@ -1,9 +1,10 @@
 package com.example.appquanlytimtro.models;
 
 import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 import java.util.List;
 
-public class Room {
+public class Room implements Serializable {
     @SerializedName("_id")
     private String id;
     
@@ -239,7 +240,7 @@ public class Room {
     }
 
     // Nested classes
-    public static class Price {
+    public static class Price implements Serializable {
         @SerializedName("monthly")
         private double monthly;
         
@@ -293,7 +294,7 @@ public class Room {
         }
     }
 
-    public static class Utilities {
+    public static class Utilities implements Serializable {
         @SerializedName("electricity")
         private double electricity;
         
@@ -341,7 +342,7 @@ public class Room {
         }
     }
 
-    public static class RoomImage {
+    public static class RoomImage implements Serializable {
         @SerializedName("_id")
         private String id;
         
@@ -389,7 +390,7 @@ public class Room {
         }
     }
 
-    public static class Availability {
+    public static class Availability implements Serializable {
         @SerializedName("isAvailable")
         private boolean isAvailable;
         
@@ -426,7 +427,7 @@ public class Room {
         }
     }
 
-    public static class ContactInfo {
+    public static class ContactInfo implements Serializable {
         @SerializedName("phone")
         private String phone;
         
@@ -463,7 +464,7 @@ public class Room {
         }
     }
 
-    public static class NearbyPlace {
+    public static class NearbyPlace implements Serializable {
         @SerializedName("name")
         private String name;
         
@@ -500,7 +501,7 @@ public class Room {
         }
     }
 
-    public static class Rating {
+    public static class Rating implements Serializable {
         @SerializedName("average")
         private double average;
         

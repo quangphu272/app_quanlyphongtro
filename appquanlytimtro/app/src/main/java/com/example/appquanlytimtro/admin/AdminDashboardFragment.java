@@ -104,27 +104,62 @@ public class AdminDashboardFragment extends Fragment {
     }
     
     private void updateDashboardData(java.util.Map<String, Object> data) {
-        if (tvTotalUsers != null) {
-            Object totalUsers = data.get("totalUsers");
-            tvTotalUsers.setText(totalUsers != null ? totalUsers.toString() : "0");
-        }
-        
-        if (tvTotalLandlords != null) {
-            Object totalLandlords = data.get("totalLandlords");
-            tvTotalLandlords.setText(totalLandlords != null ? totalLandlords.toString() : "0");
-        }
-        
-        if (tvTotalRooms != null) {
-            Object totalRooms = data.get("totalRooms");
-            tvTotalRooms.setText(totalRooms != null ? totalRooms.toString() : "0");
-        }
-        
-        if (tvTotalRevenue != null) {
-            Object revenue = data.get("totalRevenue");
-            if (revenue != null) {
-                tvTotalRevenue.setText(revenue.toString() + " VNĐ");
-            } else {
-                tvTotalRevenue.setText("0 VNĐ");
+        // Lấy stats object từ data
+        Object statsObj = data.get("stats");
+        if (statsObj instanceof java.util.Map) {
+            java.util.Map<String, Object> stats = (java.util.Map<String, Object>) statsObj;
+            
+            // Tính tổng users từ users array
+            Object usersObj = stats.get("users");
+            int totalUsers = 0;
+            int totalLandlords = 0;
+            if (usersObj instanceof java.util.List) {
+                java.util.List<?> usersList = (java.util.List<?>) usersObj;
+                for (Object userObj : usersList) {
+                    if (userObj instanceof java.util.Map) {
+                        java.util.Map<String, Object> user = (java.util.Map<String, Object>) userObj;
+                        Object role = user.get("_id");
+                        Object count = user.get("count");
+                        if (count instanceof Number) {
+                            totalUsers += ((Number) count).intValue();
+                            if ("landlord".equals(role)) {
+                                totalLandlords = ((Number) count).intValue();
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (tvTotalUsers != null) {
+                tvTotalUsers.setText(String.valueOf(totalUsers));
+            }
+            
+            if (tvTotalLandlords != null) {
+                tvTotalLandlords.setText(String.valueOf(totalLandlords));
+            }
+            
+            // Lấy room stats
+            Object roomsObj = stats.get("rooms");
+            if (roomsObj instanceof java.util.Map) {
+                java.util.Map<String, Object> rooms = (java.util.Map<String, Object>) roomsObj;
+                Object totalRooms = rooms.get("totalRooms");
+                if (tvTotalRooms != null) {
+                    tvTotalRooms.setText(totalRooms != null ? totalRooms.toString() : "0");
+                }
+            }
+            
+            // Lấy revenue từ payments
+            Object paymentsObj = stats.get("payments");
+            if (paymentsObj instanceof java.util.Map) {
+                java.util.Map<String, Object> payments = (java.util.Map<String, Object>) paymentsObj;
+                Object totalAmount = payments.get("totalAmount");
+                if (tvTotalRevenue != null) {
+                    if (totalAmount != null) {
+                        tvTotalRevenue.setText(totalAmount.toString() + " VNĐ");
+                    } else {
+                        tvTotalRevenue.setText("0 VNĐ");
+                    }
+                }
             }
         }
     }

@@ -60,6 +60,11 @@
                 <data android:scheme="com.example.appquanlytimtro" android:host="vnpay" />
             </intent-filter>
         </activity>
+        
+        <activity
+            android:name=".payments.VNPayWebViewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.QuanLyTimTro" />
             
         <activity
             android:name=".landlord.EditRoomActivity"

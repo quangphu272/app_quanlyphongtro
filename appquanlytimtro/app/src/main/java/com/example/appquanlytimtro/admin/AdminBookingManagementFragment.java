@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+import com.google.android.material.chip.Chip;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,13 +35,16 @@ public class AdminBookingManagementFragment extends Fragment implements AdminBoo
 
     private RetrofitClient retrofitClient;
     private List<Booking> bookings;
+    private List<Booking> allBookings; // Store all bookings for filtering
     private AdminBookingAdapter bookingAdapter;
+    private String currentFilter = null; // Current filter status
     
     // Views
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ProgressBar progressBar;
     private View emptyView;
+    private Chip chipAll, chipPending, chipConfirmed, chipPaid, chipActive, chipCompleted, chipCancelled;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,6 +60,7 @@ public class AdminBookingManagementFragment extends Fragment implements AdminBoo
         initViews(view);
         setupRecyclerView();
         setupSwipeRefresh();
+        setupFilterChips();
         
         loadBookings();
         
@@ -67,10 +72,20 @@ public class AdminBookingManagementFragment extends Fragment implements AdminBoo
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         progressBar = view.findViewById(R.id.progressBar);
         emptyView = view.findViewById(R.id.emptyView);
+        
+        // Filter chips
+        chipAll = view.findViewById(R.id.chipAll);
+        chipPending = view.findViewById(R.id.chipPending);
+        chipConfirmed = view.findViewById(R.id.chipConfirmed);
+        chipPaid = view.findViewById(R.id.chipPaid);
+        chipActive = view.findViewById(R.id.chipActive);
+        chipCompleted = view.findViewById(R.id.chipCompleted);
+        chipCancelled = view.findViewById(R.id.chipCancelled);
     }
 
     private void setupRecyclerView() {
         bookings = new ArrayList<>();
+        allBookings = new ArrayList<>();
         bookingAdapter = new AdminBookingAdapter(bookings, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(bookingAdapter);
@@ -84,6 +99,44 @@ public class AdminBookingManagementFragment extends Fragment implements AdminBoo
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light
         );
+    }
+
+    private void setupFilterChips() {
+        chipAll.setOnClickListener(v -> filterBookings(null));
+        chipPending.setOnClickListener(v -> filterBookings("pending"));
+        chipConfirmed.setOnClickListener(v -> filterBookings("confirmed"));
+        chipPaid.setOnClickListener(v -> filterBookings("deposit_paid"));
+        chipActive.setOnClickListener(v -> filterBookings("active"));
+        chipCompleted.setOnClickListener(v -> filterBookings("completed"));
+        chipCancelled.setOnClickListener(v -> filterBookings("cancelled"));
+    }
+
+    private void filterBookings(String status) {
+        currentFilter = status;
+        
+        // Update chip states
+        chipAll.setChecked(status == null);
+        chipPending.setChecked("pending".equals(status));
+        chipConfirmed.setChecked("confirmed".equals(status));
+        chipPaid.setChecked("deposit_paid".equals(status));
+        chipActive.setChecked("active".equals(status));
+        chipCompleted.setChecked("completed".equals(status));
+        chipCancelled.setChecked("cancelled".equals(status));
+        
+        // Filter bookings
+        bookings.clear();
+        if (status == null) {
+            bookings.addAll(allBookings);
+        } else {
+            for (Booking booking : allBookings) {
+                if (status.equals(booking.getStatus())) {
+                    bookings.add(booking);
+                }
+            }
+        }
+        
+        bookingAdapter.notifyDataSetChanged();
+        updateEmptyView();
     }
 
     private void loadBookings() {
@@ -105,16 +158,17 @@ public class AdminBookingManagementFragment extends Fragment implements AdminBoo
                         List<?> bookingsData = (List<?>) data.get("bookings");
                         
                         if (bookingsData != null) {
-                            bookings.clear();
+                            allBookings.clear();
                             Gson gson = new Gson();
                             for (Object bookingObj : bookingsData) {
                                 if (bookingObj instanceof Map) {
                                     Booking booking = gson.fromJson(gson.toJson(bookingObj), Booking.class);
-                                    bookings.add(booking);
+                                    allBookings.add(booking);
                                 }
                             }
-                            bookingAdapter.notifyDataSetChanged();
-                            updateEmptyView();
+                            
+                            // Apply current filter
+                            filterBookings(currentFilter);
                         }
                     } else {
                         showError(apiResponse.getMessage());
@@ -177,6 +231,113 @@ public class AdminBookingManagementFragment extends Fragment implements AdminBoo
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
+    }
+
+    @Override
+    public void onAcceptBooking(Booking booking) {
+        // Check current status first
+        checkBookingStatus(booking.getId(), "confirmed", "Bạn có chắc chắn muốn chấp nhận đặt phòng này?");
+    }
+
+    @Override
+    public void onRejectBooking(Booking booking) {
+        // Check current status first
+        checkBookingStatus(booking.getId(), "cancelled", "Bạn có chắc chắn muốn từ chối đặt phòng này?");
+    }
+
+    private void checkBookingStatus(String bookingId, String newStatus, String confirmMessage) {
+        showLoading(true);
+        
+        String token = "Bearer " + retrofitClient.getToken();
+        retrofitClient.getApiService().getBookingStatus(token, bookingId).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
+                showLoading(false);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<Map<String, Object>> apiResponse = response.body();
+                    
+                    if (apiResponse.isSuccess() && apiResponse.getData() != null) {
+                        Map<String, Object> data = apiResponse.getData();
+                        String currentStatus = (String) data.get("currentStatus");
+                        Boolean canBeCancelled = (Boolean) data.get("canBeCancelled");
+                        Boolean canBeConfirmed = (Boolean) data.get("canBeConfirmed");
+                        
+                        // Check if action is allowed
+                        boolean canPerformAction = false;
+                        if (newStatus.equals("confirmed")) {
+                            canPerformAction = canBeConfirmed;
+                        } else if (newStatus.equals("cancelled")) {
+                            canPerformAction = canBeCancelled;
+                        }
+                        
+                        if (canPerformAction) {
+                            // Show confirmation dialog
+                            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                                    .setTitle("Xác nhận")
+                                    .setMessage(confirmMessage)
+                                    .setPositiveButton("Xác nhận", (dialog, which) -> {
+                                        updateBookingStatus(bookingId, newStatus);
+                                    })
+                                    .setNegativeButton("Hủy", null)
+                                    .show();
+                        } else {
+                            String errorMessage = "Không thể thực hiện hành động này. Trạng thái hiện tại: " + currentStatus;
+                            if (newStatus.equals("confirmed")) {
+                                errorMessage += ". Chỉ có thể xác nhận booking đang ở trạng thái pending.";
+                            } else if (newStatus.equals("cancelled")) {
+                                errorMessage += ". Chỉ có thể hủy booking ở trạng thái: pending, confirmed, deposit_paid.";
+                            }
+                            showError(errorMessage);
+                        }
+                    } else {
+                        showError(apiResponse.getMessage());
+                    }
+                } else {
+                    showError("Không thể kiểm tra trạng thái booking");
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
+                showLoading(false);
+                showError("Lỗi kết nối: " + t.getMessage());
+            }
+        });
+    }
+
+    private void updateBookingStatus(String bookingId, String newStatus) {
+        showLoading(true);
+        
+        String token = "Bearer " + retrofitClient.getToken();
+        java.util.Map<String, String> statusUpdate = new java.util.HashMap<>();
+        statusUpdate.put("status", newStatus);
+        
+        retrofitClient.getApiService().updateBookingStatus(token, bookingId, statusUpdate).enqueue(new Callback<ApiResponse<Booking>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Booking>> call, Response<ApiResponse<Booking>> response) {
+                showLoading(false);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<Booking> apiResponse = response.body();
+                    if (apiResponse.isSuccess()) {
+                        String message = newStatus.equals("confirmed") ? "Chấp nhận đặt phòng thành công" : "Từ chối đặt phòng thành công";
+                        showError(message);
+                        loadBookings(); // Reload list
+                    } else {
+                        showError(apiResponse.getMessage());
+                    }
+                } else {
+                    showError("Không thể cập nhật trạng thái đặt phòng");
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<ApiResponse<Booking>> call, Throwable t) {
+                showLoading(false);
+                showError("Lỗi kết nối: " + t.getMessage());
+            }
+        });
     }
 
     private void deleteBooking(String bookingId) {

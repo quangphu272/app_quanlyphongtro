@@ -35,6 +35,14 @@ public class PaymentActivity extends AppCompatActivity {
     private Booking booking;
     private User currentUser;
     private RetrofitClient retrofitClient;
+    
+    // Booking details for payment calculation
+    private long checkInDate = 0;
+    private long checkOutDate = 0;
+    private int durationMonths = 0;
+    private double monthlyRent = 0;
+    private double deposit = 0;
+    private double utilitiesAmount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +87,14 @@ public class PaymentActivity extends AppCompatActivity {
             String roomId = intent.getStringExtra("room_id");
             String bookingId = intent.getStringExtra("booking_id");
             
+            // Get booking details from intent
+            long checkInDate = intent.getLongExtra("check_in_date", 0);
+            long checkOutDate = intent.getLongExtra("check_out_date", 0);
+            int durationMonths = intent.getIntExtra("duration_months", 0);
+            double monthlyRent = intent.getDoubleExtra("monthly_rent", 0);
+            double deposit = intent.getDoubleExtra("deposit", 0);
+            double utilitiesAmount = intent.getDoubleExtra("utilities_amount", 0);
+            
             if (roomId != null) {
                 loadRoomDetails(roomId);
             }
@@ -86,6 +102,39 @@ public class PaymentActivity extends AppCompatActivity {
             if (bookingId != null) {
                 loadBookingDetails(bookingId);
             }
+            
+            // Store booking details for payment calculation
+            if (checkInDate > 0 && checkOutDate > 0) {
+                storeBookingDetails(checkInDate, checkOutDate, durationMonths, monthlyRent, deposit, utilitiesAmount);
+            }
+        }
+    }
+    
+    private void storeBookingDetails(long checkInDate, long checkOutDate, int durationMonths, 
+                                   double monthlyRent, double deposit, double utilitiesAmount) {
+        this.checkInDate = checkInDate;
+        this.checkOutDate = checkOutDate;
+        this.durationMonths = durationMonths;
+        this.monthlyRent = monthlyRent;
+        this.deposit = deposit;
+        this.utilitiesAmount = utilitiesAmount;
+        
+        // Update UI with booking details
+        updateBookingDetailsUI();
+    }
+    
+    private void updateBookingDetailsUI() {
+        if (checkInDate > 0 && checkOutDate > 0) {
+            // Format dates
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
+            tvCheckIn.setText(sdf.format(new java.util.Date(checkInDate)));
+            tvCheckOut.setText(sdf.format(new java.util.Date(checkOutDate)));
+            
+            // Calculate and display amounts
+            double totalAmount = (monthlyRent * durationMonths) + deposit + utilitiesAmount;
+            java.text.NumberFormat formatter = java.text.NumberFormat.getNumberInstance(java.util.Locale.getDefault());
+            tvTotalAmount.setText("Tổng cộng: " + formatter.format(totalAmount) + " VNĐ");
+            tvDepositAmount.setText("Thanh toán tiền cọc: " + formatter.format(deposit) + " VNĐ");
         }
     }
     
@@ -214,8 +263,19 @@ public class PaymentActivity extends AppCompatActivity {
     private void proceedWithPayment() {
         // Create payment request
         String orderId = "ORDER_" + System.currentTimeMillis();
-        String orderInfo = "Thanh toan phong tro: " + room.getTitle();
-        long amount = (long)room.getPrice().getDeposit(); // Pay deposit first
+        String orderInfo = "Thanh toan phong tro: " + (room != null ? room.getTitle() : "Phòng trọ");
+        
+        // Calculate amount to pay - ONLY DEPOSIT
+        double amountToPay = 0;
+        if (checkInDate > 0 && checkOutDate > 0) {
+            // Use actual booking details - only deposit
+            amountToPay = deposit;
+        } else if (room != null) {
+            // Fallback to room price - only deposit
+            amountToPay = room.getPrice().getDeposit();
+        }
+        
+        long amount = (long) amountToPay;
         
         VNPayService.PaymentRequest paymentRequest = new VNPayService.PaymentRequest(
             orderId,
@@ -224,8 +284,8 @@ public class PaymentActivity extends AppCompatActivity {
             "127.0.0.1" // In real app, get actual IP address
         );
         
-        // Open VNPay payment
-        VNPayService.openPayment(this, paymentRequest);
+        // Open VNPay payment in WebView
+        VNPayService.openPayment(this, paymentRequest, 1001);
     }
     
     private void processPayment() {
@@ -246,11 +306,32 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
+            boolean paymentSuccess = data.getBooleanExtra("payment_success", false);
+            String paymentMessage = data.getStringExtra("payment_message");
+            String transactionId = data.getStringExtra("transaction_id");
+            String orderId = data.getStringExtra("order_id");
+            long amount = data.getLongExtra("amount", 0);
+            
+            if (paymentSuccess) {
+                Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
+                // Create booking record
+                createBookingRecord();
+            } else {
+                Toast.makeText(this, "Thanh toán thất bại: " + paymentMessage, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+    
+    @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
         
-        // Handle VNPay return URL
+        // Handle VNPay return URL (fallback for browser-based payment)
         Uri uri = intent.getData();
         if (uri != null && uri.getScheme().equals("com.example.appquanlytimtro") && uri.getHost().equals("vnpay")) {
             handlePaymentResult(uri);
@@ -265,7 +346,7 @@ public class PaymentActivity extends AppCompatActivity {
             Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
             
             // Create booking record
-            createBookingRecord(response);
+            createBookingRecord();
             
         } else {
             // Payment failed
@@ -273,7 +354,7 @@ public class PaymentActivity extends AppCompatActivity {
         }
     }
     
-    private void createBookingRecord(VNPayService.PaymentResponse paymentResponse) {
+    private void createBookingRecord() {
         showLoading(true);
         
         // Create booking object
@@ -290,21 +371,53 @@ public class PaymentActivity extends AppCompatActivity {
         
         // Set booking details
         Booking.BookingDetails bookingDetails = new Booking.BookingDetails();
-        try {
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
-            bookingDetails.setCheckInDate(sdf.parse("2025-01-01"));
-            bookingDetails.setCheckOutDate(sdf.parse("2025-02-01"));
-        } catch (java.text.ParseException e) {
-            // If parsing fails, set to current date
-            bookingDetails.setCheckInDate(new java.util.Date());
-            bookingDetails.setCheckOutDate(new java.util.Date());
+        if (checkInDate > 0 && checkOutDate > 0) {
+            // Use actual booking dates
+            bookingDetails.setCheckInDate(new java.util.Date(checkInDate));
+            bookingDetails.setCheckOutDate(new java.util.Date(checkOutDate));
+            bookingDetails.setDuration(durationMonths);
+        } else {
+            // Fallback to default dates
+            try {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+                bookingDetails.setCheckInDate(sdf.parse("2025-01-01"));
+                bookingDetails.setCheckOutDate(sdf.parse("2025-02-01"));
+                bookingDetails.setDuration(1);
+            } catch (java.text.ParseException e) {
+                // If parsing fails, set to current date
+                bookingDetails.setCheckInDate(new java.util.Date());
+                bookingDetails.setCheckOutDate(new java.util.Date());
+                bookingDetails.setDuration(1);
+            }
         }
         booking.setBookingDetails(bookingDetails);
         
         // Set pricing
         Booking.Pricing pricing = new Booking.Pricing();
-        pricing.setTotalAmount(room.getPrice().getMonthly());
-        pricing.setDeposit(room.getPrice().getDeposit());
+        if (checkInDate > 0 && checkOutDate > 0) {
+            // Use actual booking pricing
+            double totalAmount = (monthlyRent * durationMonths) + deposit + utilitiesAmount;
+            pricing.setTotalAmount(totalAmount);
+            pricing.setMonthlyRent(monthlyRent);
+            pricing.setDeposit(deposit);
+            pricing.setUtilities(utilitiesAmount);
+        } else {
+            // Fallback to room pricing
+            double roomDeposit = room.getPrice().getDeposit();
+            double roomMonthly = room.getPrice().getMonthly();
+            double roomUtilities = 0;
+            Room.Utilities utilities = room.getPrice().getUtilities();
+            if (utilities != null) {
+                roomUtilities = utilities.getElectricity() + utilities.getWater() + 
+                               utilities.getInternet() + utilities.getOther();
+            }
+            double roomTotal = roomMonthly + roomDeposit + roomUtilities;
+            
+            pricing.setTotalAmount(roomTotal);
+            pricing.setMonthlyRent(roomMonthly);
+            pricing.setDeposit(roomDeposit);
+            pricing.setUtilities(roomUtilities);
+        }
         booking.setPricing(pricing);
         
         // Set status
@@ -320,25 +433,61 @@ public class PaymentActivity extends AppCompatActivity {
         
         // Booking details
         java.util.Map<String, Object> bookingDetailsMap = new java.util.HashMap<>();
-        bookingDetailsMap.put("checkInDate", "2025-01-01");
-        bookingDetailsMap.put("checkOutDate", "2025-02-01");
-        bookingDetailsMap.put("duration", 1);
+        
+        // Convert Date objects to ISO string format
+        java.text.SimpleDateFormat isoFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault());
+        isoFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+        
+        // Ensure dates are set to start of day in local timezone, then convert to UTC
+        java.util.Calendar localCheckIn = java.util.Calendar.getInstance();
+        localCheckIn.setTime(bookingDetails.getCheckInDate());
+        localCheckIn.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        localCheckIn.set(java.util.Calendar.MINUTE, 0);
+        localCheckIn.set(java.util.Calendar.SECOND, 0);
+        localCheckIn.set(java.util.Calendar.MILLISECOND, 0);
+        
+        java.util.Calendar localCheckOut = java.util.Calendar.getInstance();
+        localCheckOut.setTime(bookingDetails.getCheckOutDate());
+        localCheckOut.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        localCheckOut.set(java.util.Calendar.MINUTE, 0);
+        localCheckOut.set(java.util.Calendar.SECOND, 0);
+        localCheckOut.set(java.util.Calendar.MILLISECOND, 0);
+        
+        String checkInDateStr = isoFormat.format(localCheckIn.getTime());
+        String checkOutDateStr = isoFormat.format(localCheckOut.getTime());
+        
+        bookingDetailsMap.put("checkInDate", checkInDateStr);
+        bookingDetailsMap.put("checkOutDate", checkOutDateStr);
+        bookingDetailsMap.put("duration", bookingDetails.getDuration());
         bookingDetailsMap.put("numberOfOccupants", 1);
         bookingRequest.put("bookingDetails", bookingDetailsMap);
         
         // Pricing
         java.util.Map<String, Object> pricingMap = new java.util.HashMap<>();
-        pricingMap.put("deposit", room.getPrice().getDeposit());
-        pricingMap.put("monthlyRent", room.getPrice().getMonthly());
-        pricingMap.put("totalAmount", room.getPrice().getMonthly());
-        // Convert utilities to number
-        double utilitiesAmount = 0;
-        Room.Utilities utilities = room.getPrice().getUtilities();
-        if (utilities != null) {
-            utilitiesAmount = utilities.getElectricity() + utilities.getWater() + 
-                             utilities.getInternet() + utilities.getOther();
+        if (checkInDate > 0 && checkOutDate > 0) {
+            // Use actual booking pricing
+            double totalAmount = (monthlyRent * durationMonths) + deposit + utilitiesAmount;
+            pricingMap.put("deposit", deposit);
+            pricingMap.put("monthlyRent", monthlyRent);
+            pricingMap.put("totalAmount", totalAmount);
+            pricingMap.put("utilities", utilitiesAmount);
+        } else {
+            // Fallback to room pricing
+            double roomDeposit = room.getPrice().getDeposit();
+            double roomMonthly = room.getPrice().getMonthly();
+            double roomUtilities = 0;
+            Room.Utilities utilities = room.getPrice().getUtilities();
+            if (utilities != null) {
+                roomUtilities = utilities.getElectricity() + utilities.getWater() + 
+                               utilities.getInternet() + utilities.getOther();
+            }
+            double roomTotal = roomMonthly + roomDeposit + roomUtilities;
+            
+            pricingMap.put("deposit", roomDeposit);
+            pricingMap.put("monthlyRent", roomMonthly);
+            pricingMap.put("totalAmount", roomTotal);
+            pricingMap.put("utilities", roomUtilities);
         }
-        pricingMap.put("utilities", utilitiesAmount);
         bookingRequest.put("pricing", pricingMap);
         
         // Notes

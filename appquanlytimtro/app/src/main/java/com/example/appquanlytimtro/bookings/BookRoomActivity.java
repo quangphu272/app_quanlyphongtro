@@ -74,6 +74,16 @@ public class BookRoomActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent != null) {
             roomId = intent.getStringExtra("room_id");
+            
+            // Check if room object is passed
+            if (intent.hasExtra("room_object")) {
+                room = (Room) intent.getSerializableExtra("room_object");
+                if (room != null) {
+                    displayRoomInfo();
+                    calculateTotalAmount();
+                }
+            }
+            
             if (roomId != null) {
                 loadRoomDetails();
             } else {
@@ -324,8 +334,35 @@ public class BookRoomActivity extends AppCompatActivity {
         
         // Booking details
         java.util.Map<String, Object> bookingDetailsMap = new java.util.HashMap<>();
-        bookingDetailsMap.put("checkInDate", bookingDetails.getCheckInDate());
-        bookingDetailsMap.put("checkOutDate", bookingDetails.getCheckOutDate());
+        
+        // Convert Date objects to ISO string format
+        java.text.SimpleDateFormat isoFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault());
+        isoFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+        
+        // Ensure dates are set to start of day in local timezone, then convert to UTC
+        java.util.Calendar localCheckIn = java.util.Calendar.getInstance();
+        localCheckIn.setTime(bookingDetails.getCheckInDate());
+        localCheckIn.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        localCheckIn.set(java.util.Calendar.MINUTE, 0);
+        localCheckIn.set(java.util.Calendar.SECOND, 0);
+        localCheckIn.set(java.util.Calendar.MILLISECOND, 0);
+        
+        java.util.Calendar localCheckOut = java.util.Calendar.getInstance();
+        localCheckOut.setTime(bookingDetails.getCheckOutDate());
+        localCheckOut.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        localCheckOut.set(java.util.Calendar.MINUTE, 0);
+        localCheckOut.set(java.util.Calendar.SECOND, 0);
+        localCheckOut.set(java.util.Calendar.MILLISECOND, 0);
+        
+        String checkInDateStr = isoFormat.format(localCheckIn.getTime());
+        String checkOutDateStr = isoFormat.format(localCheckOut.getTime());
+        
+        // Debug logging
+        android.util.Log.d("BookRoomActivity", "Check-in date: " + checkInDateStr);
+        android.util.Log.d("BookRoomActivity", "Check-out date: " + checkOutDateStr);
+        
+        bookingDetailsMap.put("checkInDate", checkInDateStr);
+        bookingDetailsMap.put("checkOutDate", checkOutDateStr);
         bookingDetailsMap.put("duration", durationMonths);
         bookingDetailsMap.put("numberOfOccupants", 1); // Set default value
         bookingRequest.put("bookingDetails", bookingDetailsMap);
@@ -362,10 +399,28 @@ public class BookRoomActivity extends AppCompatActivity {
                         Booking createdBooking = apiResponse.getData();
                         Toast.makeText(BookRoomActivity.this, "Đặt phòng thành công!", Toast.LENGTH_SHORT).show();
                         
-                        // Navigate to payment
+                        // Navigate to payment - ONLY DEPOSIT
                         Intent intent = new Intent(BookRoomActivity.this, PaymentActivity.class);
                         intent.putExtra("booking_id", createdBooking.getId());
-                        intent.putExtra("amount", totalAmount);
+                        intent.putExtra("room_id", roomId);
+                        intent.putExtra("amount", room.getPrice().getDeposit()); // Only deposit amount
+                        
+                        // Pass booking details for payment calculation
+                        intent.putExtra("check_in_date", bookingDetails.getCheckInDate().getTime());
+                        intent.putExtra("check_out_date", bookingDetails.getCheckOutDate().getTime());
+                        intent.putExtra("duration_months", durationMonths);
+                        intent.putExtra("monthly_rent", room.getPrice().getMonthly());
+                        intent.putExtra("deposit", room.getPrice().getDeposit());
+                        
+                        // Calculate utilities amount
+                        double utilitiesAmount = 0;
+                        Room.Utilities utilities = room.getPrice().getUtilities();
+                        if (utilities != null) {
+                            utilitiesAmount = utilities.getElectricity() + utilities.getWater() + 
+                                             utilities.getInternet() + utilities.getOther();
+                        }
+                        intent.putExtra("utilities_amount", utilitiesAmount);
+                        
                         startActivity(intent);
                         finish();
                     } else {

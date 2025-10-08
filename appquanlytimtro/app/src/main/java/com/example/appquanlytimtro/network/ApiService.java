@@ -126,6 +126,9 @@ public interface ApiService {
     @GET("bookings/{id}")
     Call<ApiResponse<Booking>> getBooking(@Header("Authorization") String token, @Path("id") String bookingId);
     
+    @GET("bookings/{id}/status")
+    Call<ApiResponse<Map<String, Object>>> getBookingStatus(@Header("Authorization") String token, @Path("id") String bookingId);
+    
     @POST("bookings")
     Call<ApiResponse<Booking>> createBooking(@Header("Authorization") String token, @Body Map<String, Object> booking);
     
@@ -200,7 +203,7 @@ public interface ApiService {
     Call<ApiResponse<Void>> markAllNotificationsAsRead(@Header("Authorization") String token);
     
     // Statistics endpoints
-    @GET("statistics/overview")
+    @GET("statistics/dashboard")
     Call<ApiResponse<Map<String, Object>>> getStatisticsOverview(@Header("Authorization") String token);
     
     @GET("statistics/revenue")

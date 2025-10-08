@@ -89,6 +89,7 @@ public class TenantHomeFragment extends Fragment {
     private void setupClickListeners() {
         cardSearchRooms.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), RoomListActivity.class);
+            intent.putExtra("show_available_only", true); // Chỉ hiển thị phòng có sẵn
             startActivity(intent);
         });
 

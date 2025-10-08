@@ -27,6 +27,8 @@ public class LandlordBookingAdapter extends RecyclerView.Adapter<LandlordBooking
         void onConfirmBooking(Booking booking);
         void onCancelBooking(Booking booking);
         void onViewBookingDetails(Booking booking);
+        void onAcceptBooking(Booking booking);
+        void onRejectBooking(Booking booking);
     }
 
     public LandlordBookingAdapter(List<Booking> bookings, OnBookingActionListener listener) {
@@ -64,6 +66,8 @@ public class LandlordBookingAdapter extends RecyclerView.Adapter<LandlordBooking
         private MaterialButton btnConfirm;
         private MaterialButton btnCancel;
         private MaterialButton btnViewDetails;
+        private MaterialButton btnAccept;
+        private MaterialButton btnReject;
 
         public LandlordBookingViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -77,6 +81,8 @@ public class LandlordBookingAdapter extends RecyclerView.Adapter<LandlordBooking
             btnConfirm = itemView.findViewById(R.id.btnConfirm);
             btnCancel = itemView.findViewById(R.id.btnCancel);
             btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
+            btnAccept = itemView.findViewById(R.id.btnAccept);
+            btnReject = itemView.findViewById(R.id.btnReject);
         }
 
         public void bind(Booking booking, OnBookingActionListener listener) {
@@ -118,14 +124,17 @@ public class LandlordBookingAdapter extends RecyclerView.Adapter<LandlordBooking
             // Reset button visibility
             btnConfirm.setVisibility(View.GONE);
             btnCancel.setVisibility(View.GONE);
+            btnAccept.setVisibility(View.GONE);
+            btnReject.setVisibility(View.GONE);
             btnViewDetails.setVisibility(View.VISIBLE);
 
             switch (status) {
                 case "pending":
-                    btnConfirm.setVisibility(View.VISIBLE);
-                    btnCancel.setVisibility(View.VISIBLE);
-                    btnConfirm.setText("Xác nhận");
-                    btnCancel.setText("Từ chối");
+                    // Show accept/reject buttons for pending bookings
+                    btnAccept.setVisibility(View.VISIBLE);
+                    btnReject.setVisibility(View.VISIBLE);
+                    btnAccept.setText("Chấp nhận");
+                    btnReject.setText("Từ chối");
                     break;
                 case "confirmed":
                     btnCancel.setVisibility(View.VISIBLE);
@@ -157,6 +166,18 @@ public class LandlordBookingAdapter extends RecyclerView.Adapter<LandlordBooking
             btnViewDetails.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onViewBookingDetails(booking);
+                }
+            });
+
+            btnAccept.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onAcceptBooking(booking);
+                }
+            });
+
+            btnReject.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onRejectBooking(booking);
                 }
             });
         }

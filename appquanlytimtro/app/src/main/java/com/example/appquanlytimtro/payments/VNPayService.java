@@ -123,7 +123,7 @@ public class VNPayService {
             expireDate.add(Calendar.MINUTE, 15);
             vnpParams.put("vnp_ExpireDate", dateFormat.format(expireDate.getTime()));
             
-            // Sort parameters and create query string
+            // Sort parameters and create query string (without hash)
             String queryString = createQueryString(vnpParams);
             
             // Create secure hash
@@ -132,7 +132,7 @@ public class VNPayService {
             Log.d(TAG, "Generated secure hash: " + secureHash);
             vnpParams.put("vnp_SecureHash", secureHash);
             
-            // Create final query string
+            // Create final query string (with hash)
             String finalQueryString = createQueryString(vnpParams);
             Log.d(TAG, "Final payment URL: " + VNPAY_URL + "?" + finalQueryString);
             
@@ -208,13 +208,34 @@ public class VNPayService {
     }
     
     /**
-     * Mở trình duyệt để thanh toán
+     * Mở thanh toán VNPay trong WebView
      */
     public static void openPayment(Context context, PaymentRequest request) {
         String paymentUrl = createPaymentUrl(request);
+        
         if (paymentUrl != null) {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(paymentUrl));
+            Intent intent = new Intent(context, VNPayWebViewActivity.class);
+            intent.putExtra("payment_url", paymentUrl);
             context.startActivity(intent);
+        } else {
+            Log.e(TAG, "Failed to create payment URL");
+        }
+    }
+    
+    /**
+     * Mở thanh toán VNPay trong WebView với callback
+     */
+    public static void openPayment(Context context, PaymentRequest request, int requestCode) {
+        String paymentUrl = createPaymentUrl(request);
+        
+        if (paymentUrl != null) {
+            Intent intent = new Intent(context, VNPayWebViewActivity.class);
+            intent.putExtra("payment_url", paymentUrl);
+            if (context instanceof android.app.Activity) {
+                ((android.app.Activity) context).startActivityForResult(intent, requestCode);
+            } else {
+                context.startActivity(intent);
+            }
         } else {
             Log.e(TAG, "Failed to create payment URL");
         }
@@ -235,9 +256,19 @@ public class VNPayService {
             String paramValue = params.get(paramName);
             
             if (paramValue != null && !paramValue.isEmpty()) {
-                queryString.append(paramName).append("=").append(paramValue);
-                if (iterator.hasNext()) {
-                    queryString.append("&");
+                try {
+                    // URL encode parameter values
+                    String encodedValue = URLEncoder.encode(paramValue, "UTF-8");
+                    queryString.append(paramName).append("=").append(encodedValue);
+                    if (iterator.hasNext()) {
+                        queryString.append("&");
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    Log.e(TAG, "Error encoding parameter: " + e.getMessage());
+                    queryString.append(paramName).append("=").append(paramValue);
+                    if (iterator.hasNext()) {
+                        queryString.append("&");
+                    }
                 }
             }
         }

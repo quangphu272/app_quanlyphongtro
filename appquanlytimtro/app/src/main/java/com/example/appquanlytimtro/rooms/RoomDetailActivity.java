@@ -46,7 +46,7 @@ public class RoomDetailActivity extends AppCompatActivity {
     private TextView tvTitle, tvAddress, tvPrice, tvArea, tvRoomType, tvDescription;
     private TextView tvContactInfo, tvRating, tvViews;
     private LinearLayout layoutAmenities, layoutRules;
-    private Button btnBook, btnLike, btnContact;
+    private Button btnBook, btnCancel;
     private ProgressBar progressBar;
     
     @Override
@@ -63,6 +63,16 @@ public class RoomDetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent != null) {
             roomId = intent.getStringExtra("room_id");
+            
+            // Check if room object is passed
+            if (intent.hasExtra("room_object")) {
+                room = (Room) intent.getSerializableExtra("room_object");
+                if (room != null) {
+                    displayRoomDetails();
+                    setupClickListeners();
+                }
+            }
+            
             if (roomId != null) {
                 loadRoomDetails();
             } else {
@@ -88,8 +98,7 @@ public class RoomDetailActivity extends AppCompatActivity {
         layoutAmenities = findViewById(R.id.layoutAmenities);
         layoutRules = findViewById(R.id.layoutRules);
         btnBook = findViewById(R.id.btnBook);
-        btnLike = findViewById(R.id.btnLike);
-        btnContact = findViewById(R.id.btnContact);
+        btnCancel = findViewById(R.id.btnCancel);
         progressBar = findViewById(R.id.progressBar);
     }
     
@@ -266,49 +275,16 @@ public class RoomDetailActivity extends AppCompatActivity {
             // Navigate to booking activity
             Intent intent = new Intent(this, com.example.appquanlytimtro.bookings.BookRoomActivity.class);
             intent.putExtra("room_id", room.getId());
+            intent.putExtra("room_object", room); // Pass room object for booking details
             startActivity(intent);
         });
         
-        btnLike.setOnClickListener(v -> {
-            if (room != null) {
-                toggleLike();
-            }
-        });
-        
-        btnContact.setOnClickListener(v -> {
-            if (room != null && room.getContactInfo() != null) {
-                // Open contact options
-                Toast.makeText(this, "Chức năng liên hệ sẽ được phát triển", Toast.LENGTH_SHORT).show();
-            }
+        btnCancel.setOnClickListener(v -> {
+            // Handle cancel - go back
+            onBackPressed();
         });
     }
     
-    private void toggleLike() {
-        retrofitClient.getApiService().toggleRoomLike(retrofitClient.getToken(), room.getId())
-                .enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
-                    @Override
-                    public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            ApiResponse<Map<String, Object>> apiResponse = response.body();
-                            if (apiResponse.isSuccess()) {
-                                Map<String, Object> data = apiResponse.getData();
-                                boolean isLiked = (Boolean) data.get("isLiked");
-                                int likesCount = ((Double) data.get("likesCount")).intValue();
-                                
-                                btnLike.setText(isLiked ? "Đã thích" : "Thích");
-                                Toast.makeText(RoomDetailActivity.this, 
-                                        isLiked ? "Đã thêm vào yêu thích" : "Đã bỏ yêu thích", 
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }
-                    
-                    @Override
-                    public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
-                        // Handle error silently
-                    }
-                });
-    }
     
     private String getRoomTypeText(String roomType) {
         if (roomType == null || roomType.isEmpty()) {

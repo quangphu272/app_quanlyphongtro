@@ -5,8 +5,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -40,6 +43,11 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
     private RetrofitClient retrofitClient;
     private boolean showMyRooms = false;
     private boolean showAvailableOnly = false;
+    
+    // Search views
+    private TextInputEditText etSearch;
+    private MaterialButton btnSearch;
+    private MaterialButton btnFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +56,7 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
         
         initViews();
         setupToolbar();
+        setupSearchListeners();
         
         retrofitClient = RetrofitClient.getInstance(this);
         
@@ -70,13 +79,18 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
         
         setupRecyclerView();
         setupSwipeRefresh();
-        loadRooms();
+        loadRooms("");
     }
     
     private void initViews() {
         recyclerView = findViewById(R.id.recyclerView);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         progressBar = findViewById(R.id.progressBar);
+        
+        // Search views
+        etSearch = findViewById(R.id.etSearch);
+        btnSearch = findViewById(R.id.btnSearch);
+        btnFilter = findViewById(R.id.btnFilter);
     }
     
     private void setupToolbar() {
@@ -96,7 +110,10 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
     }
     
     private void setupSwipeRefresh() {
-        swipeRefreshLayout.setOnRefreshListener(this::loadRooms);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            String searchQuery = etSearch.getText() != null ? etSearch.getText().toString().trim() : "";
+            loadRooms(searchQuery);
+        });
         swipeRefreshLayout.setColorSchemeResources(
                 android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
@@ -104,18 +121,45 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
                 android.R.color.holo_red_light
         );
     }
-    
-    private void loadRooms() {
+
+    private void setupSearchListeners() {
+        btnSearch.setOnClickListener(v -> performSearch());
+        btnFilter.setOnClickListener(v -> showFilterDialog());
+        
+        // Add search on Enter key press
+        etSearch.setOnEditorActionListener((v, actionId, event) -> {
+            performSearch();
+            return true;
+        });
+    }
+
+    private void performSearch() {
+        String searchQuery = etSearch.getText() != null ? etSearch.getText().toString().trim() : "";
+        loadRooms(searchQuery);
+    }
+
+    private void showFilterDialog() {
+        // TODO: Implement filter dialog
+        Toast.makeText(this, "Chức năng bộ lọc sẽ được phát triển", Toast.LENGTH_SHORT).show();
+    }
+
+    private void loadRooms(String searchQuery) {
         showLoading(true);
         
         Map<String, String> params = new HashMap<>();
         params.put("page", "1");
         params.put("limit", "20");
         
+        // Add search query if provided
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            params.put("search", searchQuery.trim());
+        }
+        
         // Add filter for available rooms only
         if (showAvailableOnly) {
             params.put("status", "active");
             params.put("available", "true");
+            params.put("excludeBooked", "true"); // Exclude rooms with pending bookings
         }
         
         Call<ApiResponse<Map<String, Object>>> call = null;
@@ -201,6 +245,7 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
     public void onRoomClick(Room room) {
         Intent intent = new Intent(this, RoomDetailActivity.class);
         intent.putExtra("room_id", room.getId());
+        intent.putExtra("room_object", room); // Pass room object for booking details
         startActivity(intent);
     }
     

@@ -190,6 +190,7 @@ public class RoomSearchActivity extends AppCompatActivity implements RoomAdapter
         // Add default filters
         queryParams.put("status", "active");
         queryParams.put("availability", "true");
+        queryParams.put("excludeBooked", "true"); // Exclude rooms with pending bookings
         
         android.util.Log.d("RoomSearchActivity", "Search params: " + queryParams);
         
@@ -270,6 +271,7 @@ public class RoomSearchActivity extends AppCompatActivity implements RoomAdapter
     public void onRoomClick(Room room) {
         Intent intent = new Intent(this, RoomDetailActivity.class);
         intent.putExtra("room_id", room.getId());
+        intent.putExtra("room_object", room); // Pass room object for booking details
         startActivity(intent);
     }
     

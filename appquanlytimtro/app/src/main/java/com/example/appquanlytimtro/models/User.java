@@ -1,8 +1,9 @@
 package com.example.appquanlytimtro.models;
 
 import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-public class User {
+public class User implements Serializable {
     @SerializedName("_id")
     private String id;
     
@@ -180,7 +181,7 @@ public class User {
     }
 
     // Nested classes
-    public static class Address {
+    public static class Address implements Serializable {
         @SerializedName("street")
         private String street;
         
@@ -239,7 +240,7 @@ public class User {
         }
     }
 
-    public static class Coordinates {
+    public static class Coordinates implements Serializable {
         @SerializedName("lat")
         private double lat;
         
@@ -265,7 +266,7 @@ public class User {
         }
     }
 
-    public static class LandlordInfo {
+    public static class LandlordInfo implements Serializable {
         @SerializedName("businessLicense")
         private String businessLicense;
         
@@ -302,7 +303,7 @@ public class User {
         }
     }
 
-    public static class BankAccount {
+    public static class BankAccount implements Serializable {
         @SerializedName("bankName")
         private String bankName;
         
@@ -339,7 +340,7 @@ public class User {
         }
     }
 
-    public static class TenantInfo {
+    public static class TenantInfo implements Serializable {
         @SerializedName("idCard")
         private String idCard;
         
@@ -387,7 +388,7 @@ public class User {
         }
     }
 
-    public static class EmergencyContact {
+    public static class EmergencyContact implements Serializable {
         @SerializedName("name")
         private String name;
         

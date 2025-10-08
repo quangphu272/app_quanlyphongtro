@@ -95,6 +95,15 @@ public class BookingListActivity extends AppCompatActivity implements BookingAda
         
         String token = "Bearer " + retrofitClient.getToken();
         java.util.Map<String, String> params = new java.util.HashMap<>();
+        // Chỉ lấy bookings của user hiện tại (tenant)
+        String userJson = retrofitClient.getUserData();
+        if (userJson != null) {
+            com.google.gson.Gson gson = new com.google.gson.Gson();
+            com.example.appquanlytimtro.models.User currentUser = gson.fromJson(userJson, com.example.appquanlytimtro.models.User.class);
+            if (currentUser != null) {
+                params.put("tenantId", currentUser.getId());
+            }
+        }
         retrofitClient.getApiService().getBookings(token, params).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
             @Override
             public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
@@ -184,10 +193,25 @@ public class BookingListActivity extends AppCompatActivity implements BookingAda
 
     @Override
     public void onPaymentClick(Booking booking) {
-        // Navigate to payment
+        // Navigate to payment - ONLY DEPOSIT
         Intent intent = new Intent(this, PaymentActivity.class);
         intent.putExtra("booking_id", booking.getId());
         intent.putExtra("room_id", booking.getRoom().getId());
+        
+        // Pass booking details for payment calculation
+        if (booking.getBookingDetails() != null) {
+            intent.putExtra("check_in_date", booking.getBookingDetails().getCheckInDate().getTime());
+            intent.putExtra("check_out_date", booking.getBookingDetails().getCheckOutDate().getTime());
+            intent.putExtra("duration_months", booking.getBookingDetails().getDuration());
+        }
+        
+        if (booking.getPricing() != null) {
+            intent.putExtra("monthly_rent", booking.getPricing().getMonthlyRent());
+            intent.putExtra("deposit", booking.getPricing().getDeposit());
+            intent.putExtra("utilities_amount", booking.getPricing().getUtilities());
+            intent.putExtra("amount", booking.getPricing().getDeposit()); // Only deposit amount
+        }
+        
         startActivity(intent);
     }
 

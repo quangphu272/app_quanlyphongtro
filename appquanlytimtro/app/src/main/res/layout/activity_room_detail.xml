@@ -28,82 +28,7 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Image ViewPager -->
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPagerImages"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-    <!-- Placeholder Image when no images -->
-    <LinearLayout
-        android:id="@+id/layoutPlaceholder"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:background="@color/surface_variant"
-        android:visibility="gone"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:src="@drawable/ic_room_placeholder"
-            android:tint="@color/text_hint" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Chưa có ảnh"
-            android:textSize="16sp"
-            android:textColor="@color/text_hint"
-            android:layout_marginTop="8dp" />
-
-    </LinearLayout>
-
-    <!-- Image Overlay -->
-    <LinearLayout
-        android:id="@+id/layoutImageOverlay"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@drawable/gradient_background"
-        android:padding="16dp"
-        app:layout_anchor="@id/viewPagerImages"
-        app:layout_anchorGravity="bottom|start">
-
-        <!-- Status Badge -->
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Còn trống"
-            android:textSize="12sp"
-            android:textColor="@color/white"
-            app:chipBackgroundColor="@color/success"
-            app:chipCornerRadius="12dp"
-            app:chipMinHeight="24dp" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-        <!-- Like Button -->
-        <ImageView
-            android:id="@+id/ivLike"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_favorite_border"
-            android:background="@drawable/card_background"
-            android:padding="6dp"
-            android:clickable="true"
-            android:focusable="true" />
-
-    </LinearLayout>
-
-    <!-- Scrollable Content -->
+    <!-- Main Content Container -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -113,9 +38,94 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="16dp"
-            android:paddingBottom="120dp">
+            android:orientation="vertical">
+
+            <!-- Image Section -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="300dp">
+
+                <!-- Image ViewPager -->
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/viewPagerImages"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <!-- Placeholder Image when no images -->
+                <LinearLayout
+                    android:id="@+id/layoutPlaceholder"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@color/surface_variant"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:src="@drawable/ic_room_placeholder"
+                        android:tint="@color/text_hint" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Chưa có ảnh"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_hint"
+                        android:layout_marginTop="8dp" />
+
+                </LinearLayout>
+
+                <!-- Image Overlay -->
+                <LinearLayout
+                    android:id="@+id/layoutImageOverlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/gradient_background"
+                    android:padding="16dp"
+                    android:layout_alignParentBottom="true">
+
+                    <!-- Status Badge -->
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Còn trống"
+                        android:textSize="12sp"
+                        android:textColor="@color/white"
+                        app:chipBackgroundColor="@color/success"
+                        app:chipCornerRadius="12dp"
+                        app:chipMinHeight="24dp" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <!-- Like Button -->
+                    <ImageView
+                        android:id="@+id/ivLike"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_favorite_border"
+                        android:background="@drawable/card_background"
+                        android:padding="6dp"
+                        android:clickable="true"
+                        android:focusable="true" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <!-- Content Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="16dp"
+                android:paddingBottom="160dp">
 
             <!-- Room Info Card -->
             <com.google.android.material.card.MaterialCardView
@@ -396,6 +406,8 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            </LinearLayout>
+
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
@@ -407,7 +419,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="32dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="8dp"
         app:cardBackgroundColor="@color/surface">
@@ -451,25 +463,14 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnLike"
+                    android:id="@+id/btnCancel"
                     android:layout_width="wrap_content"
                     android:layout_height="48dp"
                     android:layout_marginEnd="8dp"
-                    android:text="Thích"
+                    android:text="Hủy"
                     android:textSize="14sp"
                     style="@style/Button.Secondary"
-                    app:icon="@drawable/ic_favorite_border"
-                    app:iconSize="20dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnContact"
-                    android:layout_width="wrap_content"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="Liên hệ"
-                    android:textSize="14sp"
-                    style="@style/Button.Secondary"
-                    app:icon="@drawable/ic_phone"
+                    app:icon="@drawable/ic_close"
                     app:iconSize="20dp" />
 
                 <com.google.android.material.button.MaterialButton

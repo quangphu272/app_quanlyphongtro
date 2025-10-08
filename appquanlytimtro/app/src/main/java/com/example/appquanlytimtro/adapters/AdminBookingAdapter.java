@@ -26,6 +26,8 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
     public interface OnBookingActionListener {
         void onViewBookingDetails(Booking booking);
         void onDeleteBooking(Booking booking);
+        void onAcceptBooking(Booking booking);
+        void onRejectBooking(Booking booking);
     }
 
     public AdminBookingAdapter(List<Booking> bookings, OnBookingActionListener listener) {
@@ -63,6 +65,8 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
         private Chip chipStatus;
         private MaterialButton btnViewDetails;
         private MaterialButton btnDelete;
+        private MaterialButton btnAccept;
+        private MaterialButton btnReject;
 
         public AdminBookingViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -76,6 +80,8 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
             chipStatus = itemView.findViewById(R.id.chipStatus);
             btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
             btnDelete = itemView.findViewById(R.id.btnDelete);
+            btnAccept = itemView.findViewById(R.id.btnAccept);
+            btnReject = itemView.findViewById(R.id.btnReject);
         }
 
         public void bind(Booking booking, OnBookingActionListener listener) {
@@ -112,6 +118,9 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
             chipStatus.setText(getStatusText(booking.getStatus()));
             chipStatus.setChipBackgroundColorResource(getStatusColor(booking.getStatus()));
 
+            // Show/hide action buttons based on status
+            setupActionButtons(booking, listener);
+
             // Set click listeners
             btnViewDetails.setOnClickListener(v -> {
                 if (listener != null) {
@@ -124,6 +133,50 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
                     listener.onDeleteBooking(booking);
                 }
             });
+
+            btnAccept.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onAcceptBooking(booking);
+                }
+            });
+
+            btnReject.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onRejectBooking(booking);
+                }
+            });
+        }
+
+        private void setupActionButtons(Booking booking, OnBookingActionListener listener) {
+            String status = booking.getStatus();
+            
+            // Reset button visibility
+            btnAccept.setVisibility(View.GONE);
+            btnReject.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.GONE);
+            
+            switch (status) {
+                case "pending":
+                    // Show accept/reject buttons for pending bookings
+                    btnAccept.setVisibility(View.VISIBLE);
+                    btnReject.setVisibility(View.VISIBLE);
+                    btnAccept.setText("Chấp nhận");
+                    btnReject.setText("Từ chối");
+                    break;
+                case "confirmed":
+                case "deposit_paid":
+                case "active":
+                case "completed":
+                    // Show delete button for other statuses
+                    btnDelete.setVisibility(View.VISIBLE);
+                    btnDelete.setText("Xóa");
+                    break;
+                case "cancelled":
+                    // Show delete button for cancelled bookings
+                    btnDelete.setVisibility(View.VISIBLE);
+                    btnDelete.setText("Xóa");
+                    break;
+            }
         }
 
         private String getStatusText(String status) {
