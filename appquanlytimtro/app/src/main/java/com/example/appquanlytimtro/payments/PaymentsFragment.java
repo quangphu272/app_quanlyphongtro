@@ -61,7 +61,6 @@ public class PaymentsFragment extends Fragment {
         Map<String, String> params = new HashMap<>();
         params.put("page", "1");
         params.put("limit", "50");
-        // Role-aware fetching
         String userJson = client.getUserData();
         String token = "Bearer " + client.getToken();
         User user = null;
@@ -112,7 +111,6 @@ public class PaymentsFragment extends Fragment {
     }
 
     private void openDeposit() {
-        // Open deposit screen
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, new DepositFragment())

@@ -9,7 +9,6 @@ public class LoginResponse {
     @SerializedName("token")
     private String token;
 
-    // Constructors
     public LoginResponse() {}
 
     public LoginResponse(User user, String token) {
@@ -17,7 +16,6 @@ public class LoginResponse {
         this.token = token;
     }
 
-    // Getters and Setters
     public User getUser() {
         return user;
     }

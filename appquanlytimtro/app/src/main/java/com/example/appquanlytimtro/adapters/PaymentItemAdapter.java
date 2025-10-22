@@ -71,12 +71,10 @@ public class PaymentItemAdapter extends RecyclerView.Adapter<PaymentItemAdapter.
             });
         }
         
-        public void bind(PaymentItem item) {
-            // Hiển thị số tiền
+            public void bind(PaymentItem item) {
             NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
             tvAmount.setText(formatter.format(item.getAmount()) + " VNĐ");
             
-            // Hiển thị trạng thái với màu sắc
             chipStatus.setText(item.getStatusText());
             if (item.isBooking()) {
                 chipStatus.setChipBackgroundColorResource(R.color.warning);
@@ -97,10 +95,8 @@ public class PaymentItemAdapter extends RecyclerView.Adapter<PaymentItemAdapter.
                 }
             }
             
-            // Hiển thị phương thức thanh toán
             tvPaymentMethod.setText(item.getPaymentMethodText());
             
-            // Hiển thị ngày
             try {
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
                 SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
@@ -110,10 +106,8 @@ public class PaymentItemAdapter extends RecyclerView.Adapter<PaymentItemAdapter.
                 tvDate.setText(item.getInitiatedAt());
             }
             
-            // Hiển thị loại
             tvType.setText(item.isBooking() ? "Đặt phòng" : "Thanh toán");
             
-            // Hiển thị mô tả
             String description = "";
             if (item.isBooking()) {
                 description = "Đặt phòng chưa thanh toán";

@@ -44,7 +44,6 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
     private boolean showMyRooms = false;
     private boolean showAvailableOnly = false;
     
-    // Search views
     private TextInputEditText etSearch;
     private MaterialButton btnSearch;
     private MaterialButton btnFilter;
@@ -60,7 +59,6 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
         
         retrofitClient = RetrofitClient.getInstance(this);
         
-        // Check intent parameters
         Intent intent = getIntent();
         if (intent != null) {
             showMyRooms = intent.getBooleanExtra("show_my_rooms", false);
@@ -87,7 +85,6 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         progressBar = findViewById(R.id.progressBar);
         
-        // Search views
         etSearch = findViewById(R.id.etSearch);
         btnSearch = findViewById(R.id.btnSearch);
         btnFilter = findViewById(R.id.btnFilter);
@@ -126,7 +123,6 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
         btnSearch.setOnClickListener(v -> performSearch());
         btnFilter.setOnClickListener(v -> showFilterDialog());
         
-        // Add search on Enter key press
         etSearch.setOnEditorActionListener((v, actionId, event) -> {
             performSearch();
             return true;
@@ -139,8 +135,7 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
     }
 
     private void showFilterDialog() {
-        // TODO: Implement filter dialog
-        Toast.makeText(this, "Chức năng bộ lọc sẽ được phát triển", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Chức năng bộ lọc sẽ được phát triển", Toast.LENGTH_SHORT).show();
     }
 
     private void loadRooms(String searchQuery) {
@@ -150,22 +145,19 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
         params.put("page", "1");
         params.put("limit", "20");
         
-        // Add search query if provided
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
             params.put("search", searchQuery.trim());
         }
         
-        // Add filter for available rooms only
         if (showAvailableOnly) {
             params.put("status", "active");
             params.put("available", "true");
-            params.put("excludeBooked", "true"); // Exclude rooms with pending bookings
+            params.put("excludeBooked", "true");
         }
         
         Call<ApiResponse<Map<String, Object>>> call = null;
         
         if (showMyRooms) {
-            // Load user's own rooms
             String userId = getCurrentUserId();
             if (userId != null) {
                 call = retrofitClient.getApiService().getUserRooms(
@@ -179,7 +171,6 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
                 return;
             }
         } else {
-            // Load all rooms
             call = retrofitClient.getApiService().getRooms(params);
         }
         
@@ -227,7 +218,6 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
     }
     
     private String getCurrentUserId() {
-        // Get current user ID from stored user data
         String userJson = retrofitClient.getUserData();
         if (userJson != null) {
             try {
@@ -245,12 +235,11 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
     public void onRoomClick(Room room) {
         Intent intent = new Intent(this, RoomDetailActivity.class);
         intent.putExtra("room_id", room.getId());
-        intent.putExtra("room_object", room); // Pass room object for booking details
+        intent.putExtra("room_object", room);
         startActivity(intent);
     }
     
     public void onRoomLike(Room room) {
-        // Handle room like functionality
         retrofitClient.getApiService().toggleRoomLike(retrofitClient.getToken(), room.getId())
                 .enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
                     @Override
@@ -258,7 +247,6 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
                         if (response.isSuccessful() && response.body() != null) {
                             ApiResponse<Map<String, Object>> apiResponse = response.body();
                             if (apiResponse.isSuccess()) {
-                                // Update the room in the list
                                 int position = rooms.indexOf(room);
                                 if (position != -1) {
                                     roomAdapter.notifyItemChanged(position);
@@ -269,7 +257,6 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
                     
                     @Override
                     public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
-                        // Handle error silently
                     }
                 });
     }
@@ -290,8 +277,6 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
             onBackPressed();
             return true;
         } else if (id == R.id.action_add_room) {
-            // Navigate to add room activity
-            Toast.makeText(this, "Chức năng thêm phòng sẽ được phát triển", Toast.LENGTH_SHORT).show();
             return true;
         }
         

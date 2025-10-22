@@ -22,8 +22,16 @@ import com.example.appquanlytimtro.payments.PaymentListActivity;
 import com.example.appquanlytimtro.profile.ProfileActivity;
 import com.example.appquanlytimtro.network.RetrofitClient;
 import com.example.appquanlytimtro.models.User;
+import com.example.appquanlytimtro.models.Booking;
+import com.example.appquanlytimtro.models.Payment;
+import com.example.appquanlytimtro.models.ApiResponse;
 import com.google.android.material.card.MaterialCardView;
 import com.google.gson.Gson;
+
+import java.text.NumberFormat;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -32,6 +40,10 @@ import retrofit2.Response;
 public class TenantHomeFragment extends Fragment {
 
     private TextView tvWelcome;
+    private TextView tvTotalBookings;
+    private TextView tvPendingPayments;
+    private TextView tvTotalDeposit;
+    private TextView tvTotalPaid;
     private MaterialCardView cardSearchRooms;
     private MaterialCardView cardMyBookings;
     private MaterialCardView cardMyPayments;
@@ -52,12 +64,17 @@ public class TenantHomeFragment extends Fragment {
         
         initViews(view);
         setupClickListeners();
+        loadStatistics();
         
         return view;
     }
 
     private void initViews(View view) {
         tvWelcome = view.findViewById(R.id.tvWelcome);
+        tvTotalBookings = view.findViewById(R.id.tvTotalBookings);
+        tvPendingPayments = view.findViewById(R.id.tvPendingPayments);
+        tvTotalDeposit = view.findViewById(R.id.tvTotalDeposit);
+        tvTotalPaid = view.findViewById(R.id.tvTotalPaid);
         cardSearchRooms = view.findViewById(R.id.cardSearchRooms);
         cardMyBookings = view.findViewById(R.id.cardMyBookings);
         cardMyPayments = view.findViewById(R.id.cardMyPayments);
@@ -122,5 +139,100 @@ public class TenantHomeFragment extends Fragment {
                 .setNegativeButton("Hủy", null)
                 .show();
         });
+    }
+
+    private void loadStatistics() {
+        if (currentUser == null) return;
+        
+        String token = "Bearer " + retrofitClient.getToken();
+        
+        retrofitClient.getApiService().getBookings(token, new java.util.HashMap<>()).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    Map<String, Object> data = response.body().getData();
+                    if (data != null && data.containsKey("bookings")) {
+                        List<?> bookingsData = (List<?>) data.get("bookings");
+                        calculateBookingStats(bookingsData);
+                    }
+                }
+                loadPaymentStats();
+            }
+            
+            @Override
+            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
+                loadPaymentStats();
+            }
+        });
+    }
+    
+    private void calculateBookingStats(List<?> bookingsData) {
+        int totalBookings = 0;
+        int pendingPayments = 0;
+        double totalDeposit = 0.0;
+        
+        Gson gson = new Gson();
+        for (Object bookingObj : bookingsData) {
+            try {
+                Booking booking = gson.fromJson(gson.toJson(bookingObj), Booking.class);
+                if (booking != null) {
+                    totalBookings++;
+                    
+                    if ("pending".equals(booking.getStatus())) {
+                        pendingPayments++;
+                    }
+                    
+                    if (booking.getPricing() != null) {
+                        totalDeposit += booking.getPricing().getDeposit();
+                    }
+                }
+            } catch (Exception e) {
+            }
+        }
+        
+        tvTotalBookings.setText(String.valueOf(totalBookings));
+        tvPendingPayments.setText(String.valueOf(pendingPayments));
+        
+        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
+        tvTotalDeposit.setText(formatter.format(totalDeposit) + " VNĐ");
+    }
+    
+    private void loadPaymentStats() {
+        String token = "Bearer " + retrofitClient.getToken();
+        
+        retrofitClient.getApiService().getPayments(token, new java.util.HashMap<>()).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    Map<String, Object> data = response.body().getData();
+                    if (data != null && data.containsKey("payments")) {
+                        List<?> paymentsData = (List<?>) data.get("payments");
+                        calculatePaymentStats(paymentsData);
+                    }
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
+            }
+        });
+    }
+    
+    private void calculatePaymentStats(List<?> paymentsData) {
+        double totalPaid = 0.0;
+        
+        Gson gson = new Gson();
+        for (Object paymentObj : paymentsData) {
+            try {
+                Payment payment = gson.fromJson(gson.toJson(paymentObj), Payment.class);
+                if (payment != null && "completed".equals(payment.getStatus())) {
+                    totalPaid += payment.getAmount();
+                }
+            } catch (Exception e) {
+            }
+        }
+        
+        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
+        tvTotalPaid.setText(formatter.format(totalPaid) + " VNĐ");
     }
 }

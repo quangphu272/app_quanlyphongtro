@@ -58,7 +58,6 @@ public class AddRoomActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> pickImagesLauncher;
     private RetrofitClient retrofitClient;
 
-    // Amenities and rules
     private final String[] amenitiesList = {
         "WiFi", "Điều hòa", "Tủ lạnh", "Máy giặt", "Bàn làm việc", 
         "Tủ quần áo", "Giường", "Bếp", "Nóng lạnh", "Ban công",
@@ -109,7 +108,6 @@ public class AddRoomActivity extends AppCompatActivity {
         recyclerViewImages = findViewById(R.id.recyclerViewImages);
         progressBar = findViewById(R.id.progressBar);
         
-        // Setup image recycler view
         imageAdapter = new ImagePreviewAdapter(imageUris, this::removeImage);
         recyclerViewImages.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         recyclerViewImages.setAdapter(imageAdapter);
@@ -207,19 +205,15 @@ public class AddRoomActivity extends AppCompatActivity {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     Intent data = result.getData();
                     if (data.getClipData() != null) {
-                        // Multiple images selected
                         int count = data.getClipData().getItemCount();
                         for (int i = 0; i < count; i++) {
                             Uri imageUri = data.getClipData().getItemAt(i).getUri();
                             imageUris.add(imageUri);
                         }
                     } else if (data.getData() != null) {
-                        // Single image selected
                         imageUris.add(data.getData());
                     }
                     imageAdapter.notifyDataSetChanged();
-                    android.util.Log.d("AddRoomActivity", "Images selected: " + imageUris.size());
-                    android.util.Log.d("AddRoomActivity", "Selected image URIs: " + imageUris.toString());
                     Toast.makeText(this, "Đã chọn " + imageUris.size() + " ảnh", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -278,26 +272,18 @@ public class AddRoomActivity extends AppCompatActivity {
             etPrice.requestFocus();
             return false;
         }
-        
-        // Images are optional - no validation needed
-        
+                
         return true;
     }
     
     private void createRoom() {
         showLoading(true);
-        
-        // Debug: Log số lượng ảnh trước khi tạo phòng
-        android.util.Log.d("AddRoomActivity", "=== CREATE ROOM DEBUG ===");
-        android.util.Log.d("AddRoomActivity", "Number of images before creating room: " + imageUris.size());
-        android.util.Log.d("AddRoomActivity", "Image URIs before creating room: " + imageUris.toString());
-        
+                
         Room room = new Room();
         room.setTitle(getText(etTitle));
         room.setDescription(getText(etDescription));
         room.setRoomType(mapRoomTypeToBackend(spinnerRoomType.getText().toString()));
         
-        // Address
         User.Address address = new User.Address();
         address.setCity(getText(etCity));
         address.setDistrict(getText(etDistrict));
@@ -305,7 +291,6 @@ public class AddRoomActivity extends AppCompatActivity {
         address.setStreet(getText(etStreet));
         room.setAddress(address);
         
-        // Area
         String areaStr = getText(etArea);
         if (!TextUtils.isEmpty(areaStr)) {
             try {
@@ -315,7 +300,6 @@ public class AddRoomActivity extends AppCompatActivity {
             }
         }
         
-        // Price
         Room.Price price = new Room.Price();
         try {
             price.setMonthly(Double.parseDouble(getText(etPrice)));
@@ -332,7 +316,6 @@ public class AddRoomActivity extends AppCompatActivity {
             }
         }
         
-        // Set utilities - calculate total (backend expects Number, not object)
         String electricStr = getText(etElectricPrice);
         String waterStr = getText(etWaterPrice);
         String internetStr = getText(etInternetPrice);
@@ -372,13 +355,11 @@ public class AddRoomActivity extends AppCompatActivity {
             }
         }
         
-        // Calculate total utilities cost
         double totalUtilities = electricity + water + internet + other;
         price.setUtilities(totalUtilities);
         
         room.setPrice(price);
         
-        // Amenities
         List<String> selectedAmenities = new ArrayList<>();
         for (int i = 0; i < layoutAmenities.getChildCount(); i++) {
             View child = layoutAmenities.getChildAt(i);
@@ -393,7 +374,6 @@ public class AddRoomActivity extends AppCompatActivity {
         }
         room.setAmenities(selectedAmenities);
         
-        // Rules
         List<String> selectedRules = new ArrayList<>();
         for (int i = 0; i < layoutRules.getChildCount(); i++) {
             View child = layoutRules.getChildAt(i);
@@ -406,28 +386,22 @@ public class AddRoomActivity extends AppCompatActivity {
         }
         room.setRules(selectedRules);
         
-        // Set availability
         Room.Availability availability = new Room.Availability();
         availability.setAvailable(true);
         room.setAvailability(availability);
         
-        // Set status
         room.setStatus("active");
         
-        // Set landlord (current user)
         String userJson = retrofitClient.getUserData();
         if (userJson != null) {
             try {
                 com.google.gson.Gson gson = new com.google.gson.Gson();
                 User currentUser = gson.fromJson(userJson, User.class);
                 room.setLandlord(currentUser);
-                android.util.Log.d("AddRoomActivity", "Set landlord: " + (currentUser != null ? currentUser.getFullName() : "null"));
             } catch (Exception e) {
-                android.util.Log.e("AddRoomActivity", "Error parsing user data: " + e.getMessage());
             }
         }
         
-        // Set contact info
         Room.ContactInfo contactInfo = new Room.ContactInfo();
         if (room.getLandlord() != null) {
             contactInfo.setPhone(room.getLandlord().getPhone());
@@ -435,91 +409,48 @@ public class AddRoomActivity extends AppCompatActivity {
         }
         room.setContactInfo(contactInfo);
         
-        // Log room data before sending
-        android.util.Log.d("AddRoomActivity", "Creating room with data:");
-        android.util.Log.d("AddRoomActivity", "Title: " + room.getTitle());
-        android.util.Log.d("AddRoomActivity", "Description: " + room.getDescription());
-        android.util.Log.d("AddRoomActivity", "Address: " + room.getAddress());
-        android.util.Log.d("AddRoomActivity", "Area: " + room.getArea());
-        android.util.Log.d("AddRoomActivity", "Monthly Price: " + (room.getPrice() != null ? room.getPrice().getMonthly() : "null"));
-        android.util.Log.d("AddRoomActivity", "Deposit: " + (room.getPrice() != null ? room.getPrice().getDeposit() : "null"));
-        android.util.Log.d("AddRoomActivity", "Utilities: " + (room.getPrice() != null && room.getPrice().getUtilities() != null ? 
-            "Electricity: " + room.getPrice().getUtilities().getElectricity() + 
-            ", Water: " + room.getPrice().getUtilities().getWater() + 
-            ", Internet: " + room.getPrice().getUtilities().getInternet() + 
-            ", Other: " + room.getPrice().getUtilities().getOther() : "null"));
-        android.util.Log.d("AddRoomActivity", "Amenities: " + room.getAmenities());
-        android.util.Log.d("AddRoomActivity", "Rules: " + room.getRules());
         
         String token = "Bearer " + retrofitClient.getToken();
-        android.util.Log.d("AddRoomActivity", "Token: " + token);
         
         retrofitClient.getApiService().createRoom(token, room).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
             @Override
             public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
-                android.util.Log.d("AddRoomActivity", "Response code: " + response.code());
-                android.util.Log.d("AddRoomActivity", "Response body: " + response.body());
                 
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
-                        android.util.Log.d("AddRoomActivity", "Response success: " + response.body().isSuccess());
-                        android.util.Log.d("AddRoomActivity", "Response message: " + response.body().getMessage());
                         
                         if (response.body().isSuccess()) {
-                            // Backend returns data.room object
                             Map<String, Object> responseData = response.body().getData();
-                            android.util.Log.d("AddRoomActivity", "Response data: " + responseData);
                             
                             Room createdRoom = null;
                             
                             if (responseData != null && responseData.containsKey("room")) {
-                                android.util.Log.d("AddRoomActivity", "Found room in response data");
-                                // Parse Room object from response data
                                 com.google.gson.Gson gson = new com.google.gson.Gson();
                                 Object roomData = responseData.get("room");
-                                android.util.Log.d("AddRoomActivity", "Room data type: " + (roomData != null ? roomData.getClass().getSimpleName() : "null"));
-                                android.util.Log.d("AddRoomActivity", "Room data: " + roomData);
                                 
                                 String roomJson = gson.toJson(roomData);
-                                android.util.Log.d("AddRoomActivity", "Room JSON: " + roomJson);
                                 
-                                // Try parsing with Gson first
                                 createdRoom = gson.fromJson(roomJson, Room.class);
-                                android.util.Log.d("AddRoomActivity", "Parsed room ID: " + createdRoom.getId());
-                                android.util.Log.d("AddRoomActivity", "Parsed room title: " + createdRoom.getTitle());
                                 
-                                // If ID is still null, try manual parsing
                                 if (createdRoom.getId() == null && roomData instanceof Map) {
-                                    android.util.Log.d("AddRoomActivity", "ID is null, trying manual parsing");
                                     Map<String, Object> roomMap = (Map<String, Object>) roomData;
                                     if (roomMap.containsKey("_id")) {
                                         String roomId = (String) roomMap.get("_id");
-                                        android.util.Log.d("AddRoomActivity", "Manual parsed ID: " + roomId);
                                         createdRoom.setId(roomId);
                                     }
                                 }
                                 
-                                // Debug: Check if _id field exists in JSON
                                 if (roomJson.contains("\"_id\"")) {
-                                    android.util.Log.d("AddRoomActivity", "_id field found in JSON");
                                 } else {
-                                    android.util.Log.e("AddRoomActivity", "_id field NOT found in JSON");
                                 }
                             } else {
-                                android.util.Log.e("AddRoomActivity", "No room found in response data or responseData is null");
                             }
                             
-                            android.util.Log.d("AddRoomActivity", "Created room ID: " + (createdRoom != null ? createdRoom.getId() : "null"));
-                            android.util.Log.d("AddRoomActivity", "Number of images selected: " + imageUris.size());
-                            android.util.Log.d("AddRoomActivity", "Image URIs: " + imageUris.toString());
                             
                             if (createdRoom != null && createdRoom.getId() != null) {
                                 if (!imageUris.isEmpty()) {
-                                    android.util.Log.d("AddRoomActivity", "Room created successfully, uploading images...");
-                                    android.util.Log.d("AddRoomActivity", "Starting image upload for room: " + createdRoom.getId());
                                     uploadImages(createdRoom.getId());
                                 } else {
-                                    android.util.Log.d("AddRoomActivity", "No images to upload, finishing...");
                                     showLoading(false);
                                     Toast.makeText(AddRoomActivity.this, "Tạo phòng thành công!", Toast.LENGTH_SHORT).show();
                                     finish();
@@ -527,9 +458,7 @@ public class AddRoomActivity extends AppCompatActivity {
                             } else {
                                 showLoading(false);
                                 if (createdRoom == null) {
-                                    android.util.Log.e("AddRoomActivity", "Created room is null");
                                 } else if (createdRoom.getId() == null) {
-                                    android.util.Log.e("AddRoomActivity", "Created room ID is null");
                                 }
                                 Toast.makeText(AddRoomActivity.this, "Tạo phòng thành công!", Toast.LENGTH_SHORT).show();
                                 finish();
@@ -537,12 +466,10 @@ public class AddRoomActivity extends AppCompatActivity {
                         } else {
                             showLoading(false);
                             String errorMsg = response.body().getMessage() != null ? response.body().getMessage() : "Tạo phòng thất bại";
-                            android.util.Log.e("AddRoomActivity", "API Error: " + errorMsg);
                             Toast.makeText(AddRoomActivity.this, errorMsg, Toast.LENGTH_LONG).show();
                         }
                     } else {
                         showLoading(false);
-                        android.util.Log.e("AddRoomActivity", "Response body is null");
                         Toast.makeText(AddRoomActivity.this, "Tạo phòng thất bại - Response body null", Toast.LENGTH_SHORT).show();
                     }
                 } else {
@@ -553,7 +480,6 @@ public class AddRoomActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    android.util.Log.e("AddRoomActivity", "HTTP Error " + response.code() + ": " + errorBody);
                     Toast.makeText(AddRoomActivity.this, "Lỗi HTTP " + response.code() + ": " + errorBody, Toast.LENGTH_LONG).show();
                 }
             }
@@ -561,28 +487,20 @@ public class AddRoomActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
                 showLoading(false);
-                android.util.Log.e("AddRoomActivity", "Network error: " + t.getMessage(), t);
                 Toast.makeText(AddRoomActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
     
     private void uploadImages(String roomId) {
-        android.util.Log.d("AddRoomActivity", "=== UPLOAD IMAGES START ===");
-        android.util.Log.d("AddRoomActivity", "Room ID: " + roomId);
-        android.util.Log.d("AddRoomActivity", "Number of images: " + imageUris.size());
         
-        // Validate roomId
         if (roomId == null || roomId.trim().isEmpty()) {
-            android.util.Log.e("AddRoomActivity", "Room ID is null or empty, cannot upload images");
             showLoading(false);
             Toast.makeText(this, "Lỗi: ID phòng không hợp lệ", Toast.LENGTH_SHORT).show();
             return;
         }
         
-        // Validate images
         if (imageUris.isEmpty()) {
-            android.util.Log.d("AddRoomActivity", "No images to upload");
             showLoading(false);
             Toast.makeText(this, "Không có ảnh để upload", Toast.LENGTH_SHORT).show();
             return;
@@ -593,11 +511,9 @@ public class AddRoomActivity extends AppCompatActivity {
         for (int i = 0; i < imageUris.size(); i++) {
             Uri uri = imageUris.get(i);
             try {
-                android.util.Log.d("AddRoomActivity", "Processing image " + (i + 1) + ": " + uri.toString());
                 
                 InputStream inputStream = getContentResolver().openInputStream(uri);
                 if (inputStream == null) {
-                    android.util.Log.e("AddRoomActivity", "Cannot open input stream for image " + (i + 1));
                     continue;
                 }
                 
@@ -610,10 +526,8 @@ public class AddRoomActivity extends AppCompatActivity {
                 buffer.flush();
                 byte[] bytes = buffer.toByteArray();
                 
-                android.util.Log.d("AddRoomActivity", "Image " + (i + 1) + " size: " + bytes.length + " bytes");
                 
                 if (bytes.length == 0) {
-                    android.util.Log.e("AddRoomActivity", "Image " + (i + 1) + " is empty");
                     continue;
                 }
                 
@@ -622,41 +536,30 @@ public class AddRoomActivity extends AppCompatActivity {
                 parts.add(part);
                 
                 inputStream.close();
-                android.util.Log.d("AddRoomActivity", "Successfully processed image " + (i + 1));
             } catch (Exception e) {
-                android.util.Log.e("AddRoomActivity", "Error processing image " + (i + 1), e);
                 e.printStackTrace();
             }
         }
         
-        android.util.Log.d("AddRoomActivity", "Total parts created: " + parts.size());
         
         String token = "Bearer " + retrofitClient.getToken();
-        android.util.Log.d("AddRoomActivity", "Token: " + token);
-        android.util.Log.d("AddRoomActivity", "Uploading images to API...");
         
         retrofitClient.getApiService().uploadRoomImages(token, roomId, parts).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
             @Override
             public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
-                android.util.Log.d("AddRoomActivity", "=== UPLOAD IMAGES RESPONSE ===");
-                android.util.Log.d("AddRoomActivity", "Response code: " + response.code());
-                android.util.Log.d("AddRoomActivity", "Response body: " + response.body());
                 
                 showLoading(false);
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    android.util.Log.d("AddRoomActivity", "Images uploaded successfully!");
                     Toast.makeText(AddRoomActivity.this, "Tạo phòng và upload ảnh thành công!", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
                     String errorMsg = response.body() != null ? response.body().getMessage() : "Upload ảnh thất bại";
-                    android.util.Log.e("AddRoomActivity", "Upload failed: " + errorMsg);
                     Toast.makeText(AddRoomActivity.this, errorMsg, Toast.LENGTH_LONG).show();
                 }
             }
             
             @Override
             public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
-                android.util.Log.e("AddRoomActivity", "Upload images network error: " + t.getMessage(), t);
                 showLoading(false);
                 Toast.makeText(AddRoomActivity.this, "Lỗi upload ảnh: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }

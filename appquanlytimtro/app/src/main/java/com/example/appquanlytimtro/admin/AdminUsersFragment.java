@@ -41,7 +41,6 @@ public class AdminUsersFragment extends Fragment implements UsersAdapter.OnUserC
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_admin_users, container, false);
         
-        // Initialize views
         recyclerView = v.findViewById(R.id.recyclerView);
         progressBar = v.findViewById(R.id.progressBar);
         tvTotalUsers = v.findViewById(R.id.tvTotalUsers);
@@ -80,7 +79,6 @@ public class AdminUsersFragment extends Fragment implements UsersAdapter.OnUserC
                             User u = gson.fromJson(json, User.class);
                             users.add(u);
                             
-                            // Count by role
                             totalUsers++;
                             if ("landlord".equals(u.getRole())) {
                                 totalLandlords++;
@@ -89,7 +87,6 @@ public class AdminUsersFragment extends Fragment implements UsersAdapter.OnUserC
                             }
                         }
                         
-                        // Update statistics
                         tvTotalUsers.setText(String.valueOf(totalUsers));
                         tvTotalLandlords.setText(String.valueOf(totalLandlords));
                         tvTotalTenants.setText(String.valueOf(totalTenants));
@@ -115,7 +112,6 @@ public class AdminUsersFragment extends Fragment implements UsersAdapter.OnUserC
 
     @Override
     public void onUserClick(User user) {
-        // Handle user click - could show user details or edit dialog
         Toast.makeText(getContext(), "Clicked: " + user.getFullName(), Toast.LENGTH_SHORT).show();
     }
 }

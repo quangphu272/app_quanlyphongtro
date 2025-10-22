@@ -12,7 +12,6 @@ public class ApiResponse<T> {
     @SerializedName("data")
     private T data;
 
-    // Constructors
     public ApiResponse() {}
 
     public ApiResponse(String status, String message, T data) {
@@ -21,7 +20,6 @@ public class ApiResponse<T> {
         this.data = data;
     }
 
-    // Getters and Setters
     public String getStatus() {
         return status;
     }

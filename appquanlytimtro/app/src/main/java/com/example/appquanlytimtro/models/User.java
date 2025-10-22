@@ -49,7 +49,6 @@ public class User implements Serializable {
     @SerializedName("updatedAt")
     private String updatedAt;
 
-    // Constructors
     public User() {}
 
     public User(String fullName, String email, String phone, String role) {
@@ -59,7 +58,6 @@ public class User implements Serializable {
         this.role = role;
     }
 
-    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -180,7 +178,6 @@ public class User implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    // Nested classes
     public static class Address implements Serializable {
         @SerializedName("street")
         private String street;

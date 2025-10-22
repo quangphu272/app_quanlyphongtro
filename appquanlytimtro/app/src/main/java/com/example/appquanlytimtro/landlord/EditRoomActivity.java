@@ -246,20 +246,15 @@ public class EditRoomActivity extends AppCompatActivity implements SelectedImage
     
     private void loadRoomDetails() {
         showLoading(true);
-        android.util.Log.d("EditRoomActivity", "Loading room details for ID: " + roomId);
         
         retrofitClient.getApiService().getRoom(roomId).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
             @Override
             public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
                 showLoading(false);
                 
-                android.util.Log.d("EditRoomActivity", "Response code: " + response.code());
-                android.util.Log.d("EditRoomActivity", "Response body: " + response.body());
                 
                 if (response.isSuccessful() && response.body() != null) {
                     ApiResponse<Map<String, Object>> apiResponse = response.body();
-                    android.util.Log.d("EditRoomActivity", "API Response success: " + apiResponse.isSuccess());
-                    android.util.Log.d("EditRoomActivity", "API Response data: " + apiResponse.getData());
                     
                     if (apiResponse.isSuccess() && apiResponse.getData() != null) {
                         Map<String, Object> data = apiResponse.getData();
@@ -267,21 +262,16 @@ public class EditRoomActivity extends AppCompatActivity implements SelectedImage
                             // Parse room from data.room
                             Gson gson = new Gson();
                             String roomJson = gson.toJson(data.get("room"));
-                            android.util.Log.d("EditRoomActivity", "Room JSON: " + roomJson);
                             
                             room = gson.fromJson(roomJson, Room.class);
-                            android.util.Log.d("EditRoomActivity", "Room loaded successfully: " + (room != null ? room.getTitle() : "null"));
                             populateForm();
                         } else {
-                            android.util.Log.e("EditRoomActivity", "No room data in response");
                             showError("Không tìm thấy thông tin phòng");
                         }
                     } else {
-                        android.util.Log.e("EditRoomActivity", "API Error: " + apiResponse.getMessage());
                         showError(apiResponse.getMessage());
                     }
                 } else {
-                    android.util.Log.e("EditRoomActivity", "HTTP Error: " + response.code());
                     showError("Không thể tải thông tin phòng trọ");
                 }
             }
@@ -296,11 +286,9 @@ public class EditRoomActivity extends AppCompatActivity implements SelectedImage
     
     private void populateForm() {
         if (room == null) {
-            android.util.Log.e("EditRoomActivity", "Room is null, cannot populate form");
             return;
         }
         
-        android.util.Log.d("EditRoomActivity", "Populating form with room: " + room.getTitle());
         
         // Basic info
         etTitle.setText(room.getTitle());
@@ -376,10 +364,6 @@ public class EditRoomActivity extends AppCompatActivity implements SelectedImage
         // Create updated room object
         Room updatedRoom = createRoomFromForm();
         
-        // Debug logging
-        android.util.Log.d("EditRoom", "=== ROOM UPDATE DATA ===");
-        android.util.Log.d("EditRoom", "Room ID: " + roomId);
-        android.util.Log.d("EditRoom", "Utilities: " + updatedRoom.getPrice().getUtilities());
         
         String token = "Bearer " + retrofitClient.getToken();
         
@@ -529,13 +513,9 @@ public class EditRoomActivity extends AppCompatActivity implements SelectedImage
     }
     
     private void uploadImages(String roomId) {
-        android.util.Log.d("EditRoom", "=== UPLOAD IMAGES START ===");
-        android.util.Log.d("EditRoom", "Room ID: " + roomId);
-        android.util.Log.d("EditRoom", "Number of images: " + imageUris.size());
         
         // Validate roomId
         if (roomId == null || roomId.trim().isEmpty()) {
-            android.util.Log.e("EditRoom", "Room ID is null or empty, cannot upload images");
             showLoading(false);
             Toast.makeText(this, "Lỗi: ID phòng không hợp lệ", Toast.LENGTH_SHORT).show();
             return;
@@ -543,7 +523,6 @@ public class EditRoomActivity extends AppCompatActivity implements SelectedImage
         
         // Validate images
         if (imageUris.isEmpty()) {
-            android.util.Log.d("EditRoom", "No images to upload");
             showLoading(false);
             Toast.makeText(this, "Không có ảnh để upload", Toast.LENGTH_SHORT).show();
             return;
@@ -554,11 +533,9 @@ public class EditRoomActivity extends AppCompatActivity implements SelectedImage
         for (int i = 0; i < imageUris.size(); i++) {
             Uri uri = imageUris.get(i);
             try {
-                android.util.Log.d("EditRoom", "Processing image " + (i + 1) + ": " + uri.toString());
                 
                 InputStream inputStream = getContentResolver().openInputStream(uri);
                 if (inputStream == null) {
-                    android.util.Log.e("EditRoom", "Cannot open input stream for image " + (i + 1));
                     continue;
                 }
                 
@@ -571,10 +548,8 @@ public class EditRoomActivity extends AppCompatActivity implements SelectedImage
                 buffer.flush();
                 byte[] bytes = buffer.toByteArray();
                 
-                android.util.Log.d("EditRoom", "Image " + (i + 1) + " size: " + bytes.length + " bytes");
                 
                 if (bytes.length == 0) {
-                    android.util.Log.e("EditRoom", "Image " + (i + 1) + " is empty");
                     continue;
                 }
                 
@@ -583,41 +558,30 @@ public class EditRoomActivity extends AppCompatActivity implements SelectedImage
                 parts.add(part);
                 
                 inputStream.close();
-                android.util.Log.d("EditRoom", "Successfully processed image " + (i + 1));
             } catch (Exception e) {
-                android.util.Log.e("EditRoom", "Error processing image " + (i + 1), e);
                 e.printStackTrace();
             }
         }
         
-        android.util.Log.d("EditRoom", "Total parts created: " + parts.size());
         
         String token = "Bearer " + retrofitClient.getToken();
-        android.util.Log.d("EditRoom", "Token: " + token);
-        android.util.Log.d("EditRoom", "Uploading images to API...");
         
         retrofitClient.getApiService().uploadRoomImages(token, roomId, parts).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
             @Override
             public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
-                android.util.Log.d("EditRoom", "=== UPLOAD IMAGES RESPONSE ===");
-                android.util.Log.d("EditRoom", "Response code: " + response.code());
-                android.util.Log.d("EditRoom", "Response body: " + response.body());
                 
                 showLoading(false);
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    android.util.Log.d("EditRoom", "Images uploaded successfully!");
                     Toast.makeText(EditRoomActivity.this, "Cập nhật phòng và upload ảnh thành công!", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
                     String errorMsg = response.body() != null ? response.body().getMessage() : "Upload ảnh thất bại";
-                    android.util.Log.e("EditRoom", "Upload failed: " + errorMsg);
                     Toast.makeText(EditRoomActivity.this, errorMsg, Toast.LENGTH_LONG).show();
                 }
             }
             
             @Override
             public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
-                android.util.Log.e("EditRoom", "Upload images network error: " + t.getMessage(), t);
                 showLoading(false);
                 Toast.makeText(EditRoomActivity.this, "Lỗi upload ảnh: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }

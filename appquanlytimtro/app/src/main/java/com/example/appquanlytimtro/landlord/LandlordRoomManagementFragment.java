@@ -97,12 +97,9 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
     
     private void loadRooms() {
         if (currentUser == null) {
-            android.util.Log.e("LandlordRoomManagement", "Current user is null");
             return;
         }
         
-        android.util.Log.d("LandlordRoomManagement", "=== LOAD ROOMS START ===");
-        android.util.Log.d("LandlordRoomManagement", "User ID: " + currentUser.getId());
         
         String token = "Bearer " + retrofitClient.getToken();
         
@@ -112,9 +109,6 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
         retrofitClient.getApiService().getUserRooms(token, currentUser.getId(), queryParams).enqueue(new Callback<ApiResponse<java.util.Map<String, Object>>>() {
             @Override
             public void onResponse(Call<ApiResponse<java.util.Map<String, Object>>> call, Response<ApiResponse<java.util.Map<String, Object>>> response) {
-                android.util.Log.d("LandlordRoomManagement", "=== LOAD ROOMS RESPONSE ===");
-                android.util.Log.d("LandlordRoomManagement", "Response code: " + response.code());
-                android.util.Log.d("LandlordRoomManagement", "Response body: " + response.body());
                 
                 if (swipeRefreshLayout != null) {
                     swipeRefreshLayout.setRefreshing(false);
@@ -122,14 +116,12 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
                 
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     java.util.Map<String, Object> data = response.body().getData();
-                    android.util.Log.d("LandlordRoomManagement", "Response data: " + data);
                     
                     if (data != null && data.containsKey("rooms")) {
                         try {
                             // Parse rooms from response
                             Gson gson = new Gson();
                             java.util.List<?> roomsData = (java.util.List<?>) data.get("rooms");
-                            android.util.Log.d("LandlordRoomManagement", "Number of rooms: " + roomsData.size());
                             
                             roomList.clear();
                             
@@ -140,31 +132,25 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
                                 Object roomObj = roomsData.get(i);
                                 try {
                                     String roomJson = gson.toJson(roomObj);
-                                    android.util.Log.d("LandlordRoomManagement", "Room " + i + " JSON: " + roomJson);
                                     
                                     Room room = gson.fromJson(roomJson, Room.class);
                                     if (room != null) {
                                         roomList.add(room);
                                         successCount++;
-                                        android.util.Log.d("LandlordRoomManagement", "Added room: " + room.getTitle() + " (ID: " + room.getId() + ")");
                                     } else {
                                         errorCount++;
-                                        android.util.Log.e("LandlordRoomManagement", "Room " + i + " is null after parsing");
                                     }
                                 } catch (Exception e) {
                                     errorCount++;
-                                    android.util.Log.e("LandlordRoomManagement", "Error parsing room " + i + ": " + e.getMessage(), e);
                                 }
                             }
                             
-                            android.util.Log.d("LandlordRoomManagement", "Parsing summary: " + successCount + " success, " + errorCount + " errors out of " + roomsData.size() + " total");
                             
                             roomAdapter.notifyDataSetChanged();
                             if (getContext() != null) {
                                 Toast.makeText(getContext(), "Đã tải " + roomList.size() + " phòng (thành công: " + successCount + ", lỗi: " + errorCount + ")", Toast.LENGTH_LONG).show();
                             }
                         } catch (Exception e) {
-                            android.util.Log.e("LandlordRoomManagement", "Error processing rooms data: " + e.getMessage(), e);
                             if (getContext() != null) {
                                 Toast.makeText(getContext(), "Lỗi xử lý dữ liệu: " + e.getMessage(), Toast.LENGTH_LONG).show();
                             }

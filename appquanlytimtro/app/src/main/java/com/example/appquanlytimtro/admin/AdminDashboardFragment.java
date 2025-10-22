@@ -104,12 +104,10 @@ public class AdminDashboardFragment extends Fragment {
     }
     
     private void updateDashboardData(java.util.Map<String, Object> data) {
-        // Lấy stats object từ data
         Object statsObj = data.get("stats");
         if (statsObj instanceof java.util.Map) {
             java.util.Map<String, Object> stats = (java.util.Map<String, Object>) statsObj;
             
-            // Tính tổng users từ users array
             Object usersObj = stats.get("users");
             int totalUsers = 0;
             int totalLandlords = 0;
@@ -138,14 +136,12 @@ public class AdminDashboardFragment extends Fragment {
                 tvTotalLandlords.setText(String.valueOf(totalLandlords));
             }
             
-            // Lấy room stats
             Object roomsObj = stats.get("rooms");
             if (roomsObj instanceof java.util.Map) {
                 java.util.Map<String, Object> rooms = (java.util.Map<String, Object>) roomsObj;
                 Object totalRooms = rooms.get("totalRooms");
                 if (tvTotalRooms != null) {
                     if (totalRooms != null) {
-                        // Convert to int to remove decimal places
                         int roomCount = (int) Math.round(((Number) totalRooms).doubleValue());
                         tvTotalRooms.setText(String.valueOf(roomCount));
                     } else {
@@ -154,7 +150,6 @@ public class AdminDashboardFragment extends Fragment {
                 }
             }
             
-            // Lấy revenue từ payments
             Object paymentsObj = stats.get("payments");
             if (paymentsObj instanceof java.util.Map) {
                 java.util.Map<String, Object> payments = (java.util.Map<String, Object>) paymentsObj;

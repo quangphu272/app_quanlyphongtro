@@ -80,7 +80,6 @@ public class LandlordRoomAdapter extends RecyclerView.Adapter<LandlordRoomAdapte
             btnDelete = itemView.findViewById(R.id.btnDelete);
             btnToggleStatus = itemView.findViewById(R.id.btnToggleStatus);
             
-            // Removed item click listener - no more "view details" functionality
             
             btnEdit.setOnClickListener(v -> {
                 if (listener != null) {
@@ -113,7 +112,6 @@ public class LandlordRoomAdapter extends RecyclerView.Adapter<LandlordRoomAdapte
         public void bind(Room room) {
             tvTitle.setText(room.getTitle());
             
-            // Set address
             if (room.getAddress() != null) {
                 String address = "";
                 if (room.getAddress().getStreet() != null && !room.getAddress().getStreet().isEmpty()) {
@@ -128,32 +126,26 @@ public class LandlordRoomAdapter extends RecyclerView.Adapter<LandlordRoomAdapte
                 if (room.getAddress().getCity() != null && !room.getAddress().getCity().isEmpty()) {
                     address += room.getAddress().getCity();
                 }
-                // Remove trailing comma and space
                 if (address.endsWith(", ")) {
                     address = address.substring(0, address.length() - 2);
                 }
                 tvAddress.setText(address);
             }
             
-            // Set price
             if (room.getPrice() != null) {
                 NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
                 String price = formatter.format(room.getPrice().getMonthly()) + " VNĐ/tháng";
                 tvPrice.setText(price);
             }
             
-            // Set area
             tvArea.setText(room.getArea() + " m²");
             
-            // Set views
             tvViews.setText(room.getViews() + " lượt xem");
             
-            // Set room type
             if (room.getRoomType() != null) {
                 chipRoomType.setText(room.getRoomType());
             }
             
-            // Set status
             String status = room.getStatus();
             if (status == null) status = "active";
             
@@ -185,19 +177,14 @@ public class LandlordRoomAdapter extends RecyclerView.Adapter<LandlordRoomAdapte
                     break;
             }
             
-            // Set room image
-            android.util.Log.d("LandlordRoomAdapter", "Room: " + room.getTitle() + " - Images: " + (room.getImages() != null ? room.getImages().size() : "null"));
             
             if (room.getImages() != null && !room.getImages().isEmpty()) {
                 String imageUrl = room.getImages().get(0).getUrl();
-                android.util.Log.d("LandlordRoomAdapter", "Image URL: " + imageUrl);
                 
                 if (imageUrl != null && !imageUrl.isEmpty()) {
-                    // Convert relative URL to full URL
                     if (!imageUrl.startsWith("http")) {
                         imageUrl = "http://10.0.2.2:5000" + imageUrl;
                     }
-                    android.util.Log.d("LandlordRoomAdapter", "Final image URL: " + imageUrl);
                     
                     Glide.with(itemView.getContext())
                             .load(imageUrl)
@@ -206,11 +193,9 @@ public class LandlordRoomAdapter extends RecyclerView.Adapter<LandlordRoomAdapte
                             .centerCrop()
                             .into(ivRoomImage);
                 } else {
-                    android.util.Log.d("LandlordRoomAdapter", "Image URL is empty, showing placeholder");
                     ivRoomImage.setImageResource(R.drawable.ic_room_placeholder);
                 }
             } else {
-                android.util.Log.d("LandlordRoomAdapter", "No images, showing placeholder");
                 ivRoomImage.setImageResource(R.drawable.ic_room_placeholder);
             }
         }

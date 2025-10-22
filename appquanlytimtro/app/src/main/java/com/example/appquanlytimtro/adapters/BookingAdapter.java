@@ -48,7 +48,6 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
 
     @Override
     public void onBindViewHolder(@NonNull BookingViewHolder holder, int position) {
-        android.util.Log.d("BookingAdapter", "onBindViewHolder called for position: " + position + ", total items: " + filteredBookings.size());
         Booking booking = filteredBookings.get(position);
         holder.bind(booking, listener);
     }
@@ -59,7 +58,6 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
     }
 
     public void updateBookings(List<Booking> newBookings) {
-        android.util.Log.d("BookingAdapter", "updateBookings called with " + newBookings.size() + " bookings");
         
         // Create a copy to avoid reference issues
         List<Booking> bookingsCopy = new ArrayList<>(newBookings);
@@ -69,7 +67,6 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         this.filteredBookings.clear();
         this.filteredBookings.addAll(bookingsCopy);
         
-        android.util.Log.d("BookingAdapter", "After update - bookings: " + this.bookings.size() + ", filteredBookings: " + this.filteredBookings.size());
         notifyDataSetChanged();
     }
 

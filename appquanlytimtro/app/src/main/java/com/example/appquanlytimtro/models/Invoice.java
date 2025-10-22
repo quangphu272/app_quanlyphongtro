@@ -85,7 +85,6 @@ public class Invoice {
     @SerializedName("updatedAt")
     private String updatedAt;
     
-    // Related objects
     @SerializedName("booking")
     private Booking booking;
     
@@ -101,10 +100,8 @@ public class Invoice {
     @SerializedName("issuedBy")
     private User issuedBy;
 
-    // Constructors
     public Invoice() {}
 
-    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -361,7 +358,6 @@ public class Invoice {
         this.issuedBy = issuedBy;
     }
 
-    // Nested classes
     public static class Period {
         @SerializedName("startDate")
         private String startDate;

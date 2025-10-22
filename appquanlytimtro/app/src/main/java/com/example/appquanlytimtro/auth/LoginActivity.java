@@ -88,10 +88,6 @@ public class LoginActivity extends AppCompatActivity {
                             String userJson = gson.toJson(loginResponse.getUser());
                             retrofitClient.saveUserData(userJson);
                             
-                            // Debug log
-                            android.util.Log.d("LoginActivity", "Token saved: " + (loginResponse.getToken() != null));
-                            android.util.Log.d("LoginActivity", "User data saved: " + (userJson != null));
-                            android.util.Log.d("LoginActivity", "User role: " + loginResponse.getUser().getRole());
                             
                             Toast.makeText(LoginActivity.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
                             

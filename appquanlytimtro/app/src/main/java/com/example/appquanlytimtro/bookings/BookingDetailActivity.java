@@ -34,7 +34,6 @@ public class BookingDetailActivity extends AppCompatActivity {
     private String bookingId;
     private Booking booking;
     
-    // Views
     private ProgressBar progressBar;
     private View contentView;
     private TextView tvRoomTitle;
@@ -134,7 +133,6 @@ public class BookingDetailActivity extends AppCompatActivity {
     private void populateBookingDetails() {
         if (booking == null) return;
 
-        // Room info
         if (booking.getRoom() != null) {
             tvRoomTitle.setText(booking.getRoom().getTitle());
             if (booking.getRoom().getAddress() != null) {
@@ -146,7 +144,6 @@ public class BookingDetailActivity extends AppCompatActivity {
             }
         }
 
-        // Booking details
         if (booking.getBookingDetails() != null) {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
             tvCheckInDate.setText(sdf.format(booking.getBookingDetails().getCheckInDate()));
@@ -155,7 +152,6 @@ public class BookingDetailActivity extends AppCompatActivity {
             tvNumberOfOccupants.setText(String.valueOf(booking.getBookingDetails().getNumberOfOccupants()));
         }
 
-        // Pricing
         if (booking.getPricing() != null) {
             NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
             tvTotalAmount.setText(formatter.format(booking.getPricing().getTotalAmount()) + " VNĐ");
@@ -164,19 +160,16 @@ public class BookingDetailActivity extends AppCompatActivity {
             tvUtilities.setText(formatter.format(booking.getPricing().getUtilities()) + " VNĐ");
         }
 
-        // Landlord info
         if (booking.getLandlord() != null) {
             tvLandlordName.setText(booking.getLandlord().getFullName());
             tvLandlordPhone.setText(booking.getLandlord().getPhone());
             tvLandlordEmail.setText(booking.getLandlord().getEmail());
         }
 
-        // Notes
         if (booking.getNotes() != null && booking.getNotes().getTenant() != null) {
             tvNotes.setText(booking.getNotes().getTenant());
         }
 
-        // Status
         chipStatus.setText(getStatusText(booking.getStatus()));
         chipStatus.setChipBackgroundColorResource(getStatusColor(booking.getStatus()));
     }
@@ -228,8 +221,6 @@ public class BookingDetailActivity extends AppCompatActivity {
             finish();
             return true;
         } else if (id == R.id.action_edit) {
-            // TODO: Navigate to edit booking when EditBookingActivity is created
-            Toast.makeText(this, "Chức năng chỉnh sửa đang được phát triển", Toast.LENGTH_SHORT).show();
             return true;
         }
         

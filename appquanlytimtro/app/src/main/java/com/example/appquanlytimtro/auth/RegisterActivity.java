@@ -114,14 +114,12 @@ public class RegisterActivity extends AppCompatActivity {
                         if (response.errorBody() != null) {
                             try {
                                 String errorBody = response.errorBody().string();
-                                // Try to parse error response
                                 Gson gson = new Gson();
                                 ApiResponse<?> errorResponse = gson.fromJson(errorBody, ApiResponse.class);
                                 if (errorResponse != null && errorResponse.getMessage() != null) {
                                     errorMessage = errorResponse.getMessage();
                                 }
                             } catch (Exception e) {
-                                // Use default error message
                             }
                         }
                         showError(errorMessage);
@@ -168,7 +166,6 @@ public class RegisterActivity extends AppCompatActivity {
             return false;
         }
         
-        // Check password complexity
         if (!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")) {
             etPassword.setError("Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số");
             etPassword.requestFocus();

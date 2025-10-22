@@ -33,14 +33,11 @@ public class Notification {
     @SerializedName("updatedAt")
     private String updatedAt;
     
-    // Related objects
     @SerializedName("recipient")
     private User recipient;
 
-    // Constructors
     public Notification() {}
 
-    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -129,7 +126,6 @@ public class Notification {
         this.recipient = recipient;
     }
 
-    // Nested classes
     public static class NotificationData {
         @SerializedName("bookingId")
         private String bookingId;

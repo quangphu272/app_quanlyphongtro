@@ -98,7 +98,6 @@ public class AdminPaymentManagementFragment extends Fragment {
             @Override
             public void onPaymentItemClick(PaymentItem paymentItem) {
                 // Handle payment item click
-                android.util.Log.d("AdminPaymentFragment", "Clicked on: " + paymentItem.getType() + " - " + paymentItem.getId());
             }
         });
         
@@ -174,7 +173,6 @@ public class AdminPaymentManagementFragment extends Fragment {
         params.put("sort", "createdAt"); // Sắp xếp theo ngày tạo
         params.put("order", "desc"); // Mới nhất trước
         
-        android.util.Log.d("AdminPaymentFragment", "Requesting payments with params: " + params);
         
         retrofitClient.getApiService().getPayments(token, params).enqueue(new Callback<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>>() {
             @Override
@@ -182,16 +180,11 @@ public class AdminPaymentManagementFragment extends Fragment {
                 showLoading(false);
                 swipeRefreshLayout.setRefreshing(false);
                 
-                android.util.Log.d("AdminPaymentFragment", "Payments API Response Code: " + response.code());
-                android.util.Log.d("AdminPaymentFragment", "Payments API Response Body: " + response.body());
                 
                 if (response.isSuccessful() && response.body() != null) {
-                    android.util.Log.d("AdminPaymentFragment", "Response success: " + response.body().isSuccess());
-                    android.util.Log.d("AdminPaymentFragment", "Response message: " + response.body().getMessage());
                     
                     if (response.body().isSuccess()) {
                         java.util.Map<String, Object> data = response.body().getData();
-                        android.util.Log.d("AdminPaymentFragment", "Payments Data: " + data);
                     
                     if (data != null) {
                         try {
@@ -211,8 +204,6 @@ public class AdminPaymentManagementFragment extends Fragment {
                                 unpaidBookingList = gson.fromJson(bookingsJson, new com.google.gson.reflect.TypeToken<List<Booking>>(){}.getType());
                             }
                             
-                            android.util.Log.d("AdminPaymentFragment", "Parsed payments count: " + (paymentList != null ? paymentList.size() : 0));
-                            android.util.Log.d("AdminPaymentFragment", "Parsed unpaid bookings count: " + (unpaidBookingList != null ? unpaidBookingList.size() : 0));
                             
                             // Tạo PaymentItem list từ payments và bookings
                             List<PaymentItem> allItems = new ArrayList<>();
@@ -243,29 +234,23 @@ public class AdminPaymentManagementFragment extends Fragment {
                             
                             // Show/hide empty state
                             if (paymentItems.isEmpty()) {
-                                android.util.Log.w("AdminPaymentFragment", "No payment items found, showing empty state");
                                 showEmptyState(true);
                             } else {
                                 showEmptyState(false);
                             }
                             
-                            android.util.Log.d("AdminPaymentFragment", "Total items created: " + allItems.size());
                         } catch (Exception e) {
-                            android.util.Log.e("AdminPaymentFragment", "Error parsing data: " + e.getMessage(), e);
                             Toast.makeText(getContext(), "Lỗi xử lý dữ liệu thanh toán", Toast.LENGTH_SHORT).show();
                             showEmptyState(true);
                         }
                     } else {
-                        android.util.Log.w("AdminPaymentFragment", "No data in response");
                         showEmptyState(true);
                     }
                     } else {
-                        android.util.Log.w("AdminPaymentFragment", "API response not successful: " + response.body().getMessage());
                         Toast.makeText(getContext(), "Lỗi API: " + response.body().getMessage(), Toast.LENGTH_SHORT).show();
                         showEmptyState(true);
                     }
                 } else {
-                    android.util.Log.e("AdminPaymentFragment", "API call failed - Code: " + response.code() + ", Body: " + response.body());
                     Toast.makeText(getContext(), "Lỗi tải dữ liệu thanh toán (Code: " + response.code() + ")", Toast.LENGTH_SHORT).show();
                     showEmptyState(true);
                 }
@@ -273,7 +258,6 @@ public class AdminPaymentManagementFragment extends Fragment {
             
             @Override
             public void onFailure(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
-                android.util.Log.e("AdminPaymentFragment", "Network Error: " + t.getMessage(), t);
                 showLoading(false);
                 swipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(getContext(), "Lỗi kết nối mạng", Toast.LENGTH_SHORT).show();
@@ -358,7 +342,6 @@ public class AdminPaymentManagementFragment extends Fragment {
             showEmptyState(false);
         }
         
-        android.util.Log.d("AdminPaymentFragment", "Applied filter: " + filter + ", showing " + paymentItems.size() + " payment items");
     }
     
     
@@ -390,9 +373,6 @@ public class AdminPaymentManagementFragment extends Fragment {
         tvTotalPaid.setText(String.format("%.0f VNĐ", paidAmount));
         tvPendingAmount.setText(String.format("%.0f VNĐ", pendingAmount));
         
-        android.util.Log.d("AdminPaymentFragment", "Summary - Total: " + totalItems + 
-                          ", Completed: " + completedCount + " (" + paidAmount + " VNĐ)" +
-                          ", Pending: " + pendingCount + " (" + pendingAmount + " VNĐ)");
     }
     
     private void showLoading(boolean show) {

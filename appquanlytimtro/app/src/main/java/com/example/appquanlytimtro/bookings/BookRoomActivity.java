@@ -43,7 +43,6 @@ public class BookRoomActivity extends AppCompatActivity {
     private User currentUser;
     private RetrofitClient retrofitClient;
 
-    // Views
     private TextView tvRoomTitle, tvRoomPrice, tvRoomAddress;
     private TextInputEditText etCheckInDate, etCheckOutDate, etNotes;
     private AutoCompleteTextView spinnerDuration;
@@ -51,7 +50,6 @@ public class BookRoomActivity extends AppCompatActivity {
     private MaterialButton btnConfirmBooking;
     private ProgressBar progressBar;
 
-    // Booking data
     private Calendar checkInCalendar = Calendar.getInstance();
     private Calendar checkOutCalendar = Calendar.getInstance();
     private int durationMonths = 6;
@@ -70,12 +68,10 @@ public class BookRoomActivity extends AppCompatActivity {
         setupSpinners();
         setupDatePickers();
 
-        // Get room ID from intent
         Intent intent = getIntent();
         if (intent != null) {
             roomId = intent.getStringExtra("room_id");
             
-            // Check if room object is passed
             if (intent.hasExtra("room_object")) {
                 room = (Room) intent.getSerializableExtra("room_object");
                 if (room != null) {
@@ -139,7 +135,6 @@ public class BookRoomActivity extends AppCompatActivity {
     }
 
     private void setupDatePickers() {
-        // Set default check-in date to tomorrow
         checkInCalendar.add(Calendar.DAY_OF_MONTH, 1);
         updateCheckInDate();
         updateCheckOutDate();
@@ -162,7 +157,6 @@ public class BookRoomActivity extends AppCompatActivity {
                 checkInCalendar.get(Calendar.DAY_OF_MONTH)
         );
         
-        // Set minimum date to today
         dialog.getDatePicker().setMinDate(System.currentTimeMillis());
         dialog.show();
     }
@@ -181,7 +175,6 @@ public class BookRoomActivity extends AppCompatActivity {
                 checkOutCalendar.get(Calendar.DAY_OF_MONTH)
         );
         
-        // Set minimum date to check-in date + 1 day
         Calendar minDate = (Calendar) checkInCalendar.clone();
         minDate.add(Calendar.DAY_OF_MONTH, 1);
         dialog.getDatePicker().setMinDate(minDate.getTimeInMillis());
@@ -206,7 +199,6 @@ public class BookRoomActivity extends AppCompatActivity {
         long diffInDays = diffInMillis / (24 * 60 * 60 * 1000);
         durationMonths = (int) Math.ceil(diffInDays / 30.0);
         
-        // Update spinner
         String durationText = durationMonths + " tháng";
         spinnerDuration.setText(durationText, false);
     }
@@ -233,7 +225,6 @@ public class BookRoomActivity extends AppCompatActivity {
                     if (apiResponse.isSuccess() && apiResponse.getData() != null) {
                         Map<String, Object> data = apiResponse.getData();
                         if (data.containsKey("room")) {
-                            // Parse room from data.room
                             Gson gson = new Gson();
                             String roomJson = gson.toJson(data.get("room"));
                             room = gson.fromJson(roomJson, Room.class);
@@ -303,24 +294,20 @@ public class BookRoomActivity extends AppCompatActivity {
 
         showLoading(true);
 
-        // Create booking object
         Booking booking = new Booking();
         
-        // Set booking details
         Booking.BookingDetails bookingDetails = new Booking.BookingDetails();
         bookingDetails.setCheckInDate(checkInCalendar.getTime());
         bookingDetails.setCheckOutDate(checkOutCalendar.getTime());
         bookingDetails.setDuration(durationMonths);
         booking.setBookingDetails(bookingDetails);
 
-        // Set pricing
         Booking.Pricing pricing = new Booking.Pricing();
         pricing.setTotalAmount(totalAmount);
         pricing.setMonthlyRent(room.getPrice().getMonthly());
         pricing.setDeposit(room.getPrice().getDeposit());
         booking.setPricing(pricing);
 
-        // Set notes
         Booking.Notes notes = new Booking.Notes();
         String noteText = etNotes.getText() != null ? etNotes.getText().toString().trim() : "";
         notes.setTenant(noteText);
@@ -328,18 +315,14 @@ public class BookRoomActivity extends AppCompatActivity {
 
         String token = "Bearer " + retrofitClient.getToken();
         
-        // Create a map for the request body with proper structure
         java.util.Map<String, Object> bookingRequest = new java.util.HashMap<>();
         bookingRequest.put("roomId", roomId);
         
-        // Booking details
         java.util.Map<String, Object> bookingDetailsMap = new java.util.HashMap<>();
         
-        // Convert Date objects to ISO string format
         java.text.SimpleDateFormat isoFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault());
         isoFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
         
-        // Ensure dates are set to start of day in local timezone, then convert to UTC
         java.util.Calendar localCheckIn = java.util.Calendar.getInstance();
         localCheckIn.setTime(bookingDetails.getCheckInDate());
         localCheckIn.set(java.util.Calendar.HOUR_OF_DAY, 0);
@@ -356,23 +339,17 @@ public class BookRoomActivity extends AppCompatActivity {
         
         String checkInDateStr = isoFormat.format(localCheckIn.getTime());
         String checkOutDateStr = isoFormat.format(localCheckOut.getTime());
-        
-        // Debug logging
-        android.util.Log.d("BookRoomActivity", "Check-in date: " + checkInDateStr);
-        android.util.Log.d("BookRoomActivity", "Check-out date: " + checkOutDateStr);
-        
+                
         bookingDetailsMap.put("checkInDate", checkInDateStr);
         bookingDetailsMap.put("checkOutDate", checkOutDateStr);
         bookingDetailsMap.put("duration", durationMonths);
-        bookingDetailsMap.put("numberOfOccupants", 1); // Set default value
+        bookingDetailsMap.put("numberOfOccupants", 1); 
         bookingRequest.put("bookingDetails", bookingDetailsMap);
         
-        // Pricing
         java.util.Map<String, Object> pricingMap = new java.util.HashMap<>();
         pricingMap.put("deposit", room.getPrice().getDeposit());
         pricingMap.put("monthlyRent", room.getPrice().getMonthly());
         pricingMap.put("totalAmount", totalAmount);
-        // Convert utilities to number
         double utilitiesAmount = 0;
         Room.Utilities utilities = room.getPrice().getUtilities();
         if (utilities != null) {
@@ -382,7 +359,6 @@ public class BookRoomActivity extends AppCompatActivity {
         pricingMap.put("utilities", utilitiesAmount);
         bookingRequest.put("pricing", pricingMap);
         
-        // Notes
         java.util.Map<String, Object> notesMap = new java.util.HashMap<>();
         notesMap.put("tenant", noteText);
         bookingRequest.put("notes", notesMap);
@@ -399,20 +375,17 @@ public class BookRoomActivity extends AppCompatActivity {
                         Booking createdBooking = apiResponse.getData();
                         Toast.makeText(BookRoomActivity.this, "Đặt phòng thành công!", Toast.LENGTH_SHORT).show();
                         
-                        // Navigate to payment - ONLY DEPOSIT
                         Intent intent = new Intent(BookRoomActivity.this, PaymentActivity.class);
                         intent.putExtra("booking_id", createdBooking.getId());
                         intent.putExtra("room_id", roomId);
-                        intent.putExtra("amount", room.getPrice().getDeposit()); // Only deposit amount
+                        intent.putExtra("amount", room.getPrice().getDeposit());
                         
-                        // Pass booking details for payment calculation
                         intent.putExtra("check_in_date", bookingDetails.getCheckInDate().getTime());
                         intent.putExtra("check_out_date", bookingDetails.getCheckOutDate().getTime());
                         intent.putExtra("duration_months", durationMonths);
                         intent.putExtra("monthly_rent", room.getPrice().getMonthly());
                         intent.putExtra("deposit", room.getPrice().getDeposit());
                         
-                        // Calculate utilities amount
                         double utilitiesAmount = 0;
                         Room.Utilities utilities = room.getPrice().getUtilities();
                         if (utilities != null) {

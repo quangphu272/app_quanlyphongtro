@@ -36,7 +36,6 @@ public class BookingListActivity extends AppCompatActivity implements BookingAda
     private List<Booking> bookings;
     private BookingAdapter bookingAdapter;
     
-    // Views
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ProgressBar progressBar;
@@ -95,7 +94,6 @@ public class BookingListActivity extends AppCompatActivity implements BookingAda
         
         String token = "Bearer " + retrofitClient.getToken();
         java.util.Map<String, String> params = new java.util.HashMap<>();
-        // Chỉ lấy bookings của user hiện tại (tenant)
         String userJson = retrofitClient.getUserData();
         if (userJson != null) {
             com.google.gson.Gson gson = new com.google.gson.Gson();
@@ -117,7 +115,6 @@ public class BookingListActivity extends AppCompatActivity implements BookingAda
                         Map<String, Object> data = apiResponse.getData();
                         List<?> bookingsData = (List<?>) data.get("bookings");
                         
-                        android.util.Log.d("BookingListActivity", "API Response - bookings count: " + (bookingsData != null ? bookingsData.size() : 0));
                         
                         if (bookingsData != null) {
                             bookings.clear();
@@ -127,14 +124,10 @@ public class BookingListActivity extends AppCompatActivity implements BookingAda
                                     try {
                                         Booking booking = gson.fromJson(gson.toJson(bookingObj), Booking.class);
                                         bookings.add(booking);
-                                        android.util.Log.d("BookingListActivity", "Parsed booking: " + booking.getId() + " - Status: " + booking.getStatus());
                                     } catch (Exception e) {
-                                        android.util.Log.e("BookingListActivity", "Error parsing booking: " + e.getMessage());
-                                        android.util.Log.e("BookingListActivity", "Booking data: " + gson.toJson(bookingObj));
                                     }
                                 }
                             }
-                            android.util.Log.d("BookingListActivity", "Total bookings after parsing: " + bookings.size());
                             bookingAdapter.updateBookings(bookings);
                             updateEmptyView();
                         }
@@ -179,7 +172,6 @@ public class BookingListActivity extends AppCompatActivity implements BookingAda
 
     @Override
     public void onBookingClick(Booking booking) {
-        // Navigate to booking detail
         Intent intent = new Intent(this, BookingDetailActivity.class);
         intent.putExtra("booking_id", booking.getId());
         startActivity(intent);
@@ -187,18 +179,15 @@ public class BookingListActivity extends AppCompatActivity implements BookingAda
 
     @Override
     public void onBookingStatusChange(Booking booking, String newStatus) {
-        // Handle status change
         updateBookingStatus(booking.getId(), newStatus);
     }
 
     @Override
     public void onPaymentClick(Booking booking) {
-        // Navigate to payment - ONLY DEPOSIT
         Intent intent = new Intent(this, PaymentActivity.class);
         intent.putExtra("booking_id", booking.getId());
         intent.putExtra("room_id", booking.getRoom().getId());
         
-        // Pass booking details for payment calculation
         if (booking.getBookingDetails() != null) {
             intent.putExtra("check_in_date", booking.getBookingDetails().getCheckInDate().getTime());
             intent.putExtra("check_out_date", booking.getBookingDetails().getCheckOutDate().getTime());
@@ -209,7 +198,7 @@ public class BookingListActivity extends AppCompatActivity implements BookingAda
             intent.putExtra("monthly_rent", booking.getPricing().getMonthlyRent());
             intent.putExtra("deposit", booking.getPricing().getDeposit());
             intent.putExtra("utilities_amount", booking.getPricing().getUtilities());
-            intent.putExtra("amount", booking.getPricing().getDeposit()); // Only deposit amount
+            intent.putExtra("amount", booking.getPricing().getDeposit()); 
         }
         
         startActivity(intent);
@@ -228,7 +217,7 @@ public class BookingListActivity extends AppCompatActivity implements BookingAda
                     ApiResponse<Booking> apiResponse = response.body();
                     if (apiResponse.isSuccess()) {
                         Toast.makeText(BookingListActivity.this, "Cập nhật trạng thái thành công", Toast.LENGTH_SHORT).show();
-                        loadBookings(); // Reload list
+                        loadBookings(); 
                     } else {
                         showError(apiResponse.getMessage());
                     }

@@ -128,7 +128,6 @@ public class PostRoomFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     Toast.makeText(getContext(), R.string.saved_successfully, Toast.LENGTH_SHORT).show();
                     
-                    // Parse Room from response data
                     Map<String, Object> responseData = response.body().getData();
                     Room created = null;
                     
@@ -201,7 +200,7 @@ public class PostRoomFragment extends Fragment {
                 MultipartBody.Part part = MultipartBody.Part.createFormData("images", "image.jpg", req);
                 parts.add(part);
 
-                is.close(); // đóng InputStream sau khi xong
+                is.close(); 
             } catch (Exception e) {
                 e.printStackTrace();
             }

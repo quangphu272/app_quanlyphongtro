@@ -63,13 +63,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         
-        // Re-check login status when activity resumes
         if (!retrofitClient.isLoggedIn()) {
             navigateToLogin();
             return;
         }
         
-        // Reload user data if needed
         if (currentUser == null) {
             loadUserData();
         }
@@ -78,19 +76,15 @@ public class MainActivity extends AppCompatActivity {
     private void initViews() {
         bottomNavigationView = findViewById(R.id.bottomNavigation);
         if (bottomNavigationView == null) {
-            android.util.Log.e("MainActivity", "BottomNavigationView not found in layout!");
-            // Layout loading error, redirect to login
             navigateToLogin();
             return;
         }
         
-        android.util.Log.d("MainActivity", "BottomNavigationView initialized successfully");
     }
     
     private void setupToolbar() {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar == null) {
-            android.util.Log.e("MainActivity", "Toolbar not found!");
             return;
         }
         
@@ -99,45 +93,35 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("Quản Lý Tìm Trọ");
         }
         
-        android.util.Log.d("MainActivity", "Toolbar setup completed");
     }
     
     
     private void loadUserData() {
         String userJson = retrofitClient.getUserData();
-        android.util.Log.d("MainActivity", "Loading user data: " + (userJson != null));
         
         if (userJson != null && !userJson.isEmpty()) {
             try {
                 Gson gson = new Gson();
                 currentUser = gson.fromJson(userJson, User.class);
                 
-                android.util.Log.d("MainActivity", "User parsed: " + (currentUser != null));
-                android.util.Log.d("MainActivity", "User role: " + (currentUser != null ? currentUser.getRole() : "null"));
                 
                 if (currentUser != null && currentUser.getRole() != null) {
-                    // Initialize bottom navigation menu based on role
                     initBottomMenuByRole(currentUser.getRole());
                     
-                    // Load default fragment based on role
                     loadDefaultFragment();
                     
-                    // Select default tab
                     if (Constants.ROLE_TENANT.equals(currentUser.getRole())) {
                         bottomNavigationView.setSelectedItemId(R.id.nav_home);
                     } else {
                         bottomNavigationView.setSelectedItemId(R.id.nav_dashboard);
                     }
                 } else {
-                    // Invalid user data, redirect to login
                     navigateToLogin();
                 }
             } catch (Exception e) {
-                // JSON parsing error, redirect to login
                 navigateToLogin();
             }
         } else {
-            // If no user data, redirect to login
             navigateToLogin();
         }
     }
@@ -163,27 +147,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupBottomNavigation() {
         if (bottomNavigationView == null) {
-            android.util.Log.e("MainActivity", "BottomNavigationView is null!");
             return;
         }
         
-        android.util.Log.d("MainActivity", "Setting up bottom navigation for role: " + (currentUser != null ? currentUser.getRole() : "null"));
         
-        // Initialize menu based on role
         if (currentUser != null) {
             initBottomMenuByRole(currentUser.getRole());
         }
         
-        // Test if bottom navigation is working
-        android.util.Log.d("MainActivity", "Bottom navigation menu items count: " + bottomNavigationView.getMenu().size());
         
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            android.util.Log.d("MainActivity", "Bottom nav item selected: " + item.getTitle());
             int id = item.getItemId();
             String role = currentUser != null ? currentUser.getRole() : "";
             
             if (id == R.id.nav_home || id == R.id.nav_dashboard) {
-                // Dashboard/Home based on role
                 if (Constants.ROLE_TENANT.equals(role)) {
                     switchFragment(new TenantHomeFragment());
                 } else if (Constants.ROLE_LANDLORD.equals(role)) {
@@ -193,7 +170,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
             } else if (id == R.id.nav_search) {
-                // Search rooms - only for tenants
                 if (Constants.ROLE_TENANT.equals(role)) {
                     Intent intent = new Intent(this, RoomListActivity.class);
                     intent.putExtra("show_available_only", true);
@@ -201,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
             } else if (id == R.id.nav_manage_rooms || id == R.id.nav_rooms) {
-                // Room management based on role
                 if (Constants.ROLE_LANDLORD.equals(role)) {
                     switchFragment(new LandlordRoomManagementFragment());
                 } else if (Constants.ROLE_ADMIN.equals(role)) {
@@ -210,7 +185,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
             } else if (id == R.id.nav_bookings) {
-                // Bookings based on role
                 if (Constants.ROLE_TENANT.equals(role)) {
                     Intent intent = new Intent(this, BookingListActivity.class);
                     startActivity(intent);
@@ -229,7 +203,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
             } else if (id == R.id.nav_users) {
-                // User management - only for admin
                 if (Constants.ROLE_ADMIN.equals(role)) {
                     switchFragment(new AdminUsersFragment());
                 }

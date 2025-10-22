@@ -49,29 +49,24 @@ public class Booking {
     @SerializedName("updatedAt")
     private String updatedAt;
 
-    // Constructors
     public Booking() {}
 
     public Booking(String roomId, String tenantId, String checkIn, String checkOut, 
                    int duration, double totalAmount) {
         this.bookingDetails = new BookingDetails();
         try {
-            // Parse string dates to Date objects
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
             this.bookingDetails.setCheckInDate(sdf.parse(checkIn));
             this.bookingDetails.setCheckOutDate(sdf.parse(checkOut));
         } catch (java.text.ParseException e) {
-            // If parsing fails, set to current date
             this.bookingDetails.setCheckInDate(new java.util.Date());
             this.bookingDetails.setCheckOutDate(new java.util.Date());
         }
-        this.bookingDetails.setDuration(duration);
-        
+        this.bookingDetails.setDuration(duration); 
         this.pricing = new Pricing();
         this.pricing.setTotalAmount(totalAmount);
     }
 
-    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -192,7 +187,6 @@ public class Booking {
         this.updatedAt = updatedAt;
     }
 
-    // Nested classes
     public static class BookingDetails {
         @SerializedName("checkInDate")
         private java.util.Date checkInDate;

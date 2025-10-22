@@ -36,11 +36,10 @@ public class LandlordBookingManagementFragment extends Fragment implements Landl
 
     private RetrofitClient retrofitClient;
     private List<Booking> bookings;
-    private List<Booking> allBookings; // Store all bookings for filtering
+    private List<Booking> allBookings; 
     private LandlordBookingAdapter bookingAdapter;
-    private String currentFilter = null; // Current filter status
+    private String currentFilter = null; 
     
-    // Views
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ProgressBar progressBar;
@@ -74,7 +73,6 @@ public class LandlordBookingManagementFragment extends Fragment implements Landl
         progressBar = view.findViewById(R.id.progressBar);
         emptyView = view.findViewById(R.id.emptyView);
         
-        // Filter chips
         chipAll = view.findViewById(R.id.chipAll);
         chipPending = view.findViewById(R.id.chipPending);
         chipConfirmed = view.findViewById(R.id.chipConfirmed);
@@ -115,7 +113,6 @@ public class LandlordBookingManagementFragment extends Fragment implements Landl
     private void filterBookings(String status) {
         currentFilter = status;
         
-        // Update chip states
         chipAll.setChecked(status == null);
         chipPending.setChecked("pending".equals(status));
         chipConfirmed.setChecked("confirmed".equals(status));
@@ -124,7 +121,6 @@ public class LandlordBookingManagementFragment extends Fragment implements Landl
         chipCompleted.setChecked("completed".equals(status));
         chipCancelled.setChecked("cancelled".equals(status));
         
-        // Filter bookings
         bookings.clear();
         if (status == null) {
             bookings.addAll(allBookings);
@@ -168,7 +164,6 @@ public class LandlordBookingManagementFragment extends Fragment implements Landl
                                 }
                             }
                             
-                            // Apply current filter
                             filterBookings(currentFilter);
                         }
                     } else {
@@ -225,21 +220,15 @@ public class LandlordBookingManagementFragment extends Fragment implements Landl
 
     @Override
     public void onViewBookingDetails(Booking booking) {
-        // Navigate to booking detail
-        // Intent intent = new Intent(getContext(), BookingDetailActivity.class);
-        // intent.putExtra("booking_id", booking.getId());
-        // startActivity(intent);
     }
 
     @Override
     public void onAcceptBooking(Booking booking) {
-        // Check current status first
         checkBookingStatus(booking.getId(), "confirmed", "Bạn có chắc chắn muốn chấp nhận đặt phòng này?");
     }
 
     @Override
     public void onRejectBooking(Booking booking) {
-        // Check current status first
         checkBookingStatus(booking.getId(), "cancelled", "Bạn có chắc chắn muốn từ chối đặt phòng này?");
     }
 
@@ -261,7 +250,6 @@ public class LandlordBookingManagementFragment extends Fragment implements Landl
                         Boolean canBeCancelled = (Boolean) data.get("canBeCancelled");
                         Boolean canBeConfirmed = (Boolean) data.get("canBeConfirmed");
                         
-                        // Check if action is allowed
                         boolean canPerformAction = false;
                         if (newStatus.equals("confirmed")) {
                             canPerformAction = canBeConfirmed;
@@ -270,7 +258,6 @@ public class LandlordBookingManagementFragment extends Fragment implements Landl
                         }
                         
                         if (canPerformAction) {
-                            // Show confirmation dialog
                             new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                                     .setTitle("Xác nhận")
                                     .setMessage(confirmMessage)
@@ -321,7 +308,7 @@ public class LandlordBookingManagementFragment extends Fragment implements Landl
                     if (apiResponse.isSuccess()) {
                         String message = newStatus.equals("confirmed") ? "Chấp nhận đặt phòng thành công" : "Từ chối đặt phòng thành công";
                         showError(message);
-                        loadBookings(); // Reload list
+                        loadBookings(); 
                     } else {
                         showError(apiResponse.getMessage());
                     }

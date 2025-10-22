@@ -14,7 +14,6 @@
         android:paddingBottom="120dp"
         android:minHeight="1000dp">
 
-        <!-- Profile Header Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardProfileHeader"
             android:layout_width="0dp"
@@ -56,7 +55,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Form Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardForm"
             android:layout_width="0dp"
@@ -135,7 +133,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Info Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardInfo"
             android:layout_width="0dp"
@@ -192,7 +189,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Action Buttons Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardActions"
             android:layout_width="0dp"

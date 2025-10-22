@@ -119,12 +119,9 @@ public class LandlordPaymentManagementFragment extends Fragment {
                 showLoading(false);
                 swipeRefreshLayout.setRefreshing(false);
                 
-                android.util.Log.d("LandlordPaymentFragment", "Payments API Response Code: " + response.code());
-                android.util.Log.d("LandlordPaymentFragment", "Payments API Response Body: " + response.body());
                 
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     java.util.Map<String, Object> data = response.body().getData();
-                    android.util.Log.d("LandlordPaymentFragment", "Payments Data: " + data);
                     
                     if (data != null && data.containsKey("payments")) {
                         try {
@@ -132,7 +129,6 @@ public class LandlordPaymentManagementFragment extends Fragment {
                             String paymentsJson = gson.toJson(data.get("payments"));
                             List<Payment> paymentList = gson.fromJson(paymentsJson, new com.google.gson.reflect.TypeToken<List<Payment>>(){}.getType());
                             
-                            android.util.Log.d("LandlordPaymentFragment", "Parsed payments count: " + (paymentList != null ? paymentList.size() : 0));
                             
                             if (paymentList != null) {
                                 // Filter payments - chỉ hiển thị payments từ booking đã confirmed
@@ -152,16 +148,13 @@ public class LandlordPaymentManagementFragment extends Fragment {
                                     showEmptyState(false);
                                 }
                             } else {
-                                android.util.Log.w("LandlordPaymentFragment", "Payment list is null");
                                 showEmptyState(true);
                             }
                         } catch (Exception e) {
-                            android.util.Log.e("LandlordPaymentFragment", "Error parsing payments: " + e.getMessage(), e);
                             Toast.makeText(getContext(), "Lỗi xử lý dữ liệu thanh toán", Toast.LENGTH_SHORT).show();
                             showEmptyState(true);
                         }
                     } else {
-                        android.util.Log.w("LandlordPaymentFragment", "No payments key in response data");
                         showEmptyState(true);
                     }
                 } else {
@@ -172,7 +165,6 @@ public class LandlordPaymentManagementFragment extends Fragment {
             
             @Override
             public void onFailure(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
-                android.util.Log.e("LandlordPaymentFragment", "Network Error: " + t.getMessage(), t);
                 showLoading(false);
                 swipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(getContext(), "Lỗi kết nối mạng", Toast.LENGTH_SHORT).show();
@@ -195,7 +187,6 @@ public class LandlordPaymentManagementFragment extends Fragment {
             }
         }
         
-        android.util.Log.d("LandlordPaymentFragment", "Filtered payments: " + validPayments.size() + " from " + paymentList.size() + " total");
         return validPayments;
     }
     

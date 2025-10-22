@@ -29,13 +29,11 @@ public class VNPayService {
     
     private static final String TAG = "VNPayService";
     
-    // VNPay configuration - sử dụng VNPayConfig
     private static final String VNPAY_URL = VNPayConfig.VNPAY_URL;
     private static final String VNPAY_RETURN_URL = VNPayConfig.VNPAY_RETURN_URL;
     private static final String VNPAY_TMN_CODE = VNPayConfig.VNPAY_TMN_CODE;
     private static final String VNPAY_HASH_SECRET = VNPayConfig.VNPAY_HASH_SECRET;
     
-    // VNPay parameters
     private static final String VERSION = VNPayConfig.VERSION;
     private static final String CURRENCY_CODE = VNPayConfig.CURRENCY_CODE;
     private static final String LOCALE = VNPayConfig.LOCALE;
@@ -58,7 +56,6 @@ public class VNPayService {
             this.createDate = new Date();
         }
         
-        // Getters
         public String getOrderId() { return orderId; }
         public String getOrderInfo() { return orderInfo; }
         public long getAmount() { return amount; }
@@ -80,7 +77,6 @@ public class VNPayService {
             this.message = message;
         }
         
-        // Getters and Setters
         public boolean isSuccess() { return success; }
         public String getMessage() { return message; }
         public String getTransactionId() { return transactionId; }
@@ -93,18 +89,15 @@ public class VNPayService {
         public void setResponseCode(String responseCode) { this.responseCode = responseCode; }
     }
     
-    /**
-     * Tạo URL thanh toán VNPay
-     */
+
     public static String createPaymentUrl(PaymentRequest request) {
         try {
             Map<String, String> vnpParams = new HashMap<>();
             
-            // Required parameters
             vnpParams.put("vnp_Version", VERSION);
             vnpParams.put("vnp_Command", COMMAND);
             vnpParams.put("vnp_TmnCode", VNPAY_TMN_CODE);
-            vnpParams.put("vnp_Amount", String.valueOf(request.getAmount() * 100)); // VNPay requires amount in cents
+            vnpParams.put("vnp_Amount", String.valueOf(request.getAmount() * 100));
             vnpParams.put("vnp_CurrCode", CURRENCY_CODE);
             vnpParams.put("vnp_TxnRef", request.getOrderId());
             vnpParams.put("vnp_OrderInfo", request.getOrderInfo());
@@ -113,26 +106,21 @@ public class VNPayService {
             vnpParams.put("vnp_ReturnUrl", request.getReturnUrl());
             vnpParams.put("vnp_IpAddr", request.getIpAddress());
             
-            // Date format: yyyyMMddHHmmss
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+7"));
             vnpParams.put("vnp_CreateDate", dateFormat.format(request.getCreateDate()));
             
-            // Expire date (15 minutes from now)
             Calendar expireDate = Calendar.getInstance();
             expireDate.add(Calendar.MINUTE, 15);
             vnpParams.put("vnp_ExpireDate", dateFormat.format(expireDate.getTime()));
             
-            // Sort parameters and create query string (without hash)
             String queryString = createQueryString(vnpParams);
             
-            // Create secure hash
             String secureHash = hmacSHA512(VNPAY_HASH_SECRET, queryString);
             Log.d(TAG, "Query string for hash: " + queryString);
             Log.d(TAG, "Generated secure hash: " + secureHash);
             vnpParams.put("vnp_SecureHash", secureHash);
             
-            // Create final query string (with hash)
             String finalQueryString = createQueryString(vnpParams);
             Log.d(TAG, "Final payment URL: " + VNPAY_URL + "?" + finalQueryString);
             
@@ -144,14 +132,10 @@ public class VNPayService {
         }
     }
     
-    /**
-     * Xử lý kết quả thanh toán từ VNPay
-     */
     public static PaymentResponse handlePaymentResult(Uri uri) {
         try {
             Map<String, String> params = new HashMap<>();
             
-            // Parse query parameters
             for (String param : uri.getQuery().split("&")) {
                 String[] keyValue = param.split("=");
                 if (keyValue.length == 2) {
@@ -165,7 +149,6 @@ public class VNPayService {
             String amount = params.get("vnp_Amount");
             String secureHash = params.get("vnp_SecureHash");
             
-            // Verify secure hash
             if (!verifySecureHash(params, secureHash)) {
                 return new PaymentResponse(false, "Mã bảo mật không hợp lệ");
             }
@@ -176,10 +159,9 @@ public class VNPayService {
             response.setResponseCode(responseCode);
             
             if (amount != null) {
-                response.setAmount(Long.parseLong(amount) / 100); // Convert from cents
+                response.setAmount(Long.parseLong(amount) / 100);
             }
             
-            // Check response code
             if ("00".equals(responseCode)) {
                 response = new PaymentResponse(true, "Thanh toán thành công");
                 response.setTransactionId(transactionId);
@@ -206,10 +188,7 @@ public class VNPayService {
             return new PaymentResponse(false, "Lỗi xử lý kết quả thanh toán");
         }
     }
-    
-    /**
-     * Mở thanh toán VNPay trong WebView
-     */
+
     public static void openPayment(Context context, PaymentRequest request) {
         String paymentUrl = createPaymentUrl(request);
         
@@ -222,9 +201,6 @@ public class VNPayService {
         }
     }
     
-    /**
-     * Mở thanh toán VNPay trong WebView với callback
-     */
     public static void openPayment(Context context, PaymentRequest request, int requestCode) {
         String paymentUrl = createPaymentUrl(request);
         
@@ -241,9 +217,6 @@ public class VNPayService {
         }
     }
     
-    /**
-     * Tạo query string từ parameters
-     */
     private static String createQueryString(Map<String, String> params) {
         List<String> paramNames = new ArrayList<>(params.keySet());
         Collections.sort(paramNames);
@@ -257,7 +230,6 @@ public class VNPayService {
             
             if (paramValue != null && !paramValue.isEmpty()) {
                 try {
-                    // URL encode parameter values
                     String encodedValue = URLEncoder.encode(paramValue, "UTF-8");
                     queryString.append(paramName).append("=").append(encodedValue);
                     if (iterator.hasNext()) {
@@ -276,9 +248,6 @@ public class VNPayService {
         return queryString.toString();
     }
     
-    /**
-     * Tạo HMAC SHA512 hash - sử dụng thuật toán chuẩn
-     */
     private static String hmacSHA512(String key, String data) {
         try {
             Mac mac = Mac.getInstance("HmacSHA512");
@@ -304,28 +273,20 @@ public class VNPayService {
         }
     }
     
-    /**
-     * Verify secure hash
-     */
     private static boolean verifySecureHash(Map<String, String> params, String receivedHash) {
         if (receivedHash == null || receivedHash.isEmpty()) {
             return false;
         }
         
-        // Remove vnp_SecureHash from params
         Map<String, String> paramsWithoutHash = new HashMap<>(params);
         paramsWithoutHash.remove("vnp_SecureHash");
         
-        // Create query string and hash
         String queryString = createQueryString(paramsWithoutHash);
         String calculatedHash = hmacSHA512(VNPAY_HASH_SECRET, queryString);
         
         return receivedHash.equals(calculatedHash);
     }
     
-    /**
-     * Get error message from response code
-     */
     private static String getErrorMessage(String responseCode) {
         switch (responseCode) {
             case "07":

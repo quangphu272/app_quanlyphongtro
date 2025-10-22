@@ -192,7 +192,6 @@ public class RoomSearchActivity extends AppCompatActivity implements RoomAdapter
         queryParams.put("availability", "true");
         queryParams.put("excludeBooked", "true"); // Exclude rooms with pending bookings
         
-        android.util.Log.d("RoomSearchActivity", "Search params: " + queryParams);
         
         retrofitClient.getApiService().getRooms(queryParams).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
             @Override
@@ -228,7 +227,6 @@ public class RoomSearchActivity extends AppCompatActivity implements RoomAdapter
                                 }
                                 
                             } catch (Exception e) {
-                                android.util.Log.e("RoomSearchActivity", "Error parsing rooms: " + e.getMessage(), e);
                                 Toast.makeText(RoomSearchActivity.this, "Lỗi xử lý dữ liệu", Toast.LENGTH_SHORT).show();
                             }
                         }

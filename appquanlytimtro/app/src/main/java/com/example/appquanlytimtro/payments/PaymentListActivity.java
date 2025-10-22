@@ -81,7 +81,6 @@ public class PaymentListActivity extends AppCompatActivity {
                     userRole = currentUser.getRole();
                 }
             } catch (Exception e) {
-                android.util.Log.e("PaymentListActivity", "Error parsing user role: " + e.getMessage());
             }
         }
         
@@ -133,12 +132,9 @@ public class PaymentListActivity extends AppCompatActivity {
                 showLoading(false);
                 swipeRefreshLayout.setRefreshing(false);
                 
-                android.util.Log.d("PaymentListActivity", "Payments API Response Code: " + response.code());
-                android.util.Log.d("PaymentListActivity", "Payments API Response Body: " + response.body());
                 
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     java.util.Map<String, Object> data = response.body().getData();
-                    android.util.Log.d("PaymentListActivity", "Payments Data: " + data);
                     
                     if (data != null && data.containsKey("payments")) {
                         try {
@@ -146,7 +142,6 @@ public class PaymentListActivity extends AppCompatActivity {
                             String paymentsJson = gson.toJson(data.get("payments"));
                             List<Payment> paymentList = gson.fromJson(paymentsJson, new com.google.gson.reflect.TypeToken<List<Payment>>(){}.getType());
                             
-                            android.util.Log.d("PaymentListActivity", "Parsed payments count: " + (paymentList != null ? paymentList.size() : 0));
                             
                             if (paymentList != null) {
                                 // Filter payments - chỉ hiển thị payments từ booking đã confirmed
@@ -166,16 +161,13 @@ public class PaymentListActivity extends AppCompatActivity {
                                     showEmptyState(false);
                                 }
                             } else {
-                                android.util.Log.w("PaymentListActivity", "Payment list is null");
                                 showEmptyState(true);
                             }
                         } catch (Exception e) {
-                            android.util.Log.e("PaymentListActivity", "Error parsing payments: " + e.getMessage(), e);
                             Toast.makeText(PaymentListActivity.this, "Lỗi xử lý dữ liệu thanh toán", Toast.LENGTH_SHORT).show();
                             showEmptyState(true);
                         }
                     } else {
-                        android.util.Log.w("PaymentListActivity", "No payments key in response data");
                         showEmptyState(true);
                     }
                 } else {
@@ -208,7 +200,6 @@ public class PaymentListActivity extends AppCompatActivity {
             }
         }
         
-        android.util.Log.d("PaymentListActivity", "Filtered payments: " + validPayments.size() + " from " + paymentList.size() + " total");
         return validPayments;
     }
     

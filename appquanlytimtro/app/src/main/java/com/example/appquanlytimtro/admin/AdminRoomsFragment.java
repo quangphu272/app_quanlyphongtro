@@ -47,7 +47,6 @@ public class AdminRoomsFragment extends Fragment implements RoomAdapter.OnRoomCl
         
         retrofitClient = RetrofitClient.getInstance(requireContext());
         
-        // Initialize views
         recyclerView = view.findViewById(R.id.recyclerView);
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         progressBar = view.findViewById(R.id.progressBar);
@@ -83,7 +82,7 @@ public class AdminRoomsFragment extends Fragment implements RoomAdapter.OnRoomCl
         
         Map<String, String> params = new HashMap<>();
         params.put("page", "1");
-        params.put("limit", "100"); // Load more rooms for admin
+        params.put("limit", "100");
         
         retrofitClient.getApiService().getRooms(params)
                 .enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
@@ -107,17 +106,13 @@ public class AdminRoomsFragment extends Fragment implements RoomAdapter.OnRoomCl
                                     Room room = gson.fromJson(json, Room.class);
                                     rooms.add(room);
                                     
-                                    // Count statistics
                                     totalRooms++;
                                     if ("active".equals(room.getStatus())) {
                                         activeRooms++;
-                                        // Assume room is occupied if status is active
-                                        // In a real app, you might check bookings or other indicators
                                         occupiedRooms++;
                                     }
                                 }
                                 
-                                // Update statistics
                                 tvTotalRooms.setText(String.valueOf(totalRooms));
                                 tvActiveRooms.setText(String.valueOf(activeRooms));
                                 tvOccupiedRooms.setText(String.valueOf(occupiedRooms));
@@ -145,7 +140,6 @@ public class AdminRoomsFragment extends Fragment implements RoomAdapter.OnRoomCl
 
     @Override
     public void onRoomClick(Room room) {
-        // Handle room click - could show room details
         Toast.makeText(getContext(), "Xem chi tiết phòng: " + room.getTitle(), Toast.LENGTH_SHORT).show();
     }
 }

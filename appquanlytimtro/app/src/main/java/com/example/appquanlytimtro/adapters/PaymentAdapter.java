@@ -56,7 +56,6 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.PaymentV
     
     class PaymentViewHolder extends RecyclerView.ViewHolder {
         private TextView tvAmount, tvType, tvStatus, tvDate, tvDescription;
-        // private Button btnAction; // Removed
         
         public PaymentViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -65,30 +64,22 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.PaymentV
             tvStatus = itemView.findViewById(R.id.chipStatus);
             tvDate = itemView.findViewById(R.id.tvDate);
             tvDescription = itemView.findViewById(R.id.tvDescription);
-            // btnAction removed - only keeping btnView
         }
         
         public void bind(Payment payment) {
-            // Set amount
             NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
             tvAmount.setText(formatter.format(payment.getAmount()));
             
-            // Set type
             tvType.setText(getTypeText(payment.getType()));
             
-            // Set status
             tvStatus.setText(getStatusText(payment.getStatus()));
             tvStatus.setTextColor(getStatusColor(payment.getStatus()));
             
-            // Set date
-            // Use payment date or current date as fallback
             String dateText = "Ngày tạo: " + formatDate(new java.util.Date());
             tvDate.setText(dateText);
             
-            // Set description
             tvDescription.setText(payment.getDescription() != null ? payment.getDescription() : "Không có mô tả");
             
-            // Set click listeners
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onPaymentClick(payment);
@@ -143,7 +134,6 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.PaymentV
             }
         }
         
-        // Action button methods removed - only keeping view functionality
         
         private String formatDate(Date date) {
             if (date == null) return "";

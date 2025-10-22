@@ -18,7 +18,6 @@ public class RegisterRequest {
     @SerializedName("role")
     private String role;
 
-    // Constructors
     public RegisterRequest() {}
 
     public RegisterRequest(String fullName, String email, String password, String phone, String role) {
@@ -29,7 +28,6 @@ public class RegisterRequest {
         this.role = role;
     }
 
-    // Getters and Setters
     public String getFullName() {
         return fullName;
     }

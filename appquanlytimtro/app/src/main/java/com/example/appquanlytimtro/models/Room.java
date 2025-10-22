@@ -65,7 +65,6 @@ public class Room implements Serializable {
     @SerializedName("updatedAt")
     private String updatedAt;
 
-    // Constructors
     public Room() {}
 
     public Room(String title, String description, User.Address address, String roomType, 
@@ -78,7 +77,6 @@ public class Room implements Serializable {
         this.price = price;
     }
 
-    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -239,7 +237,6 @@ public class Room implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    // Nested classes
     public static class Price implements Serializable {
         @SerializedName("monthly")
         private double monthly;
@@ -248,7 +245,7 @@ public class Room implements Serializable {
         private double deposit;
         
         @SerializedName("utilities")
-        private Object utilities; // Changed to Object to handle both number and object
+        private Object utilities;
 
         public Price() {}
 
@@ -272,14 +269,12 @@ public class Room implements Serializable {
             if (utilities instanceof Utilities) {
                 return (Utilities) utilities;
             } else if (utilities instanceof Number) {
-                // Convert number to Utilities object
                 Utilities utils = new Utilities();
                 double total = ((Number) utilities).doubleValue();
-                // Distribute the total utilities cost
-                utils.setElectricity(total * 0.4); // 40% for electricity
-                utils.setWater(total * 0.3);       // 30% for water
-                utils.setInternet(total * 0.2);    // 20% for internet
-                utils.setOther(total * 0.1);       // 10% for other
+                utils.setElectricity(total * 0.4);
+                utils.setWater(total * 0.3);
+                utils.setInternet(total * 0.2);
+                utils.setOther(total * 0.1);
                 return utils;
             }
             return null;

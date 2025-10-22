@@ -158,7 +158,6 @@ public class PaymentActivity extends AppCompatActivity {
                                 displayRoomInfo();
                                 
                             } catch (Exception e) {
-                                android.util.Log.e("PaymentActivity", "Error parsing room: " + e.getMessage(), e);
                                 Toast.makeText(PaymentActivity.this, "Lỗi xử lý dữ liệu phòng", Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -297,7 +296,6 @@ public class PaymentActivity extends AppCompatActivity {
         // Kiểm tra cấu hình VNPay
         if (!VNPayConfig.isConfigured()) {
             Toast.makeText(this, "VNPay chưa được cấu hình. Vui lòng liên hệ admin.", Toast.LENGTH_LONG).show();
-            android.util.Log.w("PaymentActivity", VNPayConfig.getConfigurationMessage());
             return;
         }
         
@@ -397,7 +395,6 @@ public class PaymentActivity extends AppCompatActivity {
                 bookingDetails.setCheckOutDate(sdf.parse("2025-02-01"));
                 bookingDetails.setDuration(1);
             } catch (java.text.ParseException e) {
-                // If parsing fails, set to current date
                 bookingDetails.setCheckInDate(new java.util.Date());
                 bookingDetails.setCheckOutDate(new java.util.Date());
                 bookingDetails.setDuration(1);
