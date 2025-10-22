@@ -166,7 +166,6 @@ public interface ApiService {
     @GET("payments/stats/overview")
     Call<ApiResponse<Map<String, Object>>> getPaymentStats(@Header("Authorization") String token);
     
-    // VNPay & Bank Transfer
     @POST("payments/vnpay/create")
     Call<ApiResponse<Map<String, Object>>> createVNPayPayment(
             @Header("Authorization") String token,

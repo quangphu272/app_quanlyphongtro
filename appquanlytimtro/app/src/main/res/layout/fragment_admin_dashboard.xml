@@ -348,17 +348,6 @@
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:text="Quản lý phòng"
-                android:textSize="12sp"
-                style="@style/Button.Secondary"
-                app:icon="@drawable/ic_room"
-                app:iconSize="20dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
                 android:layout_marginStart="8dp"
                 android:text="Báo cáo"
                 android:textSize="12sp"

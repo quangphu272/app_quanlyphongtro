@@ -56,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             loadUserData();
             setupBottomNavigation();
-            setupFAB();
         }, 100);
     }
     
@@ -217,12 +216,9 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                 } else if (Constants.ROLE_LANDLORD.equals(role)) {
                     switchFragment(new LandlordBookingManagementFragment());
-                } else if (Constants.ROLE_ADMIN.equals(role)) {
-                    switchFragment(new AdminBookingManagementFragment());
                 }
                 return true;
             } else if (id == R.id.nav_payments) {
-                // Payments based on role
                 if (Constants.ROLE_TENANT.equals(role)) {
                     Intent intent = new Intent(this, PaymentListActivity.class);
                     startActivity(intent);
@@ -267,22 +263,6 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
     }
     
-    private void setupFAB() {
-        com.google.android.material.floatingactionbutton.FloatingActionButton fab = findViewById(R.id.fabAdd);
-        if (fab != null && currentUser != null) {
-            // Show FAB only for landlords and admins
-            if (Constants.ROLE_LANDLORD.equals(currentUser.getRole()) || Constants.ROLE_ADMIN.equals(currentUser.getRole())) {
-                fab.setVisibility(android.view.View.VISIBLE);
-                fab.setOnClickListener(v -> {
-                    // Navigate to add room
-                    Intent intent = new Intent(this, com.example.appquanlytimtro.landlord.AddRoomActivity.class);
-                    startActivity(intent);
-                });
-            } else {
-                fab.setVisibility(android.view.View.GONE);
-            }
-        }
-    }
     
     
     private void navigateToLogin() {
@@ -313,5 +293,11 @@ public class MainActivity extends AppCompatActivity {
     public void logout() {
         retrofitClient.logout();
         navigateToLogin();
+    }
+    
+    public void navigateToFragment(int position) {
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setSelectedItemId(bottomNavigationView.getMenu().getItem(position).getItemId());
+        }
     }
 }

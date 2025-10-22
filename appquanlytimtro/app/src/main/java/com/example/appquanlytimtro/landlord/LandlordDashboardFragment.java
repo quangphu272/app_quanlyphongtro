@@ -1,5 +1,6 @@
 package com.example.appquanlytimtro.landlord;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.button.MaterialButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,6 +30,7 @@ public class LandlordDashboardFragment extends Fragment {
     private TextView tvTotalRevenue;
     private TextView tvPendingBookings;
     private MaterialCardView cardLogout;
+    private MaterialButton btnAddRoom, btnManageRooms, btnViewBookings;
     
     private RetrofitClient retrofitClient;
     private User currentUser;
@@ -53,6 +56,9 @@ public class LandlordDashboardFragment extends Fragment {
         tvTotalRevenue = view.findViewById(R.id.tvTotalRevenue);
         tvPendingBookings = view.findViewById(R.id.tvPendingBookings);
         cardLogout = view.findViewById(R.id.cardLogout);
+        btnAddRoom = view.findViewById(R.id.btnAddRoom);
+        btnManageRooms = view.findViewById(R.id.btnManageRooms);
+        btnViewBookings = view.findViewById(R.id.btnViewBookings);
     }
 
     private void setupClickListeners() {
@@ -70,6 +76,31 @@ public class LandlordDashboardFragment extends Fragment {
                 .setNegativeButton("Hủy", null)
                 .show();
         });
+        
+        if (btnAddRoom != null) {
+            btnAddRoom.setOnClickListener(v -> {
+                Intent intent = new Intent(getActivity(), AddRoomActivity.class);
+                startActivity(intent);
+            });
+        }
+        
+        if (btnManageRooms != null) {
+            btnManageRooms.setOnClickListener(v -> {
+                // Navigate to room management fragment
+                if (getActivity() instanceof com.example.appquanlytimtro.MainActivity) {
+                    ((com.example.appquanlytimtro.MainActivity) getActivity()).navigateToFragment(1); // Room management tab
+                }
+            });
+        }
+        
+        if (btnViewBookings != null) {
+            btnViewBookings.setOnClickListener(v -> {
+                // Navigate to bookings fragment
+                if (getActivity() instanceof com.example.appquanlytimtro.MainActivity) {
+                    ((com.example.appquanlytimtro.MainActivity) getActivity()).navigateToFragment(2); // Bookings tab
+                }
+            });
+        }
     }
 
     private void loadUserData() {
@@ -81,26 +112,17 @@ public class LandlordDashboardFragment extends Fragment {
     }
 
     private void loadDashboardData() {
-        if (currentUser == null) return;
+        if (currentUser == null) {
+            android.util.Log.e("LandlordDashboard", "Current user is null");
+            loadDefaultData();
+            return;
+        }
         
-        String token = "Bearer " + retrofitClient.getToken();
+        android.util.Log.d("LandlordDashboard", "Loading dashboard data for user: " + currentUser.getId());
         
-        retrofitClient.getApiService().getDashboardStats(token).enqueue(new Callback<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>>() {
-            @Override
-            public void onResponse(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Response<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    java.util.Map<String, Object> data = response.body().getData();
-                    updateDashboardData(data);
-                } else {
-                    loadDefaultData();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
-                loadDefaultData();
-            }
-        });
+        // Skip the dashboard API and go directly to load real data
+        // This ensures we always get real data
+        loadRealDataFromAPIs();
     }
     
     private void updateDashboardData(java.util.Map<String, Object> data) {
@@ -127,6 +149,168 @@ public class LandlordDashboardFragment extends Fragment {
             Object pendingBookings = data.get("pendingBookings");
             tvPendingBookings.setText(pendingBookings != null ? pendingBookings.toString() : "0");
         }
+    }
+    
+    private void loadRealDataFromAPIs() {
+        String token = "Bearer " + retrofitClient.getToken();
+        
+        android.util.Log.d("LandlordDashboard", "Loading rooms for landlord: " + currentUser.getId());
+        
+        // Load rooms data
+        java.util.Map<String, String> roomParams = new java.util.HashMap<>();
+        roomParams.put("landlordId", currentUser.getId());
+        
+        retrofitClient.getApiService().getRooms(roomParams).enqueue(new Callback<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Response<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> response) {
+                android.util.Log.d("LandlordDashboard", "Rooms API Response Code: " + response.code());
+                android.util.Log.d("LandlordDashboard", "Rooms API Response Body: " + response.body());
+                
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    java.util.Map<String, Object> data = response.body().getData();
+                    android.util.Log.d("LandlordDashboard", "Rooms Data: " + data);
+                    
+                    if (data != null && data.containsKey("rooms")) {
+                        try {
+                            com.google.gson.Gson gson = new com.google.gson.Gson();
+                            String roomsJson = gson.toJson(data.get("rooms"));
+                            java.util.List<com.example.appquanlytimtro.models.Room> rooms = gson.fromJson(roomsJson, new com.google.gson.reflect.TypeToken<java.util.List<com.example.appquanlytimtro.models.Room>>(){}.getType());
+                            
+                            android.util.Log.d("LandlordDashboard", "Parsed rooms count: " + (rooms != null ? rooms.size() : 0));
+                            
+                            if (rooms != null) {
+                                final int totalRooms = rooms.size();
+                                final int[] occupiedRooms = {0};
+                                final double[] totalRevenue = {0};
+                                
+                                for (com.example.appquanlytimtro.models.Room room : rooms) {
+                                    android.util.Log.d("LandlordDashboard", "Room: " + room.getTitle() + ", Status: " + room.getStatus());
+                                    if ("active".equals(room.getStatus())) {
+                                        occupiedRooms[0]++;
+                                    }
+                                    if (room.getPrice() != null) {
+                                        totalRevenue[0] += room.getPrice().getMonthly();
+                                    }
+                                }
+                                
+                                android.util.Log.d("LandlordDashboard", "Calculated stats - Total: " + totalRooms + ", Occupied: " + occupiedRooms[0] + ", Revenue: " + totalRevenue[0]);
+                                
+                                if (getActivity() != null) {
+                                    getActivity().runOnUiThread(() -> {
+                                        tvTotalRooms.setText(String.valueOf(totalRooms));
+                                        tvOccupiedRooms.setText(String.valueOf(occupiedRooms[0]));
+                                        tvTotalRevenue.setText(String.format("%.0f VNĐ", totalRevenue[0]));
+                                    });
+                                }
+                            } else {
+                                android.util.Log.w("LandlordDashboard", "Rooms list is null");
+                                loadDefaultData();
+                            }
+                        } catch (Exception e) {
+                            android.util.Log.e("LandlordDashboard", "Error parsing rooms: " + e.getMessage(), e);
+                            loadDefaultData();
+                        }
+                    } else {
+                        android.util.Log.w("LandlordDashboard", "No rooms key in response data");
+                        loadDefaultData();
+                    }
+                } else {
+                    android.util.Log.w("LandlordDashboard", "Rooms API failed");
+                    loadDefaultData();
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
+                android.util.Log.e("LandlordDashboard", "Error loading rooms: " + t.getMessage(), t);
+                loadDefaultData();
+            }
+        });
+        
+        // Load bookings data
+        java.util.Map<String, String> bookingParams = new java.util.HashMap<>();
+        bookingParams.put("landlordId", currentUser.getId());
+        
+        android.util.Log.d("LandlordDashboard", "Loading bookings for landlord: " + currentUser.getId());
+        
+        retrofitClient.getApiService().getBookings(token, bookingParams).enqueue(new Callback<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Response<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> response) {
+                android.util.Log.d("LandlordDashboard", "Bookings API Response Code: " + response.code());
+                android.util.Log.d("LandlordDashboard", "Bookings API Response Body: " + response.body());
+                
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    java.util.Map<String, Object> data = response.body().getData();
+                    android.util.Log.d("LandlordDashboard", "Bookings Data: " + data);
+                    
+                    if (data != null && data.containsKey("bookings")) {
+                        try {
+                            com.google.gson.Gson gson = new com.google.gson.Gson();
+                            String bookingsJson = gson.toJson(data.get("bookings"));
+                            java.util.List<com.example.appquanlytimtro.models.Booking> bookings = gson.fromJson(bookingsJson, new com.google.gson.reflect.TypeToken<java.util.List<com.example.appquanlytimtro.models.Booking>>(){}.getType());
+                            
+                            android.util.Log.d("LandlordDashboard", "Parsed bookings count: " + (bookings != null ? bookings.size() : 0));
+                            
+                            if (bookings != null) {
+                                final int[] pendingBookings = {0};
+                                for (com.example.appquanlytimtro.models.Booking booking : bookings) {
+                                    android.util.Log.d("LandlordDashboard", "Booking: " + booking.getId() + ", Status: " + booking.getStatus());
+                                    if ("pending".equals(booking.getStatus())) {
+                                        pendingBookings[0]++;
+                                    }
+                                }
+                                
+                                android.util.Log.d("LandlordDashboard", "Calculated pending bookings: " + pendingBookings[0]);
+                                
+                                if (getActivity() != null) {
+                                    getActivity().runOnUiThread(() -> {
+                                        tvPendingBookings.setText(String.valueOf(pendingBookings[0]));
+                                    });
+                                }
+                            } else {
+                                android.util.Log.w("LandlordDashboard", "Bookings list is null");
+                                if (getActivity() != null) {
+                                    getActivity().runOnUiThread(() -> {
+                                        tvPendingBookings.setText("0");
+                                    });
+                                }
+                            }
+                        } catch (Exception e) {
+                            android.util.Log.e("LandlordDashboard", "Error parsing bookings: " + e.getMessage(), e);
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    tvPendingBookings.setText("0");
+                                });
+                            }
+                        }
+                    } else {
+                        android.util.Log.w("LandlordDashboard", "No bookings key in response data");
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                tvPendingBookings.setText("0");
+                            });
+                        }
+                    }
+                } else {
+                    android.util.Log.w("LandlordDashboard", "Bookings API failed");
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            tvPendingBookings.setText("0");
+                        });
+                    }
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
+                android.util.Log.e("LandlordDashboard", "Error loading bookings: " + t.getMessage(), t);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        tvPendingBookings.setText("0");
+                    });
+                }
+            }
+        });
     }
     
     private void loadDefaultData() {

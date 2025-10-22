@@ -56,7 +56,7 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.PaymentV
     
     class PaymentViewHolder extends RecyclerView.ViewHolder {
         private TextView tvAmount, tvType, tvStatus, tvDate, tvDescription;
-        private Button btnAction;
+        // private Button btnAction; // Removed
         
         public PaymentViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -65,7 +65,7 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.PaymentV
             tvStatus = itemView.findViewById(R.id.chipStatus);
             tvDate = itemView.findViewById(R.id.tvDate);
             tvDescription = itemView.findViewById(R.id.tvDescription);
-            btnAction = itemView.findViewById(R.id.btnAction);
+            // btnAction removed - only keeping btnView
         }
         
         public void bind(Payment payment) {
@@ -88,21 +88,10 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.PaymentV
             // Set description
             tvDescription.setText(payment.getDescription() != null ? payment.getDescription() : "Không có mô tả");
             
-            // Set action button
-            String actionText = getActionText(payment.getStatus());
-            btnAction.setText(actionText);
-            btnAction.setVisibility(actionText.isEmpty() ? View.GONE : View.VISIBLE);
-            
             // Set click listeners
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onPaymentClick(payment);
-                }
-            });
-            
-            btnAction.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onPaymentAction(payment, getActionType(payment.getStatus()));
                 }
             });
         }
@@ -154,30 +143,7 @@ public class PaymentAdapter extends RecyclerView.Adapter<PaymentAdapter.PaymentV
             }
         }
         
-        private String getActionText(String status) {
-            switch (status) {
-                case "pending":
-                    return "Thanh toán";
-                case "completed":
-                    return "Xem chi tiết";
-                case "failed":
-                    return "Thử lại";
-                default:
-                    return "";
-            }
-        }
-        
-        private String getActionType(String status) {
-            switch (status) {
-                case "pending":
-                    return "pay";
-                case "completed":
-                case "failed":
-                    return "view";
-                default:
-                    return "view";
-            }
-        }
+        // Action button methods removed - only keeping view functionality
         
         private String formatDate(Date date) {
             if (date == null) return "";

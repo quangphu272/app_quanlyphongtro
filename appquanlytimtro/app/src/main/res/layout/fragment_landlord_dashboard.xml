@@ -334,17 +334,19 @@
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddRoom"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="4dp"
                 android:text="Thêm phòng"
                 android:textSize="12sp"
                 style="@style/Button.Primary"
-                app:icon="@drawable/ic_add"
+                app:icon="@drawable/ic_room"
                 app:iconSize="20dp" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnManageRooms"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
@@ -356,10 +358,11 @@
                 app:iconSize="20dp" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewBookings"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="4dp"
                 android:text="Xem đặt phòng"
                 android:textSize="12sp"
                 style="@style/Button.Secondary"

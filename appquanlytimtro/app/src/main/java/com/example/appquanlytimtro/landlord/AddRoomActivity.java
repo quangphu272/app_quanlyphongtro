@@ -46,7 +46,7 @@ import retrofit2.Response;
 public class AddRoomActivity extends AppCompatActivity {
 
     private TextInputEditText etTitle, etDescription, etCity, etDistrict, etWard, etStreet;
-    private TextInputEditText etArea, etPrice, etDeposit, etElectricPrice, etWaterPrice;
+    private TextInputEditText etArea, etPrice, etDeposit, etElectricPrice, etWaterPrice, etInternetPrice, etOtherPrice;
     private AutoCompleteTextView spinnerRoomType;
     private LinearLayout layoutAmenities, layoutRules;
     private MaterialButton btnSubmit, btnPickImages;
@@ -99,6 +99,8 @@ public class AddRoomActivity extends AppCompatActivity {
         etDeposit = findViewById(R.id.etDeposit);
         etElectricPrice = findViewById(R.id.etElectricPrice);
         etWaterPrice = findViewById(R.id.etWaterPrice);
+        etInternetPrice = findViewById(R.id.etInternetPrice);
+        etOtherPrice = findViewById(R.id.etOtherPrice);
         spinnerRoomType = findViewById(R.id.spinnerRoomType);
         layoutAmenities = findViewById(R.id.layoutAmenities);
         layoutRules = findViewById(R.id.layoutRules);
@@ -330,31 +332,49 @@ public class AddRoomActivity extends AppCompatActivity {
             }
         }
         
-        // Set utilities - create utilities object
-        Room.Utilities utilities = new Room.Utilities();
+        // Set utilities - calculate total (backend expects Number, not object)
         String electricStr = getText(etElectricPrice);
+        String waterStr = getText(etWaterPrice);
+        String internetStr = getText(etInternetPrice);
+        String otherStr = getText(etOtherPrice);
+        
+        double electricity = 0, water = 0, internet = 0, other = 0;
+        
         if (!TextUtils.isEmpty(electricStr)) {
             try {
-                utilities.setElectricity(Double.parseDouble(electricStr));
+                electricity = Math.max(0, Double.parseDouble(electricStr));
             } catch (NumberFormatException e) {
-                utilities.setElectricity(0);
+                electricity = 0;
             }
-        } else {
-            utilities.setElectricity(0);
         }
         
-        String waterStr = getText(etWaterPrice);
         if (!TextUtils.isEmpty(waterStr)) {
             try {
-                utilities.setWater(Double.parseDouble(waterStr));
+                water = Math.max(0, Double.parseDouble(waterStr));
             } catch (NumberFormatException e) {
-                utilities.setWater(0);
+                water = 0;
             }
-        } else {
-            utilities.setWater(0);
         }
         
-        price.setUtilities(utilities);
+        if (!TextUtils.isEmpty(internetStr)) {
+            try {
+                internet = Math.max(0, Double.parseDouble(internetStr));
+            } catch (NumberFormatException e) {
+                internet = 0;
+            }
+        }
+        
+        if (!TextUtils.isEmpty(otherStr)) {
+            try {
+                other = Math.max(0, Double.parseDouble(otherStr));
+            } catch (NumberFormatException e) {
+                other = 0;
+            }
+        }
+        
+        // Calculate total utilities cost
+        double totalUtilities = electricity + water + internet + other;
+        price.setUtilities(totalUtilities);
         
         room.setPrice(price);
         

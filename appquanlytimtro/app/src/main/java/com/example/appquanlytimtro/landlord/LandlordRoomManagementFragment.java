@@ -25,7 +25,6 @@ import com.example.appquanlytimtro.models.Room;
 import com.example.appquanlytimtro.models.ApiResponse;
 import com.example.appquanlytimtro.adapters.LandlordRoomAdapter;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 
 import retrofit2.Call;
@@ -37,7 +36,6 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
     private RecyclerView recyclerViewRooms;
     private SwipeRefreshLayout swipeRefreshLayout;
     private MaterialButton btnAddRoom;
-    private FloatingActionButton fabAddRoom;
     
     private RetrofitClient retrofitClient;
     private User currentUser;
@@ -71,7 +69,6 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
         recyclerViewRooms = view.findViewById(R.id.recyclerViewRooms);
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         btnAddRoom = view.findViewById(R.id.btnAddRoom);
-        fabAddRoom = view.findViewById(R.id.fabAddRoom);
         
         // Initialize room list and adapter
         roomList = new java.util.ArrayList<>();
@@ -90,10 +87,6 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
     private void setupClickListeners() {
         if (btnAddRoom != null) {
             btnAddRoom.setOnClickListener(v -> openAddRoom());
-        }
-        
-        if (fabAddRoom != null) {
-            fabAddRoom.setOnClickListener(v -> openAddRoom());
         }
     }
     
@@ -201,17 +194,10 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
     }
     
     // Implementation of LandlordRoomAdapter.OnRoomActionListener
-    @Override
-    public void onRoomClick(Room room) {
-        // Navigate to room detail
-        Intent intent = new Intent(getActivity(), com.example.appquanlytimtro.rooms.RoomDetailActivity.class);
-        intent.putExtra("room_id", room.getId());
-        startActivity(intent);
-    }
+    // Removed onRoomClick method - no more "view details" functionality
     
     @Override
     public void onEditRoom(Room room) {
-        // Navigate to edit room
         Intent intent = new Intent(getActivity(), EditRoomActivity.class);
         intent.putExtra("room_id", room.getId());
         startActivity(intent);

@@ -4,24 +4,414 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.appquanlytimtro.R;
+import com.example.appquanlytimtro.adapters.PaymentItemAdapter;
+import com.example.appquanlytimtro.models.Payment;
+import com.example.appquanlytimtro.models.PaymentItem;
+import com.example.appquanlytimtro.models.Booking;
+import com.example.appquanlytimtro.models.User;
+import com.example.appquanlytimtro.network.RetrofitClient;
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class AdminPaymentManagementFragment extends Fragment {
+
+    private RecyclerView recyclerView;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private ProgressBar progressBar;
+    private TextView tvTotalPaid, tvPendingAmount, tvTotalAmount;
+    private LinearLayout emptyState;
+    private ChipGroup chipGroupFilter;
+    
+    private PaymentItemAdapter paymentItemAdapter;
+    private List<PaymentItem> paymentItems;
+    private List<PaymentItem> allPaymentItems; // Lưu tất cả payment items để filter
+    private RetrofitClient retrofitClient;
+    private User currentUser;
+    private String currentFilter = "all"; // all, pending, completed, failed
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_placeholder, container, false);
+        View view = inflater.inflate(R.layout.activity_payment_list, container, false);
         
-        TextView tvTitle = view.findViewById(R.id.tvTitle);
-        tvTitle.setText("Quản lý thanh toán - Admin");
+        retrofitClient = RetrofitClient.getInstance(getContext());
+        loadUserData();
+        
+        initViews(view);
+        setupRecyclerView();
+        setupSwipeRefresh();
+        loadPayments();
         
         return view;
+    }
+    
+    private void loadUserData() {
+        String userJson = retrofitClient.getUserData();
+        if (userJson != null) {
+            Gson gson = new Gson();
+            currentUser = gson.fromJson(userJson, User.class);
+        }
+    }
+    
+    private void initViews(View view) {
+        recyclerView = view.findViewById(R.id.recyclerView);
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+        progressBar = view.findViewById(R.id.progressBar);
+        tvTotalPaid = view.findViewById(R.id.tvTotalPaid);
+        tvPendingAmount = view.findViewById(R.id.tvPendingAmount);
+        emptyState = view.findViewById(R.id.emptyState);
+        
+        // Tìm ChipGroup trong layout
+        chipGroupFilter = view.findViewById(R.id.chipGroupFilter);
+        
+        paymentItems = new ArrayList<>();
+        allPaymentItems = new ArrayList<>();
+        
+        // Setup filter chips cho admin
+        setupFilterChips();
+    }
+    
+    private void setupRecyclerView() {
+        paymentItems = new ArrayList<>();
+        paymentItemAdapter = new PaymentItemAdapter(paymentItems, new PaymentItemAdapter.OnPaymentItemClickListener() {
+            @Override
+            public void onPaymentItemClick(PaymentItem paymentItem) {
+                // Handle payment item click
+                android.util.Log.d("AdminPaymentFragment", "Clicked on: " + paymentItem.getType() + " - " + paymentItem.getId());
+            }
+        });
+        
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(paymentItemAdapter);
+    }
+    
+    private void handlePaymentAction(PaymentItem paymentItem, String action) {
+        if (!paymentItem.isPayment()) {
+            Toast.makeText(getContext(), "Chỉ có thể thực hiện thao tác trên thanh toán", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        switch (action) {
+            case "confirm":
+                confirmPayment(paymentItem);
+                break;
+            case "cancel":
+                cancelPayment(paymentItem);
+                break;
+            case "refund":
+                refundPayment(paymentItem);
+                break;
+            default:
+                Toast.makeText(getContext(), "Action: " + action + " for payment: " + paymentItem.getId(), Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
+    
+    private void confirmPayment(PaymentItem paymentItem) {
+        String token = "Bearer " + retrofitClient.getToken();
+        
+        retrofitClient.getApiService().confirmPayment(token, paymentItem.getId()).enqueue(new Callback<com.example.appquanlytimtro.models.ApiResponse<Payment>>() {
+            @Override
+            public void onResponse(Call<com.example.appquanlytimtro.models.ApiResponse<Payment>> call, Response<com.example.appquanlytimtro.models.ApiResponse<Payment>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    Toast.makeText(getContext(), "Xác nhận thanh toán thành công", Toast.LENGTH_SHORT).show();
+                    loadPayments(); // Reload data
+                } else {
+                    Toast.makeText(getContext(), "Lỗi xác nhận thanh toán", Toast.LENGTH_SHORT).show();
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<com.example.appquanlytimtro.models.ApiResponse<Payment>> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi kết nối", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    
+    private void cancelPayment(PaymentItem paymentItem) {
+        // Implement cancel payment logic
+        Toast.makeText(getContext(), "Hủy thanh toán: " + paymentItem.getId(), Toast.LENGTH_SHORT).show();
+    }
+    
+    private void refundPayment(PaymentItem paymentItem) {
+        // Implement refund payment logic
+        Toast.makeText(getContext(), "Hoàn tiền: " + paymentItem.getId(), Toast.LENGTH_SHORT).show();
+    }
+    
+    private void setupSwipeRefresh() {
+        swipeRefreshLayout.setOnRefreshListener(this::loadPayments);
+    }
+    
+    private void loadPayments() {
+        showLoading(true);
+        
+        String token = "Bearer " + retrofitClient.getToken();
+        // Admin có thể xem tất cả payments trong hệ thống
+        java.util.Map<String, String> params = new java.util.HashMap<>();
+        params.put("limit", "100"); // Lấy tối đa 100 payments
+        params.put("page", "1");
+        params.put("sort", "createdAt"); // Sắp xếp theo ngày tạo
+        params.put("order", "desc"); // Mới nhất trước
+        
+        android.util.Log.d("AdminPaymentFragment", "Requesting payments with params: " + params);
+        
+        retrofitClient.getApiService().getPayments(token, params).enqueue(new Callback<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Response<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> response) {
+                showLoading(false);
+                swipeRefreshLayout.setRefreshing(false);
+                
+                android.util.Log.d("AdminPaymentFragment", "Payments API Response Code: " + response.code());
+                android.util.Log.d("AdminPaymentFragment", "Payments API Response Body: " + response.body());
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    android.util.Log.d("AdminPaymentFragment", "Response success: " + response.body().isSuccess());
+                    android.util.Log.d("AdminPaymentFragment", "Response message: " + response.body().getMessage());
+                    
+                    if (response.body().isSuccess()) {
+                        java.util.Map<String, Object> data = response.body().getData();
+                        android.util.Log.d("AdminPaymentFragment", "Payments Data: " + data);
+                    
+                    if (data != null) {
+                        try {
+                            com.google.gson.Gson gson = new com.google.gson.Gson();
+                            
+                            // Parse payments
+                            List<Payment> paymentList = null;
+                            if (data.containsKey("payments")) {
+                                String paymentsJson = gson.toJson(data.get("payments"));
+                                paymentList = gson.fromJson(paymentsJson, new com.google.gson.reflect.TypeToken<List<Payment>>(){}.getType());
+                            }
+                            
+                            // Parse unpaid bookings
+                            List<Booking> unpaidBookingList = null;
+                            if (data.containsKey("unpaidBookings")) {
+                                String bookingsJson = gson.toJson(data.get("unpaidBookings"));
+                                unpaidBookingList = gson.fromJson(bookingsJson, new com.google.gson.reflect.TypeToken<List<Booking>>(){}.getType());
+                            }
+                            
+                            android.util.Log.d("AdminPaymentFragment", "Parsed payments count: " + (paymentList != null ? paymentList.size() : 0));
+                            android.util.Log.d("AdminPaymentFragment", "Parsed unpaid bookings count: " + (unpaidBookingList != null ? unpaidBookingList.size() : 0));
+                            
+                            // Tạo PaymentItem list từ payments và bookings
+                            List<PaymentItem> allItems = new ArrayList<>();
+                            
+                            // Thêm payments
+                            if (paymentList != null) {
+                                for (Payment payment : paymentList) {
+                                    allItems.add(new PaymentItem(payment));
+                                }
+                            }
+                            
+                            // Thêm unpaid bookings
+                            if (unpaidBookingList != null) {
+                                for (Booking booking : unpaidBookingList) {
+                                    allItems.add(new PaymentItem(booking));
+                                }
+                            }
+                            
+                            // Lưu tất cả items để filter
+                            allPaymentItems.clear();
+                            allPaymentItems.addAll(allItems);
+                            
+                            // Apply current filter
+                            applyFilter(currentFilter);
+                            
+                            // Calculate summary
+                            calculateSummary(allItems);
+                            
+                            // Show/hide empty state
+                            if (paymentItems.isEmpty()) {
+                                android.util.Log.w("AdminPaymentFragment", "No payment items found, showing empty state");
+                                showEmptyState(true);
+                            } else {
+                                showEmptyState(false);
+                            }
+                            
+                            android.util.Log.d("AdminPaymentFragment", "Total items created: " + allItems.size());
+                        } catch (Exception e) {
+                            android.util.Log.e("AdminPaymentFragment", "Error parsing data: " + e.getMessage(), e);
+                            Toast.makeText(getContext(), "Lỗi xử lý dữ liệu thanh toán", Toast.LENGTH_SHORT).show();
+                            showEmptyState(true);
+                        }
+                    } else {
+                        android.util.Log.w("AdminPaymentFragment", "No data in response");
+                        showEmptyState(true);
+                    }
+                    } else {
+                        android.util.Log.w("AdminPaymentFragment", "API response not successful: " + response.body().getMessage());
+                        Toast.makeText(getContext(), "Lỗi API: " + response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                        showEmptyState(true);
+                    }
+                } else {
+                    android.util.Log.e("AdminPaymentFragment", "API call failed - Code: " + response.code() + ", Body: " + response.body());
+                    Toast.makeText(getContext(), "Lỗi tải dữ liệu thanh toán (Code: " + response.code() + ")", Toast.LENGTH_SHORT).show();
+                    showEmptyState(true);
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
+                android.util.Log.e("AdminPaymentFragment", "Network Error: " + t.getMessage(), t);
+                showLoading(false);
+                swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(getContext(), "Lỗi kết nối mạng", Toast.LENGTH_SHORT).show();
+                showEmptyState(true);
+            }
+        });
+    }
+    
+    private void setupFilterChips() {
+        if (chipGroupFilter == null) return;
+        
+        // Hiển thị ChipGroup cho admin
+        chipGroupFilter.setVisibility(View.VISIBLE);
+        
+        // Tạo chips cho các filter
+        String[] filterOptions = {"Tất cả", "Chưa thanh toán", "Đã thanh toán", "Thất bại"};
+        String[] filterValues = {"all", "pending", "completed", "failed"};
+        
+        for (int i = 0; i < filterOptions.length; i++) {
+            Chip chip = new Chip(getContext());
+            chip.setText(filterOptions[i]);
+            chip.setCheckable(true);
+            chip.setChecked(i == 0); // Mặc định chọn "Tất cả"
+            
+            final String filterValue = filterValues[i];
+            chip.setOnClickListener(v -> {
+                // Uncheck all other chips
+                for (int j = 0; j < chipGroupFilter.getChildCount(); j++) {
+                    Chip otherChip = (Chip) chipGroupFilter.getChildAt(j);
+                    otherChip.setChecked(false);
+                }
+                // Check current chip
+                chip.setChecked(true);
+                
+                // Apply filter
+                currentFilter = filterValue;
+                applyFilter(filterValue);
+            });
+            
+            chipGroupFilter.addView(chip);
+        }
+    }
+    
+    private void applyFilter(String filter) {
+        paymentItems.clear();
+        
+        if (allPaymentItems == null) return;
+        
+        switch (filter) {
+            case "all":
+                paymentItems.addAll(allPaymentItems);
+                break;
+            case "pending":
+                for (PaymentItem item : allPaymentItems) {
+                    if (item.isBooking() || "pending".equals(item.getStatus())) {
+                        paymentItems.add(item);
+                    }
+                }
+                break;
+            case "completed":
+                for (PaymentItem item : allPaymentItems) {
+                    if (item.isPayment() && "completed".equals(item.getStatus())) {
+                        paymentItems.add(item);
+                    }
+                }
+                break;
+            case "failed":
+                for (PaymentItem item : allPaymentItems) {
+                    if (item.isPayment() && "failed".equals(item.getStatus())) {
+                        paymentItems.add(item);
+                    }
+                }
+                break;
+        }
+        
+        paymentItemAdapter.notifyDataSetChanged();
+        
+        // Show/hide empty state
+        if (paymentItems.isEmpty()) {
+            showEmptyState(true);
+        } else {
+            showEmptyState(false);
+        }
+        
+        android.util.Log.d("AdminPaymentFragment", "Applied filter: " + filter + ", showing " + paymentItems.size() + " payment items");
+    }
+    
+    
+    private void calculateSummary(List<PaymentItem> paymentItemList) {
+        double paidAmount = 0;
+        double pendingAmount = 0;
+        int totalItems = paymentItemList.size();
+        int completedCount = 0;
+        int pendingCount = 0;
+        
+        for (PaymentItem item : paymentItemList) {
+            if (item.isBooking()) {
+                // Booking chưa thanh toán
+                pendingAmount += item.getAmount();
+                pendingCount++;
+            } else if (item.isPayment()) {
+                // Payment đã thanh toán
+                if ("completed".equals(item.getStatus())) {
+                    paidAmount += item.getAmount();
+                    completedCount++;
+                } else if ("pending".equals(item.getStatus())) {
+                    pendingAmount += item.getAmount();
+                    pendingCount++;
+                }
+            }
+        }
+        
+        // Admin xem tổng quan toàn hệ thống
+        tvTotalPaid.setText(String.format("%.0f VNĐ", paidAmount));
+        tvPendingAmount.setText(String.format("%.0f VNĐ", pendingAmount));
+        
+        android.util.Log.d("AdminPaymentFragment", "Summary - Total: " + totalItems + 
+                          ", Completed: " + completedCount + " (" + paidAmount + " VNĐ)" +
+                          ", Pending: " + pendingCount + " (" + pendingAmount + " VNĐ)");
+    }
+    
+    private void showLoading(boolean show) {
+        if (show) {
+            progressBar.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+            emptyState.setVisibility(View.GONE);
+        } else {
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+    
+    private void showEmptyState(boolean show) {
+        if (show) {
+            emptyState.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            emptyState.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
     }
 }

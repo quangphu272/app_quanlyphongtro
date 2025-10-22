@@ -25,7 +25,6 @@ public class LandlordRoomAdapter extends RecyclerView.Adapter<LandlordRoomAdapte
     private OnRoomActionListener listener;
     
     public interface OnRoomActionListener {
-        void onRoomClick(Room room);
         void onEditRoom(Room room);
         void onDeleteRoom(Room room);
         void onToggleAvailability(Room room);
@@ -81,14 +80,7 @@ public class LandlordRoomAdapter extends RecyclerView.Adapter<LandlordRoomAdapte
             btnDelete = itemView.findViewById(R.id.btnDelete);
             btnToggleStatus = itemView.findViewById(R.id.btnToggleStatus);
             
-            itemView.setOnClickListener(v -> {
-                if (listener != null) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) {
-                        listener.onRoomClick(rooms.get(position));
-                    }
-                }
-            });
+            // Removed item click listener - no more "view details" functionality
             
             btnEdit.setOnClickListener(v -> {
                 if (listener != null) {

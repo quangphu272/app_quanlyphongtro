@@ -13,10 +13,6 @@
         android:title="Phòng trọ"
         android:icon="@drawable/ic_room" />
     <item
-        android:id="@+id/nav_bookings"
-        android:title="Đặt phòng"
-        android:icon="@drawable/ic_booking" />
-    <item
         android:id="@+id/nav_payments"
         android:title="Thanh toán"
         android:icon="@drawable/ic_payment" />

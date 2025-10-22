@@ -301,6 +301,19 @@ public class PaymentActivity extends AppCompatActivity {
             return;
         }
         
+        // Validate payment amount
+        double amountToPay = 0;
+        if (checkInDate > 0 && checkOutDate > 0) {
+            amountToPay = deposit;
+        } else if (room != null && room.getPrice() != null) {
+            amountToPay = room.getPrice().getDeposit();
+        }
+        
+        if (amountToPay <= 0) {
+            Toast.makeText(this, "Số tiền thanh toán không hợp lệ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
         // Load current user first
         loadCurrentUser();
     }
@@ -406,10 +419,10 @@ public class PaymentActivity extends AppCompatActivity {
             double roomDeposit = room.getPrice().getDeposit();
             double roomMonthly = room.getPrice().getMonthly();
             double roomUtilities = 0;
-            Room.Utilities utilities = room.getPrice().getUtilities();
-            if (utilities != null) {
-                roomUtilities = utilities.getElectricity() + utilities.getWater() + 
-                               utilities.getInternet() + utilities.getOther();
+            // Backend sends utilities as Number, not object
+            Object utilitiesObj = room.getPrice().getUtilities();
+            if (utilitiesObj instanceof Number) {
+                roomUtilities = ((Number) utilitiesObj).doubleValue();
             }
             double roomTotal = roomMonthly + roomDeposit + roomUtilities;
             
@@ -476,10 +489,10 @@ public class PaymentActivity extends AppCompatActivity {
             double roomDeposit = room.getPrice().getDeposit();
             double roomMonthly = room.getPrice().getMonthly();
             double roomUtilities = 0;
-            Room.Utilities utilities = room.getPrice().getUtilities();
-            if (utilities != null) {
-                roomUtilities = utilities.getElectricity() + utilities.getWater() + 
-                               utilities.getInternet() + utilities.getOther();
+            // Backend sends utilities as Number, not object
+            Object utilitiesObj = room.getPrice().getUtilities();
+            if (utilitiesObj instanceof Number) {
+                roomUtilities = ((Number) utilitiesObj).doubleValue();
             }
             double roomTotal = roomMonthly + roomDeposit + roomUtilities;
             

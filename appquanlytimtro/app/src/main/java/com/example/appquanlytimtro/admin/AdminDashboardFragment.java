@@ -144,7 +144,13 @@ public class AdminDashboardFragment extends Fragment {
                 java.util.Map<String, Object> rooms = (java.util.Map<String, Object>) roomsObj;
                 Object totalRooms = rooms.get("totalRooms");
                 if (tvTotalRooms != null) {
-                    tvTotalRooms.setText(totalRooms != null ? totalRooms.toString() : "0");
+                    if (totalRooms != null) {
+                        // Convert to int to remove decimal places
+                        int roomCount = (int) Math.round(((Number) totalRooms).doubleValue());
+                        tvTotalRooms.setText(String.valueOf(roomCount));
+                    } else {
+                        tvTotalRooms.setText("0");
+                    }
                 }
             }
             

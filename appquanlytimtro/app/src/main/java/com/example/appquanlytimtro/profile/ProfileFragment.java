@@ -35,7 +35,7 @@ public class ProfileFragment extends Fragment {
     private ImageView ivAvatar;
     private EditText etFullName, etEmail, etPhone;
     private TextView tvRole, tvJoinDate;
-    private MaterialButton btnSave, btnChangePassword;
+    private MaterialButton btnSave, btnChangePassword, btnLogout;
     private ProgressBar progressBar;
 
     private RetrofitClient retrofitClient;
@@ -62,6 +62,7 @@ public class ProfileFragment extends Fragment {
         tvJoinDate = view.findViewById(R.id.tvJoinDate);
         btnSave = view.findViewById(R.id.btnSave);
         btnChangePassword = view.findViewById(R.id.btnChangePassword);
+        btnLogout = view.findViewById(R.id.btnLogout);
         progressBar = view.findViewById(R.id.progressBar);
     }
 
@@ -92,6 +93,21 @@ public class ProfileFragment extends Fragment {
         });
 
         btnChangePassword.setOnClickListener(v -> showChangePassword());
+        
+        btnLogout.setOnClickListener(v -> {
+            // Show confirmation dialog
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Đăng xuất")
+                .setMessage("Bạn có chắc chắn muốn đăng xuất?")
+                .setPositiveButton("Đăng xuất", (dialog, which) -> {
+                    // Call logout method from MainActivity
+                    if (getActivity() instanceof com.example.appquanlytimtro.MainActivity) {
+                        ((com.example.appquanlytimtro.MainActivity) getActivity()).logout();
+                    }
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
+        });
     }
 
     private void setEditingMode(boolean editing) {
@@ -146,6 +162,7 @@ public class ProfileFragment extends Fragment {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         btnSave.setEnabled(!show);
         btnChangePassword.setEnabled(!show);
+        btnLogout.setEnabled(!show);
     }
 }
 

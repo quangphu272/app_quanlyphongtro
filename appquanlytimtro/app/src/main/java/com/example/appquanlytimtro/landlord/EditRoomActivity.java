@@ -32,10 +32,15 @@ import com.example.appquanlytimtro.models.User;
 import com.example.appquanlytimtro.network.RetrofitClient;
 import com.google.gson.Gson;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -132,6 +137,9 @@ public class EditRoomActivity extends AppCompatActivity implements SelectedImage
         // Buttons
         Button btnSelectImages = findViewById(R.id.btnSelectImages);
         btnSelectImages.setOnClickListener(v -> selectImages());
+        
+        Button btnSave = findViewById(R.id.btnSave);
+        btnSave.setOnClickListener(v -> updateRoom());
     }
     
     private void setupToolbar() {
@@ -368,6 +376,11 @@ public class EditRoomActivity extends AppCompatActivity implements SelectedImage
         // Create updated room object
         Room updatedRoom = createRoomFromForm();
         
+        // Debug logging
+        android.util.Log.d("EditRoom", "=== ROOM UPDATE DATA ===");
+        android.util.Log.d("EditRoom", "Room ID: " + roomId);
+        android.util.Log.d("EditRoom", "Utilities: " + updatedRoom.getPrice().getUtilities());
+        
         String token = "Bearer " + retrofitClient.getToken();
         
         retrofitClient.getApiService().updateRoom(token, roomId, updatedRoom).enqueue(new Callback<ApiResponse<Room>>() {
@@ -417,13 +430,20 @@ public class EditRoomActivity extends AppCompatActivity implements SelectedImage
         price.setMonthly(Double.parseDouble(etMonthlyPrice.getText().toString()));
         price.setDeposit(Double.parseDouble(etDeposit.getText().toString()));
         
-        // Utilities
-        Room.Utilities utilities = new Room.Utilities();
-        utilities.setElectricity(Double.parseDouble(etElectricity.getText().toString()));
-        utilities.setWater(Double.parseDouble(etWater.getText().toString()));
-        utilities.setInternet(Double.parseDouble(etInternet.getText().toString()));
-        utilities.setOther(Double.parseDouble(etOther.getText().toString()));
-        price.setUtilities(utilities);
+        // Utilities - Send as total number (backend expects Number, not object)
+        String electricityText = etElectricity.getText().toString().trim();
+        String waterText = etWater.getText().toString().trim();
+        String internetText = etInternet.getText().toString().trim();
+        String otherText = etOther.getText().toString().trim();
+        
+        // Calculate total utilities cost
+        double electricity = electricityText.isEmpty() ? 0.0 : Math.max(0.0, Double.parseDouble(electricityText));
+        double water = waterText.isEmpty() ? 0.0 : Math.max(0.0, Double.parseDouble(waterText));
+        double internet = internetText.isEmpty() ? 0.0 : Math.max(0.0, Double.parseDouble(internetText));
+        double other = otherText.isEmpty() ? 0.0 : Math.max(0.0, Double.parseDouble(otherText));
+        
+        double totalUtilities = electricity + water + internet + other;
+        price.setUtilities(totalUtilities);
         
         room.setPrice(price);
         
@@ -479,18 +499,129 @@ public class EditRoomActivity extends AppCompatActivity implements SelectedImage
             return false;
         }
         
+        // Validate utilities (must be non-negative if provided)
+        String electricityText = etElectricity.getText().toString().trim();
+        String waterText = etWater.getText().toString().trim();
+        String internetText = etInternet.getText().toString().trim();
+        String otherText = etOther.getText().toString().trim();
+        
+        if (!electricityText.isEmpty() && Double.parseDouble(electricityText) < 0) {
+            etElectricity.setError("Phí điện không được âm");
+            return false;
+        }
+        
+        if (!waterText.isEmpty() && Double.parseDouble(waterText) < 0) {
+            etWater.setError("Phí nước không được âm");
+            return false;
+        }
+        
+        if (!internetText.isEmpty() && Double.parseDouble(internetText) < 0) {
+            etInternet.setError("Phí internet không được âm");
+            return false;
+        }
+        
+        if (!otherText.isEmpty() && Double.parseDouble(otherText) < 0) {
+            etOther.setError("Phí khác không được âm");
+            return false;
+        }
+        
         return true;
     }
     
     private void uploadImages(String roomId) {
-        if (imageUris.isEmpty()) {
-            finish();
+        android.util.Log.d("EditRoom", "=== UPLOAD IMAGES START ===");
+        android.util.Log.d("EditRoom", "Room ID: " + roomId);
+        android.util.Log.d("EditRoom", "Number of images: " + imageUris.size());
+        
+        // Validate roomId
+        if (roomId == null || roomId.trim().isEmpty()) {
+            android.util.Log.e("EditRoom", "Room ID is null or empty, cannot upload images");
+            showLoading(false);
+            Toast.makeText(this, "Lỗi: ID phòng không hợp lệ", Toast.LENGTH_SHORT).show();
             return;
         }
         
-        // TODO: Implement image upload
-        Toast.makeText(this, "Upload ảnh sẽ được thực hiện", Toast.LENGTH_SHORT).show();
-        finish();
+        // Validate images
+        if (imageUris.isEmpty()) {
+            android.util.Log.d("EditRoom", "No images to upload");
+            showLoading(false);
+            Toast.makeText(this, "Không có ảnh để upload", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        List<MultipartBody.Part> parts = new ArrayList<>();
+        
+        for (int i = 0; i < imageUris.size(); i++) {
+            Uri uri = imageUris.get(i);
+            try {
+                android.util.Log.d("EditRoom", "Processing image " + (i + 1) + ": " + uri.toString());
+                
+                InputStream inputStream = getContentResolver().openInputStream(uri);
+                if (inputStream == null) {
+                    android.util.Log.e("EditRoom", "Cannot open input stream for image " + (i + 1));
+                    continue;
+                }
+                
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                int nRead;
+                byte[] data = new byte[1024];
+                while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+                    buffer.write(data, 0, nRead);
+                }
+                buffer.flush();
+                byte[] bytes = buffer.toByteArray();
+                
+                android.util.Log.d("EditRoom", "Image " + (i + 1) + " size: " + bytes.length + " bytes");
+                
+                if (bytes.length == 0) {
+                    android.util.Log.e("EditRoom", "Image " + (i + 1) + " is empty");
+                    continue;
+                }
+                
+                RequestBody requestBody = RequestBody.create(bytes, MediaType.parse("image/*"));
+                MultipartBody.Part part = MultipartBody.Part.createFormData("images", "image" + (i + 1) + ".jpg", requestBody);
+                parts.add(part);
+                
+                inputStream.close();
+                android.util.Log.d("EditRoom", "Successfully processed image " + (i + 1));
+            } catch (Exception e) {
+                android.util.Log.e("EditRoom", "Error processing image " + (i + 1), e);
+                e.printStackTrace();
+            }
+        }
+        
+        android.util.Log.d("EditRoom", "Total parts created: " + parts.size());
+        
+        String token = "Bearer " + retrofitClient.getToken();
+        android.util.Log.d("EditRoom", "Token: " + token);
+        android.util.Log.d("EditRoom", "Uploading images to API...");
+        
+        retrofitClient.getApiService().uploadRoomImages(token, roomId, parts).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
+                android.util.Log.d("EditRoom", "=== UPLOAD IMAGES RESPONSE ===");
+                android.util.Log.d("EditRoom", "Response code: " + response.code());
+                android.util.Log.d("EditRoom", "Response body: " + response.body());
+                
+                showLoading(false);
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    android.util.Log.d("EditRoom", "Images uploaded successfully!");
+                    Toast.makeText(EditRoomActivity.this, "Cập nhật phòng và upload ảnh thành công!", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    String errorMsg = response.body() != null ? response.body().getMessage() : "Upload ảnh thất bại";
+                    android.util.Log.e("EditRoom", "Upload failed: " + errorMsg);
+                    Toast.makeText(EditRoomActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
+                android.util.Log.e("EditRoom", "Upload images network error: " + t.getMessage(), t);
+                showLoading(false);
+                Toast.makeText(EditRoomActivity.this, "Lỗi upload ảnh: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
     
     private String getAmenityText(String amenity) {

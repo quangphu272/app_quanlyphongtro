@@ -27,8 +27,9 @@
             android:text="Thêm phòng trọ mới"
             android:textSize="14sp"
             style="@style/Button.Primary"
-            app:icon="@drawable/ic_add"
+            app:icon="@drawable/ic_room"
             app:iconSize="20dp" />
+
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefreshLayout"
@@ -46,14 +47,5 @@
 
     </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddRoom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_add"
-        app:backgroundTint="@color/primary"
-        app:tint="@color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

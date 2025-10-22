@@ -513,6 +513,19 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Save Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="24dp"
+                android:text="Lưu thay đổi"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                style="@style/Button.Primary"
+                android:background="@drawable/button_ripple" />
+
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>

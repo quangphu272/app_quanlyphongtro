@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,6 +32,7 @@ public class AdminUsersFragment extends Fragment implements UsersAdapter.OnUserC
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
+    private TextView tvTotalUsers, tvTotalLandlords, tvTotalTenants;
     private UsersAdapter adapter;
     private final List<User> users = new ArrayList<>();
 
@@ -38,8 +40,14 @@ public class AdminUsersFragment extends Fragment implements UsersAdapter.OnUserC
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_admin_users, container, false);
+        
+        // Initialize views
         recyclerView = v.findViewById(R.id.recyclerView);
         progressBar = v.findViewById(R.id.progressBar);
+        tvTotalUsers = v.findViewById(R.id.tvTotalUsers);
+        tvTotalLandlords = v.findViewById(R.id.tvTotalLandlords);
+        tvTotalTenants = v.findViewById(R.id.tvTotalTenants);
+        
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new UsersAdapter(users);
         adapter.setOnUserClickListener(this);
@@ -63,11 +71,29 @@ public class AdminUsersFragment extends Fragment implements UsersAdapter.OnUserC
                     Object listObj = response.body().getData().get("users");
                     if (listObj instanceof List<?>) {
                         users.clear();
+                        int totalUsers = 0;
+                        int totalLandlords = 0;
+                        int totalTenants = 0;
+                        
                         for (Object o : (List<?>) listObj) {
                             String json = gson.toJson(o);
                             User u = gson.fromJson(json, User.class);
                             users.add(u);
+                            
+                            // Count by role
+                            totalUsers++;
+                            if ("landlord".equals(u.getRole())) {
+                                totalLandlords++;
+                            } else if ("tenant".equals(u.getRole())) {
+                                totalTenants++;
+                            }
                         }
+                        
+                        // Update statistics
+                        tvTotalUsers.setText(String.valueOf(totalUsers));
+                        tvTotalLandlords.setText(String.valueOf(totalLandlords));
+                        tvTotalTenants.setText(String.valueOf(totalTenants));
+                        
                         adapter.notifyDataSetChanged();
                     }
                 } else {

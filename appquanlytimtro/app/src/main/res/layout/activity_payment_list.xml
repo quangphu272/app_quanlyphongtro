@@ -1,32 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/background"
     tools:context=".payments.PaymentListActivity">
 
     <!-- App Bar -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="?attr/actionBarSize"
         android:background="@color/surface"
-        android:elevation="4dp">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/surface"
-            app:title="Thanh toán"
-            app:titleTextAppearance="@style/TextAppearance.QuanLyTimTro.Title1"
-            app:titleTextColor="@color/text_primary"
-            app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="@color/primary" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+        app:title="Thanh toán"
+        app:titleTextAppearance="@style/TextAppearance.QuanLyTimTro.Title1"
+        app:titleTextColor="@color/text_primary"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="@color/primary" />
 
     <!-- Summary Card -->
     <com.google.android.material.card.MaterialCardView
@@ -34,12 +26,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        android:layout_marginTop="8dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/surface"
-        app:layout_anchor="@id/appBarLayout"
-        app:layout_anchorGravity="bottom|center_horizontal"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:cardBackgroundColor="@color/surface">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -110,12 +100,25 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Filter Chips (only for admin) -->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        app:singleSelection="true"
+        app:chipSpacingHorizontal="8dp"
+        app:chipSpacingVertical="4dp" />
+
     <!-- SwipeRefreshLayout -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="80dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:background="@color/surface">
 
         <!-- RecyclerView -->
@@ -124,6 +127,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="80dp"
             android:clipToPadding="false"
             tools:listitem="@layout/item_payment" />
 
@@ -135,6 +140,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginTop="100dp"
         android:visibility="gone"
         android:indeterminateTint="@color/primary" />
 
@@ -144,6 +150,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginTop="100dp"
         android:orientation="vertical"
         android:gravity="center"
         android:visibility="gone"
@@ -174,4 +181,4 @@
 
     </LinearLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

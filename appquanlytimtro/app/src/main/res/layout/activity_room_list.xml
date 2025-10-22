@@ -197,17 +197,5 @@
 
     </LinearLayout>
 
-    <!-- Floating Action Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddRoom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="24dp"
-        android:src="@drawable/ic_add"
-        app:backgroundTint="@color/primary"
-        app:tint="@color/on_primary"
-        app:elevation="6dp"
-        app:fabSize="normal" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

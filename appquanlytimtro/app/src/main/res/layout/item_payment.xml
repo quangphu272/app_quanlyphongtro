@@ -148,21 +148,10 @@
                     android:id="@+id/btnView"
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
-                    android:layout_marginEnd="8dp"
                     android:text="Xem chi tiết"
                     android:textSize="12sp"
                     style="@style/Button.Secondary"
                     app:icon="@drawable/ic_arrow_back"
-                    app:iconSize="16dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAction"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:text="Thanh toán"
-                    android:textSize="12sp"
-                    style="@style/Button.Primary"
-                    app:icon="@drawable/ic_payment"
                     app:iconSize="16dp" />
 
             </LinearLayout>

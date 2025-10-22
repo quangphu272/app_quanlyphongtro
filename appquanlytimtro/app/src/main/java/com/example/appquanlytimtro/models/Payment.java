@@ -8,13 +8,13 @@ public class Payment {
     @SerializedName("_id")
     private String id;
     
-    @SerializedName("booking")
+    @SerializedName("bookingId")
     private String bookingId;
     
-    @SerializedName("payer")
+    @SerializedName("payerId")
     private String payerId;
     
-    @SerializedName("recipient")
+    @SerializedName("recipientId")
     private String recipientId;
     
     @SerializedName("type")
@@ -465,7 +465,7 @@ public class Payment {
     }
 
     public static class RefundInfo {
-        @SerializedName("amount")
+        @SerializedName("refundAmount")
         private double amount;
         
         @SerializedName("reason")
@@ -477,7 +477,7 @@ public class Payment {
         @SerializedName("refundTransactionId")
         private String refundTransactionId;
         
-        @SerializedName("status")
+        @SerializedName("refundStatus")
         private String status;
 
         public double getAmount() { return amount; }
