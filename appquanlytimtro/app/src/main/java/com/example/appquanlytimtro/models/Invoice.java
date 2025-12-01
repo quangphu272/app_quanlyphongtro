@@ -1,3 +1,29 @@
+//model: class đại diện cho thông tin hóa đơn
+// Mục đích file: File này dùng để định nghĩa cấu trúc dữ liệu hóa đơn
+// function: 
+// - Invoice(): Constructor mặc định
+// - getId(): Lấy ID hóa đơn
+// - setId(): Thiết lập ID hóa đơn
+// - getInvoiceNumber(): Lấy số hóa đơn
+// - setInvoiceNumber(): Thiết lập số hóa đơn
+// - getBookingId(): Lấy ID đặt phòng
+// - setBookingId(): Thiết lập ID đặt phòng
+// - getTenantId(): Lấy ID người thuê
+// - setTenantId(): Thiết lập ID người thuê
+// - getLandlordId(): Lấy ID chủ trọ
+// - setLandlordId(): Thiết lập ID chủ trọ
+// - getAmount(): Lấy số tiền
+// - setAmount(): Thiết lập số tiền
+// - getStatus(): Lấy trạng thái hóa đơn
+// - setStatus(): Thiết lập trạng thái hóa đơn
+// - getDueDate(): Lấy ngày đến hạn
+// - setDueDate(): Thiết lập ngày đến hạn
+// - getPaidDate(): Lấy ngày thanh toán
+// - setPaidDate(): Thiết lập ngày thanh toán
+// - getCreatedAt(): Lấy thời gian tạo
+// - setCreatedAt(): Thiết lập thời gian tạo
+// - getUpdatedAt(): Lấy thời gian cập nhật
+// - setUpdatedAt(): Thiết lập thời gian cập nhật
 package com.example.appquanlytimtro.models;
 
 import com.google.gson.annotations.SerializedName;

@@ -1,3 +1,32 @@
+//interface: định nghĩa các API endpoints
+// Mục đích file: File này dùng để định nghĩa các API endpoints cho việc giao tiếp với backend
+// function: 
+// - login(): API đăng nhập
+// - register(): API đăng ký
+// - getRooms(): API lấy danh sách phòng
+// - getRoom(): API lấy chi tiết phòng
+// - createRoom(): API tạo phòng mới
+// - updateRoom(): API cập nhật phòng
+// - deleteRoom(): API xóa phòng
+// - uploadRoomImages(): API upload ảnh phòng
+// - getBookings(): API lấy danh sách đặt phòng
+// - getBooking(): API lấy chi tiết đặt phòng
+// - createBooking(): API tạo đặt phòng mới
+// - updateBooking(): API cập nhật đặt phòng
+// - updateBookingStatus(): API cập nhật trạng thái đặt phòng
+// - getBookingStatus(): API lấy trạng thái đặt phòng
+// - deleteBooking(): API xóa đặt phòng
+// - getPayments(): API lấy danh sách thanh toán
+// - getPayment(): API lấy chi tiết thanh toán
+// - createPayment(): API tạo thanh toán mới
+// - updatePayment(): API cập nhật thanh toán
+// - updatePaymentStatus(): API cập nhật trạng thái thanh toán
+// - getUsers(): API lấy danh sách người dùng
+// - getUser(): API lấy chi tiết người dùng
+// - updateUser(): API cập nhật thông tin người dùng
+// - getStatistics(): API lấy thống kê
+// - getNotifications(): API lấy danh sách thông báo
+// - markNotificationAsRead(): API đánh dấu thông báo đã đọc
 package com.example.appquanlytimtro.network;
 
 import com.example.appquanlytimtro.models.ApiResponse;
@@ -177,6 +206,9 @@ public interface ApiService {
             @Header("Authorization") String token,
             @Body Map<String, Object> body
     );
+    
+    @GET("payments/success/{txnRef}/landlord-info")
+    Call<ApiResponse<Map<String, Object>>> getLandlordInfoAfterPayment(@Path("txnRef") String txnRef);
     
     // Invoice endpoints
     @GET("invoices")

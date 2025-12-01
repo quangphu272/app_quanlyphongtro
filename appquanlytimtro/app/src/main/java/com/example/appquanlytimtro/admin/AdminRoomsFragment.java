@@ -1,3 +1,12 @@
+//fragment: màn hình quản lý phòng cho admin
+// Mục đích file: File này dùng để quản lý tất cả các phòng trong hệ thống cho admin
+// function: 
+// - onCreateView(): Khởi tạo view và setup các component
+// - setupRecyclerView(): Thiết lập RecyclerView và adapter
+// - setupSwipeRefresh(): Thiết lập chức năng pull-to-refresh
+// - loadRooms(): Tải danh sách phòng từ API
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - onRoomClick(): Xử lý click vào phòng
 package com.example.appquanlytimtro.admin;
 
 import android.os.Bundle;

@@ -1,3 +1,20 @@
+//activity: màn hình chi tiết phòng trọ
+// Mục đích file: File này dùng để hiển thị chi tiết thông tin phòng trọ
+// function: 
+// - onCreate(): Khởi tạo activity và lấy room_id từ intent
+// - initViews(): Khởi tạo các view components
+// - setupToolbar(): Thiết lập toolbar với menu
+// - setupViewPager(): Thiết lập ViewPager cho hình ảnh
+// - loadRoomDetails(): Tải thông tin chi tiết phòng từ API
+// - displayRoomInfo(): Hiển thị thông tin phòng lên UI
+// - setupClickListeners(): Thiết lập các sự kiện click
+// - onBookRoomClick(): Xử lý click đặt phòng
+// - onContactClick(): Xử lý click liên hệ
+// - onShareClick(): Xử lý click chia sẻ
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
+// - onCreateOptionsMenu(): Tạo menu options
+// - onOptionsItemSelected(): Xử lý click vào menu item
 package com.example.appquanlytimtro.rooms;
 
 import android.content.Intent;

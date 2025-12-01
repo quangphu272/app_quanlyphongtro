@@ -1,3 +1,13 @@
+//fragment: màn hình dashboard cho admin
+// Mục đích file: File này dùng để hiển thị tổng quan thống kê hệ thống cho admin
+// function: 
+// - onCreateView(): Khởi tạo view và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupClickListeners(): Thiết lập các sự kiện click
+// - loadUserData(): Tải thông tin user hiện tại
+// - loadDashboardData(): Tải dữ liệu thống kê dashboard từ API
+// - updateDashboardData(): Cập nhật dữ liệu dashboard lên UI
+// - loadDefaultData(): Tải dữ liệu mặc định khi không có dữ liệu từ API
 package com.example.appquanlytimtro.admin;
 
 import android.os.Bundle;

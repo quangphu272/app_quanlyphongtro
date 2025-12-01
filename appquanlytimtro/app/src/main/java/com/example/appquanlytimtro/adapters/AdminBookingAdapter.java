@@ -1,3 +1,19 @@
+//adapter:cầu nối giữa dữ liệu và giao diện hiển thị
+// Mục đích file: File này dùng để quản lý và hiển thị danh sách các đặt phòng cho quản trị viên trong ứng dụng
+// function: 
+// - AdminBookingAdapter(): Khởi tạo adapter với danh sách booking và listener
+// - onCreateViewHolder(): Tạo ViewHolder mới cho item booking
+// - onBindViewHolder(): Gắn dữ liệu booking vào ViewHolder
+// - getItemCount(): Trả về số lượng booking trong danh sách
+// - AdminBookingViewHolder(): Khởi tạo ViewHolder và tìm các view con
+// - bind(): Hiển thị thông tin booking và thiết lập sự kiện click
+// - setupActionButtons(): Thiết lập hiển thị các nút hành động theo trạng thái booking
+// - getStatusText(): Chuyển đổi mã trạng thái thành text hiển thị
+// - getStatusColor(): Lấy màu sắc tương ứng với trạng thái booking
+// - onViewBookingDetails(): Xử lý xem chi tiết booking
+// - onDeleteBooking(): Xử lý xóa booking
+// - onAcceptBooking(): Xử lý chấp nhận booking
+// - onRejectBooking(): Xử lý từ chối booking
 package com.example.appquanlytimtro.adapters;
 
 import android.view.LayoutInflater;
@@ -85,22 +101,18 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
         }
 
         public void bind(Booking booking, OnBookingActionListener listener) {
-            // Room info
             if (booking.getRoom() != null) {
                 tvRoomTitle.setText(booking.getRoom().getTitle());
             }
 
-            // Tenant info
             if (booking.getTenant() != null) {
                 tvTenantName.setText("Khách thuê: " + booking.getTenant().getFullName());
             }
 
-            // Landlord info
             if (booking.getLandlord() != null) {
                 tvLandlordName.setText("Chủ trọ: " + booking.getLandlord().getFullName());
             }
 
-            // Booking details
             if (booking.getBookingDetails() != null) {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                 tvCheckInDate.setText(sdf.format(booking.getBookingDetails().getCheckInDate()));
@@ -108,20 +120,16 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
                 tvDuration.setText(booking.getBookingDetails().getDuration() + " tháng");
             }
 
-            // Pricing
             if (booking.getPricing() != null) {
                 NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
                 tvTotalAmount.setText(formatter.format(booking.getPricing().getTotalAmount()) + " VNĐ");
             }
 
-            // Status
             chipStatus.setText(getStatusText(booking.getStatus()));
             chipStatus.setChipBackgroundColorResource(getStatusColor(booking.getStatus()));
 
-            // Show/hide action buttons based on status
             setupActionButtons(booking, listener);
 
-            // Set click listeners
             btnViewDetails.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onViewBookingDetails(booking);
@@ -150,14 +158,12 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
         private void setupActionButtons(Booking booking, OnBookingActionListener listener) {
             String status = booking.getStatus();
             
-            // Reset button visibility
             btnAccept.setVisibility(View.GONE);
             btnReject.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
             
             switch (status) {
                 case "pending":
-                    // Show accept/reject buttons for pending bookings
                     btnAccept.setVisibility(View.VISIBLE);
                     btnReject.setVisibility(View.VISIBLE);
                     btnAccept.setText("Chấp nhận");
@@ -167,12 +173,10 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
                 case "deposit_paid":
                 case "active":
                 case "completed":
-                    // Show delete button for other statuses
                     btnDelete.setVisibility(View.VISIBLE);
                     btnDelete.setText("Xóa");
                     break;
                 case "cancelled":
-                    // Show delete button for cancelled bookings
                     btnDelete.setVisibility(View.VISIBLE);
                     btnDelete.setText("Xóa");
                     break;

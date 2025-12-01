@@ -1,3 +1,10 @@
+//fragment: màn hình quản lý người dùng cho admin
+// Mục đích file: File này dùng để quản lý tất cả người dùng trong hệ thống cho admin
+// function: 
+// - onCreateView(): Khởi tạo view và setup các component
+// - loadUsers(): Tải danh sách người dùng từ API
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - onUserClick(): Xử lý click vào người dùng
 package com.example.appquanlytimtro.admin;
 
 import android.os.Bundle;

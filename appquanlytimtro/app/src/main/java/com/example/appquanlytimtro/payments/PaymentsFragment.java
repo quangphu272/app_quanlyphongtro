@@ -1,3 +1,14 @@
+//fragment: màn hình danh sách thanh toán
+// Mục đích file: File này dùng để hiển thị danh sách các thanh toán của người dùng
+// function: 
+// - onCreateView(): Khởi tạo view và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupRecyclerView(): Thiết lập RecyclerView và adapter
+// - loadPayments(): Tải danh sách thanh toán từ API
+// - updateEmptyView(): Cập nhật trạng thái empty view
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
+// - onPaymentClick(): Xử lý click vào thanh toán
 package com.example.appquanlytimtro.payments;
 
 import android.os.Bundle;

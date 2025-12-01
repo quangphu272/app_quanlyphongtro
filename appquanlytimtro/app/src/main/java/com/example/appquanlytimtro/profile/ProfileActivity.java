@@ -1,3 +1,21 @@
+//activity: màn hình hồ sơ người dùng
+// Mục đích file: File này dùng để hiển thị và chỉnh sửa thông tin hồ sơ người dùng
+// function: 
+// - onCreate(): Khởi tạo activity và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupToolbar(): Thiết lập toolbar với menu
+// - loadUserData(): Tải thông tin user hiện tại
+// - displayUserInfo(): Hiển thị thông tin user lên UI
+// - setupClickListeners(): Thiết lập các sự kiện click
+// - onEditProfileClick(): Xử lý click chỉnh sửa hồ sơ
+// - onChangePasswordClick(): Xử lý click đổi mật khẩu
+// - onLogoutClick(): Xử lý click đăng xuất
+// - updateProfile(): Cập nhật thông tin hồ sơ
+// - handleUpdateResponse(): Xử lý phản hồi cập nhật
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
+// - onCreateOptionsMenu(): Tạo menu options
+// - onOptionsItemSelected(): Xử lý click vào menu item
 package com.example.appquanlytimtro.profile;
 
 import android.content.Intent;

@@ -1,3 +1,15 @@
+//adapter: cầu nối giữa dữ liệu và giao diện hiển thị
+// Mục đích file: File này dùng để hiển thị danh sách người dùng cho admin
+// function: 
+// - UsersAdapter(): Khởi tạo adapter với danh sách người dùng
+// - onCreateViewHolder(): Tạo ViewHolder cho item người dùng
+// - onBindViewHolder(): Bind dữ liệu người dùng vào ViewHolder
+// - getItemCount(): Trả về số lượng người dùng
+// - setOnUserClickListener(): Thiết lập listener cho click event
+// - UserViewHolder(): Khởi tạo ViewHolder và tìm các view con
+// - bind(): Hiển thị thông tin người dùng và xử lý sự kiện
+// - getRoleText(): Chuyển đổi mã vai trò thành text hiển thị
+// - getRoleColor(): Lấy màu sắc tương ứng với vai trò
 package com.example.appquanlytimtro.admin;
 
 import android.view.LayoutInflater;

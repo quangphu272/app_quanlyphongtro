@@ -1,3 +1,18 @@
+//model: class đại diện cho yêu cầu đăng ký
+// Mục đích file: File này dùng để định nghĩa cấu trúc dữ liệu yêu cầu đăng ký
+// function: 
+// - RegisterRequest(): Constructor mặc định
+// - RegisterRequest(String, String, String, String, String): Constructor với đầy đủ thông tin
+// - getFullName(): Lấy họ tên
+// - setFullName(): Thiết lập họ tên
+// - getEmail(): Lấy email
+// - setEmail(): Thiết lập email
+// - getPassword(): Lấy mật khẩu
+// - setPassword(): Thiết lập mật khẩu
+// - getPhone(): Lấy số điện thoại
+// - setPhone(): Thiết lập số điện thoại
+// - getRole(): Lấy vai trò
+// - setRole(): Thiết lập vai trò
 package com.example.appquanlytimtro.models;
 
 import com.google.gson.annotations.SerializedName;

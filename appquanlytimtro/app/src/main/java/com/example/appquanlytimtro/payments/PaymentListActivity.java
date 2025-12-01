@@ -1,3 +1,18 @@
+//activity: màn hình danh sách thanh toán
+// Mục đích file: File này dùng để hiển thị danh sách các thanh toán của người dùng
+// function: 
+// - onCreate(): Khởi tạo activity và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupToolbar(): Thiết lập toolbar với menu
+// - setupRecyclerView(): Thiết lập RecyclerView và adapter
+// - setupSwipeRefresh(): Thiết lập chức năng pull-to-refresh
+// - loadPayments(): Tải danh sách thanh toán từ API
+// - updateEmptyView(): Cập nhật trạng thái empty view
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
+// - onPaymentClick(): Xử lý click vào thanh toán
+// - onCreateOptionsMenu(): Tạo menu options
+// - onOptionsItemSelected(): Xử lý click vào menu item
 package com.example.appquanlytimtro.payments;
 
 import android.os.Bundle;

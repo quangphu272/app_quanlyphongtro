@@ -1,3 +1,23 @@
+//fragment: màn hình quản lý đặt phòng cho admin
+// Mục đích file: File này dùng để quản lý tất cả các đặt phòng trong hệ thống cho admin
+// function: 
+// - onCreateView(): Khởi tạo view và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupRecyclerView(): Thiết lập RecyclerView và adapter
+// - setupSwipeRefresh(): Thiết lập chức năng pull-to-refresh
+// - setupFilterChips(): Thiết lập các chip lọc theo trạng thái
+// - loadBookings(): Tải danh sách booking từ API
+// - filterBookings(): Lọc booking theo trạng thái
+// - updateEmptyView(): Cập nhật trạng thái empty view
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
+// - onViewBookingDetails(): Xử lý xem chi tiết booking
+// - onDeleteBooking(): Xử lý xóa booking
+// - onAcceptBooking(): Xử lý chấp nhận booking
+// - onRejectBooking(): Xử lý từ chối booking
+// - checkBookingStatus(): Kiểm tra trạng thái booking trước khi thực hiện hành động
+// - updateBookingStatus(): Cập nhật trạng thái booking
+// - deleteBooking(): Xóa booking
 package com.example.appquanlytimtro.admin;
 
 import android.content.Context;

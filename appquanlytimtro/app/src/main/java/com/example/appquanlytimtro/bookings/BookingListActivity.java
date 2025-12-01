@@ -1,3 +1,24 @@
+//activity: màn hình hiển thị danh sách đặt phòng của người dùng
+// Mục đích file: File này dùng để hiển thị danh sách các đặt phòng của người dùng hiện tại
+// function: 
+// - onCreate(): Khởi tạo activity và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupToolbar(): Thiết lập toolbar với menu
+// - setupRecyclerView(): Thiết lập RecyclerView và adapter
+// - setupSwipeRefresh(): Thiết lập chức năng pull-to-refresh
+// - loadBookings(): Tải danh sách booking từ API
+// - updateEmptyView(): Cập nhật trạng thái empty view
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
+// - onBookingClick(): Xử lý click vào booking để xem chi tiết
+// - onBookingStatusChange(): Xử lý thay đổi trạng thái booking
+// - onPaymentClick(): Xử lý click thanh toán
+// - updateBookingStatus(): Cập nhật trạng thái booking
+// - onCreateOptionsMenu(): Tạo menu options
+// - onOptionsItemSelected(): Xử lý click vào menu item
+// - showFilterDialog(): Hiển thị dialog lọc theo trạng thái
+// - filterBookingsByStatus(): Lọc booking theo trạng thái
+// - convertStatusToValue(): Chuyển đổi text trạng thái thành giá trị
 package com.example.appquanlytimtro.bookings;
 
 import android.content.Intent;

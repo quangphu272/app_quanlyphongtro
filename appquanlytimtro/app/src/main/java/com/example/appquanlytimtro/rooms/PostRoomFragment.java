@@ -1,3 +1,15 @@
+//fragment: màn hình đăng phòng trọ
+// Mục đích file: File này dùng để xử lý việc đăng phòng trọ mới cho chủ trọ
+// function: 
+// - onCreateView(): Khởi tạo view và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupImagePicker(): Thiết lập chọn ảnh
+// - setupSubmitButton(): Thiết lập nút submit
+// - validateInput(): Kiểm tra tính hợp lệ của dữ liệu nhập
+// - createRoom(): Tạo phòng trọ mới
+// - uploadImages(): Upload ảnh lên server
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
 package com.example.appquanlytimtro.rooms;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;

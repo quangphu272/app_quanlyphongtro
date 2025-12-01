@@ -1,3 +1,39 @@
+//model: class đại diện cho thông tin phòng trọ
+// Mục đích file: File này dùng để định nghĩa cấu trúc dữ liệu phòng trọ
+// function: 
+// - Room(): Constructor mặc định
+// - getId(): Lấy ID phòng
+// - setId(): Thiết lập ID phòng
+// - getTitle(): Lấy tiêu đề phòng
+// - setTitle(): Thiết lập tiêu đề phòng
+// - getDescription(): Lấy mô tả phòng
+// - setDescription(): Thiết lập mô tả phòng
+// - getAddress(): Lấy địa chỉ phòng
+// - setAddress(): Thiết lập địa chỉ phòng
+// - getRoomType(): Lấy loại phòng
+// - setRoomType(): Thiết lập loại phòng
+// - getArea(): Lấy diện tích phòng
+// - setArea(): Thiết lập diện tích phòng
+// - getPrice(): Lấy giá phòng
+// - setPrice(): Thiết lập giá phòng
+// - getAmenities(): Lấy danh sách tiện ích
+// - setAmenities(): Thiết lập danh sách tiện ích
+// - getRules(): Lấy danh sách quy định
+// - setRules(): Thiết lập danh sách quy định
+// - getImages(): Lấy danh sách hình ảnh
+// - setImages(): Thiết lập danh sách hình ảnh
+// - getLandlord(): Lấy thông tin chủ trọ
+// - setLandlord(): Thiết lập thông tin chủ trọ
+// - getStatus(): Lấy trạng thái phòng
+// - setStatus(): Thiết lập trạng thái phòng
+// - getAvailability(): Lấy thông tin khả dụng
+// - setAvailability(): Thiết lập thông tin khả dụng
+// - getContactInfo(): Lấy thông tin liên hệ
+// - setContactInfo(): Thiết lập thông tin liên hệ
+// - getCreatedAt(): Lấy thời gian tạo
+// - setCreatedAt(): Thiết lập thời gian tạo
+// - getUpdatedAt(): Lấy thời gian cập nhật
+// - setUpdatedAt(): Thiết lập thời gian cập nhật
 package com.example.appquanlytimtro.models;
 
 import com.google.gson.annotations.SerializedName;

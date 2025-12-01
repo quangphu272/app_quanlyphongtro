@@ -1,3 +1,17 @@
+//adapter: cầu nối giữa dữ liệu và giao diện hiển thị
+// Mục đích file: File này dùng để hiển thị danh sách các đặt phòng cho người dùng trong ứng dụng quản lý tìm trọ
+// function: 
+// - BookingAdapter(): Khởi tạo adapter với danh sách booking và listener
+// - onCreateViewHolder(): Tạo ViewHolder mới cho item booking
+// - onBindViewHolder(): Gắn dữ liệu booking vào ViewHolder
+// - getItemCount(): Trả về số lượng booking đã lọc
+// - updateBookings(): Cập nhật danh sách booking mới
+// - filterByStatus(): Lọc booking theo trạng thái
+// - BookingViewHolder(): Khởi tạo ViewHolder và tìm các view con
+// - bind(): Hiển thị thông tin booking và thiết lập sự kiện click
+// - setupActionButtons(): Thiết lập các nút hành động dựa trên trạng thái
+// - getStatusText(): Chuyển đổi mã trạng thái thành text hiển thị
+// - getStatusColor(): Lấy màu sắc tương ứng với trạng thái
 package com.example.appquanlytimtro.adapters;
 
 import android.view.LayoutInflater;
@@ -59,7 +73,6 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
 
     public void updateBookings(List<Booking> newBookings) {
         
-        // Create a copy to avoid reference issues
         List<Booking> bookingsCopy = new ArrayList<>(newBookings);
         
         this.bookings.clear();
@@ -111,7 +124,6 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         }
 
         public void bind(Booking booking, OnBookingClickListener listener) {
-            // Room info
             if (booking.getRoom() != null) {
                 tvRoomTitle.setText(booking.getRoom().getTitle());
                 if (booking.getRoom().getAddress() != null) {
@@ -123,7 +135,6 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
                 }
             }
 
-            // Booking details
             if (booking.getBookingDetails() != null) {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                 tvCheckInDate.setText(sdf.format(booking.getBookingDetails().getCheckInDate()));
@@ -131,25 +142,20 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
                 tvDuration.setText(booking.getBookingDetails().getDuration() + " tháng");
             }
 
-            // Pricing
             if (booking.getPricing() != null) {
                 NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
                 tvTotalAmount.setText(formatter.format(booking.getPricing().getTotalAmount()) + " VNĐ");
             }
 
-            // Landlord
             if (booking.getLandlord() != null) {
                 tvLandlordName.setText("Chủ trọ: " + booking.getLandlord().getFullName());
             }
 
-            // Status
             chipStatus.setText(getStatusText(booking.getStatus()));
             chipStatus.setChipBackgroundColorResource(getStatusColor(booking.getStatus()));
 
-            // Action buttons based on status
             setupActionButtons(booking, listener);
 
-            // Click listener
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onBookingClick(booking);
@@ -184,7 +190,6 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         private void setupActionButtons(Booking booking, OnBookingClickListener listener) {
             String status = booking.getStatus();
             
-            // Reset button visibility
             layoutActionButtons.setVisibility(View.GONE);
             
             switch (status) {
@@ -198,11 +203,9 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
                 case "active":
                 case "completed":
                 case "cancelled":
-                    // No action buttons for these statuses
                     break;
             }
 
-            // Set click listener for payment button
             btnPayment.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onPaymentClick(booking);

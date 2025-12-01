@@ -1,3 +1,11 @@
+//adapter: cầu nối giữa dữ liệu và giao diện hiển thị
+// Mục đích file: File này dùng để hiển thị danh sách hình ảnh phòng
+// function: 
+// - RoomImageAdapter(): Khởi tạo adapter với danh sách ảnh
+// - onCreateViewHolder(): Tạo ViewHolder cho item hình ảnh
+// - onBindViewHolder(): Bind dữ liệu hình ảnh vào ViewHolder và load hình ảnh bằng Glide
+// - getItemCount(): Trả về số lượng hình ảnh
+// - ImageViewHolder(): ViewHolder chứa ImageView để hiển thị hình ảnh
 package com.example.appquanlytimtro.adapters;
 
 import android.view.LayoutInflater;

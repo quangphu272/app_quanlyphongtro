@@ -1,3 +1,25 @@
+//activity: màn hình đặt phòng trọ
+// Mục đích file: File này dùng để xử lý việc đặt phòng trọ của người dùng
+// function: 
+// - onCreate(): Khởi tạo activity và lấy thông tin phòng từ intent
+// - initViews(): Khởi tạo các view components
+// - setupToolbar(): Thiết lập toolbar với nút back
+// - setupSpinners(): Thiết lập spinner chọn thời gian thuê
+// - setupDatePickers(): Thiết lập date picker cho ngày nhận/trả phòng
+// - showCheckInDatePicker(): Hiển thị date picker cho ngày nhận phòng
+// - showCheckOutDatePicker(): Hiển thị date picker cho ngày trả phòng
+// - updateCheckInDate(): Cập nhật hiển thị ngày nhận phòng
+// - updateCheckOutDate(): Cập nhật hiển thị ngày trả phòng
+// - calculateDurationFromDates(): Tính thời gian thuê từ ngày nhận/trả
+// - loadUserData(): Tải thông tin user hiện tại
+// - loadRoomDetails(): Tải thông tin chi tiết phòng từ API
+// - displayRoomInfo(): Hiển thị thông tin phòng lên UI
+// - calculateTotalAmount(): Tính tổng tiền cần thanh toán
+// - createBooking(): Tạo đặt phòng mới
+// - validateInput(): Kiểm tra tính hợp lệ của dữ liệu nhập
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
+// - onOptionsItemSelected(): Xử lý click vào menu item
 package com.example.appquanlytimtro.bookings;
 
 import android.app.DatePickerDialog;

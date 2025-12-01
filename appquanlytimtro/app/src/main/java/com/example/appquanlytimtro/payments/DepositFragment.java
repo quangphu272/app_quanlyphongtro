@@ -1,3 +1,17 @@
+//fragment: màn hình thanh toán tiền cọc
+// Mục đích file: File này dùng để xử lý việc thanh toán tiền cọc cho đặt phòng
+// function: 
+// - onCreateView(): Khởi tạo view và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupPaymentMethods(): Thiết lập các phương thức thanh toán
+// - onPaymentMethodSelected(): Xử lý chọn phương thức thanh toán
+// - processPayment(): Xử lý thanh toán
+// - processVNPayPayment(): Xử lý thanh toán qua VNPay
+// - processCashPayment(): Xử lý thanh toán tiền mặt
+// - createPaymentRecord(): Tạo bản ghi thanh toán
+// - handlePaymentResult(): Xử lý kết quả thanh toán
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
 package com.example.appquanlytimtro.payments;
 
 import android.os.Bundle;

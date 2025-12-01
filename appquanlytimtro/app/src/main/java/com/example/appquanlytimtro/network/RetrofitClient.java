@@ -1,3 +1,15 @@
+//class: quản lý kết nối Retrofit
+// Mục đích file: File này dùng để quản lý kết nối Retrofit và cấu hình API client
+// function: 
+// - getInstance(): Lấy instance duy nhất của RetrofitClient
+// - getApiService(): Lấy ApiService interface
+// - getToken(): Lấy token từ SharedPreferences
+// - setToken(): Lưu token vào SharedPreferences
+// - getUserData(): Lấy dữ liệu user từ SharedPreferences
+// - setUserData(): Lưu dữ liệu user vào SharedPreferences
+// - clearUserData(): Xóa dữ liệu user khỏi SharedPreferences
+// - isLoggedIn(): Kiểm tra trạng thái đăng nhập
+// - logout(): Đăng xuất và xóa dữ liệu
 package com.example.appquanlytimtro.network;
 
 import android.content.Context;
@@ -37,11 +49,9 @@ public class RetrofitClient {
     }
     
     private void createRetrofitInstance() {
-        // Create logging interceptor
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         
-        // Create auth interceptor
         Interceptor authInterceptor = new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
@@ -59,7 +69,6 @@ public class RetrofitClient {
             }
         };
         
-        // Create OkHttpClient
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(authInterceptor)
                 .addInterceptor(loggingInterceptor)
@@ -68,7 +77,7 @@ public class RetrofitClient {
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .build();
         
-        // Create Retrofit instance
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .client(okHttpClient)

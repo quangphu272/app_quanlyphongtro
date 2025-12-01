@@ -1,3 +1,15 @@
+//adapter: cầu nối giữa dữ liệu và giao diện hiển thị
+// Mục đích file: File này dùng để quản lý danh sách phòng cho chủ trọ
+// function: 
+// - LandlordRoomAdapter(): Khởi tạo adapter với danh sách phòng và listener
+// - onCreateViewHolder(): Tạo ViewHolder cho item phòng
+// - onBindViewHolder(): Bind dữ liệu phòng vào ViewHolder
+// - getItemCount(): Trả về số lượng phòng
+// - updateRooms(): Cập nhật danh sách phòng mới
+// - RoomViewHolder(): Khởi tạo ViewHolder và tìm các view con
+// - bind(): Hiển thị thông tin phòng và xử lý sự kiện
+// - getStatusText(): Chuyển đổi mã trạng thái thành text hiển thị
+// - getStatusColor(): Lấy màu sắc tương ứng với trạng thái
 package com.example.appquanlytimtro.adapters;
 
 import android.view.LayoutInflater;

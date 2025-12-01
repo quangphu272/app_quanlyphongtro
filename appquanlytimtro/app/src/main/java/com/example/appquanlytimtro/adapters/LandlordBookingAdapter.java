@@ -1,3 +1,15 @@
+//adapter: cầu nối giữa dữ liệu và giao diện hiển thị
+// Mục đích file: File này dùng để quản lý danh sách booking cho chủ trọ
+// function: 
+// - LandlordBookingAdapter(): Khởi tạo adapter với danh sách booking và listener
+// - onCreateViewHolder(): Tạo ViewHolder cho item booking
+// - onBindViewHolder(): Bind dữ liệu booking vào ViewHolder
+// - getItemCount(): Trả về số lượng booking
+// - LandlordBookingViewHolder(): Khởi tạo ViewHolder và tìm các view con
+// - bind(): Hiển thị thông tin booking và thiết lập sự kiện click
+// - setupActionButtons(): Thiết lập các nút hành động dựa trên trạng thái booking
+// - getStatusText(): Chuyển đổi mã trạng thái thành text hiển thị
+// - getStatusColor(): Lấy màu sắc tương ứng với trạng thái
 package com.example.appquanlytimtro.adapters;
 
 import android.view.LayoutInflater;
@@ -29,6 +41,7 @@ public class LandlordBookingAdapter extends RecyclerView.Adapter<LandlordBooking
         void onViewBookingDetails(Booking booking);
         void onAcceptBooking(Booking booking);
         void onRejectBooking(Booking booking);
+        void onMarkPaid(Booking booking);
     }
 
     public LandlordBookingAdapter(List<Booking> bookings, OnBookingActionListener listener) {
@@ -68,6 +81,7 @@ public class LandlordBookingAdapter extends RecyclerView.Adapter<LandlordBooking
         private MaterialButton btnViewDetails;
         private MaterialButton btnAccept;
         private MaterialButton btnReject;
+        private MaterialButton btnMarkPaid;
 
         public LandlordBookingViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -83,6 +97,7 @@ public class LandlordBookingAdapter extends RecyclerView.Adapter<LandlordBooking
             btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
             btnAccept = itemView.findViewById(R.id.btnAccept);
             btnReject = itemView.findViewById(R.id.btnReject);
+            btnMarkPaid = itemView.findViewById(R.id.btnMarkPaid);
         }
 
         public void bind(Booking booking, OnBookingActionListener listener) {
@@ -126,6 +141,7 @@ public class LandlordBookingAdapter extends RecyclerView.Adapter<LandlordBooking
             btnCancel.setVisibility(View.GONE);
             btnAccept.setVisibility(View.GONE);
             btnReject.setVisibility(View.GONE);
+            btnMarkPaid.setVisibility(View.GONE);
             btnViewDetails.setVisibility(View.VISIBLE);
 
             switch (status) {
@@ -137,10 +153,17 @@ public class LandlordBookingAdapter extends RecyclerView.Adapter<LandlordBooking
                     btnReject.setText("Từ chối");
                     break;
                 case "confirmed":
+                    // Show mark paid button for confirmed bookings
+                    btnMarkPaid.setVisibility(View.VISIBLE);
+                    btnMarkPaid.setText("Đã thanh toán");
                     btnCancel.setVisibility(View.VISIBLE);
                     btnCancel.setText("Hủy");
                     break;
                 case "deposit_paid":
+                    // Show cancel button for deposit paid bookings
+                    btnCancel.setVisibility(View.VISIBLE);
+                    btnCancel.setText("Hủy");
+                    break;
                 case "active":
                 case "completed":
                     // No action buttons for these statuses
@@ -178,6 +201,12 @@ public class LandlordBookingAdapter extends RecyclerView.Adapter<LandlordBooking
             btnReject.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onRejectBooking(booking);
+                }
+            });
+
+            btnMarkPaid.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onMarkPaid(booking);
                 }
             });
         }

@@ -1,3 +1,23 @@
+//activity: màn hình chính của ứng dụng
+// Mục đích file: File này dùng để quản lý màn hình chính và điều hướng giữa các fragment
+// function: 
+// - onCreate(): Khởi tạo activity và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupToolbar(): Thiết lập toolbar với menu
+// - setupBottomNavigation(): Thiết lập bottom navigation
+// - loadUserData(): Tải thông tin user hiện tại
+// - setupFragments(): Thiết lập các fragment
+// - showFragment(): Hiển thị fragment được chọn
+// - onNavigationItemSelected(): Xử lý chọn item trong bottom navigation
+// - onCreateOptionsMenu(): Tạo menu options
+// - onOptionsItemSelected(): Xử lý click vào menu item
+// - onProfileClick(): Xử lý click vào profile
+// - onLogoutClick(): Xử lý click đăng xuất
+// - onBookingsClick(): Xử lý click vào đặt phòng
+// - onPaymentsClick(): Xử lý click vào thanh toán
+// - onRoomsClick(): Xử lý click vào phòng trọ
+// - logout(): Thực hiện đăng xuất
+// - navigateToLogin(): Chuyển đến màn hình đăng nhập
 package com.example.appquanlytimtro;
 
 import android.content.Intent;

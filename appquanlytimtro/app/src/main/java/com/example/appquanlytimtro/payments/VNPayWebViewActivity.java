@@ -1,3 +1,16 @@
+//activity: màn hình WebView thanh toán VNPay
+// Mục đích file: File này dùng để hiển thị giao diện thanh toán VNPay trong WebView
+// function: 
+// - onCreate(): Khởi tạo activity và setup WebView
+// - initViews(): Khởi tạo các view components
+// - setupToolbar(): Thiết lập toolbar với nút back
+// - setupWebView(): Thiết lập WebView và các client
+// - loadPaymentUrl(): Tải URL thanh toán VNPay
+// - handlePaymentResult(): Xử lý kết quả thanh toán
+// - parsePaymentResult(): Phân tích kết quả thanh toán từ URL
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
+// - onOptionsItemSelected(): Xử lý click vào menu item
 package com.example.appquanlytimtro.payments;
 
 import android.annotation.SuppressLint;
@@ -26,6 +39,9 @@ public class VNPayWebViewActivity extends AppCompatActivity {
     private WebView webView;
     private ProgressBar progressBar;
     private String paymentUrl;
+    private String bookingId;
+    private String roomId;
+    private String orderId; // TxnRef từ payment request
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +100,20 @@ public class VNPayWebViewActivity extends AppCompatActivity {
                 super.onPageFinished(view, url);
                 progressBar.setVisibility(View.GONE);
                 Log.d(TAG, "Page finished loading: " + url);
+                
+                // Kiểm tra nếu trang có chứa lỗi "Website chưa được phê duyệt"
+                view.evaluateJavascript(
+                    "(function() { " +
+                    "  var bodyText = document.body.innerText || document.body.textContent || ''; " +
+                    "  return bodyText.includes('chưa được phê duyệt') || bodyText.includes('chua duoc phe duyet'); " +
+                    "})();",
+                    result -> {
+                        if ("true".equals(result)) {
+                            Log.d(TAG, "Detected 'Website not approved' error, showing landlord info");
+                            handleWebsiteNotApprovedError();
+                        }
+                    }
+                );
             }
         });
         
@@ -107,6 +137,10 @@ public class VNPayWebViewActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra("payment_url")) {
             paymentUrl = intent.getStringExtra("payment_url");
+            bookingId = intent.getStringExtra("booking_id");
+            roomId = intent.getStringExtra("room_id");
+            orderId = intent.getStringExtra("order_id");
+            
             if (paymentUrl != null && !paymentUrl.isEmpty()) {
                 Log.d(TAG, "Loading payment URL: " + paymentUrl);
                 webView.loadUrl(paymentUrl);
@@ -125,20 +159,69 @@ public class VNPayWebViewActivity extends AppCompatActivity {
             Uri uri = Uri.parse(returnUrl);
             VNPayService.PaymentResponse response = VNPayService.handlePaymentResult(uri);
             
-            // Create result intent
-            Intent resultIntent = new Intent();
-            resultIntent.putExtra("payment_success", response.isSuccess());
-            resultIntent.putExtra("payment_message", response.getMessage());
-            resultIntent.putExtra("transaction_id", response.getTransactionId());
-            resultIntent.putExtra("order_id", response.getOrderId());
-            resultIntent.putExtra("amount", response.getAmount());
-            
-            setResult(RESULT_OK, resultIntent);
-            finish();
+            if (response.isSuccess()) {
+                // Mở màn hình hiển thị thông tin chủ trọ
+                Intent successIntent = new Intent(this, PaymentSuccessActivity.class);
+                successIntent.putExtra("txnRef", response.getOrderId());
+                successIntent.putExtra("transaction_id", response.getTransactionId());
+                successIntent.putExtra("amount", response.getAmount());
+                
+                // Lấy thông tin từ URL nếu có
+                String landlordPhone = uri.getQueryParameter("landlordPhone");
+                String landlordAddress = uri.getQueryParameter("landlordAddress");
+                String paymentId = uri.getQueryParameter("paymentId");
+                
+                if (landlordPhone != null) {
+                    successIntent.putExtra("landlordPhone", landlordPhone);
+                }
+                if (landlordAddress != null) {
+                    successIntent.putExtra("landlordAddress", landlordAddress);
+                }
+                if (paymentId != null) {
+                    successIntent.putExtra("paymentId", paymentId);
+                }
+                
+                startActivity(successIntent);
+                finish();
+            } else {
+                // Create result intent for failure
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("payment_success", false);
+                resultIntent.putExtra("payment_message", response.getMessage());
+                resultIntent.putExtra("transaction_id", response.getTransactionId());
+                resultIntent.putExtra("order_id", response.getOrderId());
+                resultIntent.putExtra("amount", response.getAmount());
+                
+                setResult(RESULT_OK, resultIntent);
+                finish();
+            }
             
         } catch (Exception e) {
             Log.e(TAG, "Error handling VNPay return: " + e.getMessage(), e);
             showError("Lỗi xử lý kết quả thanh toán");
+        }
+    }
+    
+    private void handleWebsiteNotApprovedError() {
+        // Khi gặp lỗi "Website chưa được phê duyệt", vẫn hiển thị thông tin chủ trọ
+        // Sử dụng orderId (txnRef) để lấy thông tin từ API
+        if (orderId != null && !orderId.isEmpty()) {
+            // Gọi API để lấy thông tin chủ trọ
+            Intent successIntent = new Intent(this, PaymentSuccessActivity.class);
+            successIntent.putExtra("txnRef", orderId);
+            successIntent.putExtra("bookingId", bookingId);
+            startActivity(successIntent);
+            finish();
+        } else if (bookingId != null && !bookingId.isEmpty()) {
+            // Nếu có bookingId, có thể lấy thông tin từ booking
+            Intent successIntent = new Intent(this, PaymentSuccessActivity.class);
+            successIntent.putExtra("bookingId", bookingId);
+            startActivity(successIntent);
+            finish();
+        } else {
+            // Nếu không có thông tin, hiển thị thông báo và đóng
+            Toast.makeText(this, "Thanh toán không thể hoàn tất do website chưa được phê duyệt. Vui lòng liên hệ chủ trọ trực tiếp.", Toast.LENGTH_LONG).show();
+            finish();
         }
     }
     

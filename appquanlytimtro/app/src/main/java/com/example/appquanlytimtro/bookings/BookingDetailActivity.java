@@ -1,3 +1,17 @@
+//activity: màn hình hiển thị chi tiết thông tin đặt phòng
+// Mục đích file: File này dùng để hiển thị thông tin chi tiết của một đặt phòng cụ thể
+// function: 
+// - onCreate(): Khởi tạo activity và lấy booking_id từ intent
+// - initViews(): Khởi tạo các view components
+// - setupToolbar(): Thiết lập toolbar với nút back
+// - loadBookingDetails(): Tải thông tin chi tiết booking từ API
+// - populateBookingDetails(): Hiển thị thông tin booking lên UI
+// - getStatusText(): Chuyển đổi mã trạng thái thành text hiển thị
+// - getStatusColor(): Lấy màu sắc tương ứng với trạng thái
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
+// - onCreateOptionsMenu(): Tạo menu options
+// - onOptionsItemSelected(): Xử lý click vào menu item
 package com.example.appquanlytimtro.bookings;
 
 import android.content.Intent;

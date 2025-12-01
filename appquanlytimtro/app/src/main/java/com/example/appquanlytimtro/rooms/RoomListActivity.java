@@ -1,3 +1,21 @@
+//activity: màn hình danh sách phòng trọ
+// Mục đích file: File này dùng để hiển thị danh sách các phòng trọ
+// function: 
+// - onCreate(): Khởi tạo activity và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupToolbar(): Thiết lập toolbar với menu
+// - setupRecyclerView(): Thiết lập RecyclerView và adapter
+// - setupSwipeRefresh(): Thiết lập chức năng pull-to-refresh
+// - setupSearch(): Thiết lập chức năng tìm kiếm
+// - loadRooms(): Tải danh sách phòng từ API
+// - searchRooms(): Tìm kiếm phòng
+// - filterRooms(): Lọc phòng theo tiêu chí
+// - updateEmptyView(): Cập nhật trạng thái empty view
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
+// - onRoomClick(): Xử lý click vào phòng
+// - onCreateOptionsMenu(): Tạo menu options
+// - onOptionsItemSelected(): Xử lý click vào menu item
 package com.example.appquanlytimtro.rooms;
 
 import android.content.Intent;
@@ -121,7 +139,7 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
 
     private void setupSearchListeners() {
         btnSearch.setOnClickListener(v -> performSearch());
-        btnFilter.setOnClickListener(v -> showFilterDialog());
+        //btnFilter.setOnClickListener(v -> showFilterDialog());
         
         etSearch.setOnEditorActionListener((v, actionId, event) -> {
             performSearch();
@@ -134,9 +152,6 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
         loadRooms(searchQuery);
     }
 
-    private void showFilterDialog() {
-        //Toast.makeText(this, "Chức năng bộ lọc sẽ được phát triển", Toast.LENGTH_SHORT).show();
-    }
 
     private void loadRooms(String searchQuery) {
         showLoading(true);

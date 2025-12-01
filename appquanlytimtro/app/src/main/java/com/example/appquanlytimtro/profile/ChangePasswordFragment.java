@@ -1,3 +1,15 @@
+//fragment: màn hình đổi mật khẩu
+// Mục đích file: File này dùng để xử lý việc đổi mật khẩu của người dùng
+// function: 
+// - onCreateView(): Khởi tạo view và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupClickListeners(): Thiết lập các sự kiện click
+// - validateInput(): Kiểm tra tính hợp lệ của dữ liệu nhập
+// - changePassword(): Thực hiện đổi mật khẩu
+// - handleChangePasswordResponse(): Xử lý phản hồi đổi mật khẩu
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
+// - dismiss(): Đóng dialog
 package com.example.appquanlytimtro.profile;
 
 import android.os.Bundle;

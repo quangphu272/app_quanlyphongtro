@@ -1,3 +1,21 @@
+//service: xử lý thanh toán VNPay
+// Mục đích file: File này dùng để xử lý các chức năng thanh toán qua VNPay
+// function: 
+// - VNPayService(): Constructor mặc định
+// - createPaymentUrl(): Tạo URL thanh toán VNPay
+// - generateSecureHash(): Tạo mã hash bảo mật
+// - sortParams(): Sắp xếp tham số theo thứ tự alphabet
+// - buildQueryString(): Xây dựng chuỗi query
+// - urlEncode(): Mã hóa URL
+// - hmacSHA512(): Tạo HMAC SHA512
+// - bytesToHex(): Chuyển đổi bytes thành hex
+// - parsePaymentResult(): Phân tích kết quả thanh toán
+// - isValidPaymentResult(): Kiểm tra tính hợp lệ của kết quả thanh toán
+// - getPaymentStatus(): Lấy trạng thái thanh toán
+// - getTransactionId(): Lấy ID giao dịch
+// - getAmount(): Lấy số tiền
+// - getResponseCode(): Lấy mã phản hồi
+// - getResponseMessage(): Lấy thông báo phản hồi
 package com.example.appquanlytimtro.payments;
 
 import android.content.Context;

@@ -1,3 +1,16 @@
+//fragment: màn hình hồ sơ người dùng
+// Mục đích file: File này dùng để hiển thị thông tin hồ sơ người dùng
+// function: 
+// - onCreateView(): Khởi tạo view và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupClickListeners(): Thiết lập các sự kiện click
+// - loadUserData(): Tải thông tin user hiện tại
+// - displayUserInfo(): Hiển thị thông tin user lên UI
+// - onEditProfileClick(): Xử lý click chỉnh sửa hồ sơ
+// - onChangePasswordClick(): Xử lý click đổi mật khẩu
+// - onLogoutClick(): Xử lý click đăng xuất
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
 package com.example.appquanlytimtro.profile;
 
 import android.os.Bundle;

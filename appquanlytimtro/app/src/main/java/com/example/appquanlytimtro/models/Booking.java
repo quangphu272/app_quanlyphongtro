@@ -1,3 +1,27 @@
+//model: class đại diện cho thông tin đặt phòng
+// Mục đích file: File này dùng để định nghĩa cấu trúc dữ liệu đặt phòng
+// function: 
+// - Booking(): Constructor mặc định
+// - getId(): Lấy ID đặt phòng
+// - setId(): Thiết lập ID đặt phòng
+// - getRoom(): Lấy thông tin phòng
+// - setRoom(): Thiết lập thông tin phòng
+// - getTenant(): Lấy thông tin người thuê
+// - setTenant(): Thiết lập thông tin người thuê
+// - getLandlord(): Lấy thông tin chủ trọ
+// - setLandlord(): Thiết lập thông tin chủ trọ
+// - getBookingDetails(): Lấy chi tiết đặt phòng
+// - setBookingDetails(): Thiết lập chi tiết đặt phòng
+// - getPricing(): Lấy thông tin giá cả
+// - setPricing(): Thiết lập thông tin giá cả
+// - getStatus(): Lấy trạng thái đặt phòng
+// - setStatus(): Thiết lập trạng thái đặt phòng
+// - getNotes(): Lấy ghi chú
+// - setNotes(): Thiết lập ghi chú
+// - getCreatedAt(): Lấy thời gian tạo
+// - setCreatedAt(): Thiết lập thời gian tạo
+// - getUpdatedAt(): Lấy thời gian cập nhật
+// - setUpdatedAt(): Thiết lập thời gian cập nhật
 package com.example.appquanlytimtro.models;
 
 import com.google.gson.annotations.SerializedName;

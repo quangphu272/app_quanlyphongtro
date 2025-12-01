@@ -1,3 +1,11 @@
+//adapter: cầu nối giữa dữ liệu và giao diện hiển thị
+// Mục đích file: File này dùng để hiển thị danh sách hình ảnh đã chọn
+// function: 
+// - ImagePreviewAdapter(): Khởi tạo adapter với danh sách ảnh và listener
+// - onCreateViewHolder(): Tạo ViewHolder cho item hình ảnh
+// - onBindViewHolder(): Bind dữ liệu hình ảnh vào ViewHolder và xử lý sự kiện xóa
+// - getItemCount(): Trả về số lượng hình ảnh
+// - ImageViewHolder(): ViewHolder chứa ImageView và nút xóa
 package com.example.appquanlytimtro.adapters;
 
 import android.net.Uri;

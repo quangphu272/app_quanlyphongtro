@@ -1,3 +1,20 @@
+//activity: màn hình tìm kiếm phòng trọ
+// Mục đích file: File này dùng để tìm kiếm phòng trọ theo các tiêu chí
+// function: 
+// - onCreate(): Khởi tạo activity và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupToolbar(): Thiết lập toolbar với menu
+// - setupRecyclerView(): Thiết lập RecyclerView và adapter
+// - setupSearchFilters(): Thiết lập các bộ lọc tìm kiếm
+// - setupClickListeners(): Thiết lập các sự kiện click
+// - performSearch(): Thực hiện tìm kiếm
+// - loadRooms(): Tải danh sách phòng từ API
+// - updateEmptyView(): Cập nhật trạng thái empty view
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
+// - onRoomClick(): Xử lý click vào phòng
+// - onCreateOptionsMenu(): Tạo menu options
+// - onOptionsItemSelected(): Xử lý click vào menu item
 package com.example.appquanlytimtro.rooms;
 
 import android.content.Intent;
@@ -93,35 +110,28 @@ public class RoomSearchActivity extends AppCompatActivity implements RoomAdapter
     }
     
     private void setupSearchFilters() {
-        // Setup city dropdown
         String[] cities = {"Tất cả", "Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ"};
         ArrayAdapter<String> cityAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, cities);
         actvCity.setAdapter(cityAdapter);
         
-        // Setup district dropdown
         String[] districts = {"Tất cả", "Quận 1", "Quận 2", "Quận 3", "Quận 4", "Quận 5", "Hải Châu", "Thanh Khê", "Sơn Trà"};
         ArrayAdapter<String> districtAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, districts);
         actvDistrict.setAdapter(districtAdapter);
         
-        // Setup room type dropdown
         String[] roomTypes = {"Tất cả", "Studio", "1 phòng ngủ", "2 phòng ngủ", "3 phòng ngủ"};
         ArrayAdapter<String> roomTypeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, roomTypes);
         actvRoomType.setAdapter(roomTypeAdapter);
         
-        // Setup search button
         btnSearch.setOnClickListener(v -> performSearch());
         
-        // Setup clear button
         btnClear.setOnClickListener(v -> clearFilters());
         
-        // Setup real-time search
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Debounce search - search after user stops typing for 500ms
                 recyclerView.removeCallbacks(searchRunnable);
                 recyclerView.postDelayed(searchRunnable, 500);
             }
@@ -138,28 +148,23 @@ public class RoomSearchActivity extends AppCompatActivity implements RoomAdapter
         
         Map<String, String> queryParams = new HashMap<>();
         
-        // Add search keyword
         String searchKeyword = etSearch.getText().toString().trim();
         if (!searchKeyword.isEmpty()) {
             queryParams.put("search", searchKeyword);
         }
         
-        // Add city filter
         String city = actvCity.getText().toString().trim();
         if (!city.isEmpty() && !city.equals("Tất cả")) {
             queryParams.put("city", city);
         }
         
-        // Add district filter
         String district = actvDistrict.getText().toString().trim();
         if (!district.isEmpty() && !district.equals("Tất cả")) {
             queryParams.put("district", district);
         }
         
-        // Add room type filter
         String roomType = actvRoomType.getText().toString().trim();
         if (!roomType.isEmpty() && !roomType.equals("Tất cả")) {
-            // Convert display text to API value
             switch (roomType) {
                 case "Studio":
                     queryParams.put("roomType", "studio");
@@ -176,7 +181,6 @@ public class RoomSearchActivity extends AppCompatActivity implements RoomAdapter
             }
         }
         
-        // Add price range filter
         String minPrice = etMinPrice.getText().toString().trim();
         if (!minPrice.isEmpty()) {
             queryParams.put("minPrice", minPrice);
@@ -187,7 +191,6 @@ public class RoomSearchActivity extends AppCompatActivity implements RoomAdapter
             queryParams.put("maxPrice", maxPrice);
         }
         
-        // Add default filters
         queryParams.put("status", "active");
         queryParams.put("availability", "true");
         queryParams.put("excludeBooked", "true"); // Exclude rooms with pending bookings

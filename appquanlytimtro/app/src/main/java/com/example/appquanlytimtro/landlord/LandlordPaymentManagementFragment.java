@@ -1,3 +1,15 @@
+//fragment: màn hình quản lý thanh toán cho chủ trọ
+// Mục đích file: File này dùng để quản lý các thanh toán của chủ trọ
+// function: 
+// - onCreateView(): Khởi tạo view và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupRecyclerView(): Thiết lập RecyclerView và adapter
+// - setupSwipeRefresh(): Thiết lập chức năng pull-to-refresh
+// - loadPayments(): Tải danh sách thanh toán từ API
+// - updateEmptyView(): Cập nhật trạng thái empty view
+// - onPaymentClick(): Xử lý click vào thanh toán
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
 package com.example.appquanlytimtro.landlord;
 
 import android.os.Bundle;
@@ -79,8 +91,7 @@ public class LandlordPaymentManagementFragment extends Fragment {
     }
     
     private void setupRecyclerView() {
-        // Get current user role
-        String userRole = "landlord"; // default for this fragment
+        String userRole = "landlord"; 
         if (currentUser != null && currentUser.getRole() != null) {
             userRole = currentUser.getRole();
         }
@@ -88,13 +99,11 @@ public class LandlordPaymentManagementFragment extends Fragment {
         paymentAdapter = new PaymentAdapter(payments, new PaymentAdapter.OnPaymentClickListener() {
             @Override
             public void onPaymentClick(Payment payment) {
-                // Handle payment click if needed
                 Toast.makeText(getContext(), "Payment: " + payment.getId(), Toast.LENGTH_SHORT).show();
             }
             
             @Override
             public void onPaymentAction(Payment payment, String action) {
-                // Handle payment actions if needed
                 Toast.makeText(getContext(), "Action: " + action + " for payment: " + payment.getId(), Toast.LENGTH_SHORT).show();
             }
         }, userRole);
@@ -112,13 +121,18 @@ public class LandlordPaymentManagementFragment extends Fragment {
         
         String token = "Bearer " + retrofitClient.getToken();
         
-        // Use the general payments endpoint
-        retrofitClient.getApiService().getPayments(token, new java.util.HashMap<>()).enqueue(new Callback<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>>() {
+        // Tải danh sách payments với limit lớn hơn để hiển thị đầy đủ
+        java.util.Map<String, String> params = new java.util.HashMap<>();
+        params.put("limit", "100"); // Lấy tối đa 100 payments
+        params.put("page", "1");
+        params.put("sortBy", "createdAt");
+        params.put("sortOrder", "desc");
+        
+        retrofitClient.getApiService().getPayments(token, params).enqueue(new Callback<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>>() {
             @Override
             public void onResponse(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Response<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> response) {
                 showLoading(false);
                 swipeRefreshLayout.setRefreshing(false);
-                
                 
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     java.util.Map<String, Object> data = response.body().getData();
@@ -129,19 +143,17 @@ public class LandlordPaymentManagementFragment extends Fragment {
                             String paymentsJson = gson.toJson(data.get("payments"));
                             List<Payment> paymentList = gson.fromJson(paymentsJson, new com.google.gson.reflect.TypeToken<List<Payment>>(){}.getType());
                             
-                            
                             if (paymentList != null) {
-                                // Filter payments - chỉ hiển thị payments từ booking đã confirmed
                                 List<Payment> filteredPayments = filterValidPayments(paymentList);
                                 
                                 payments.clear();
                                 payments.addAll(filteredPayments);
                                 paymentAdapter.notifyDataSetChanged();
                                 
-                                // Calculate summary
-                                calculateSummary(filteredPayments);
+                                // Tính toán số tiền từ danh sách payments đã được filter
+                                // để đảm bảo số tiền hiển thị khớp với danh sách
+                                calculateSummaryFromList(filteredPayments);
                                 
-                                // Show/hide empty state
                                 if (payments.isEmpty()) {
                                     showEmptyState(true);
                                 } else {
@@ -149,17 +161,29 @@ public class LandlordPaymentManagementFragment extends Fragment {
                                 }
                             } else {
                                 showEmptyState(true);
+                                // Reset số tiền về 0 nếu không có payments
+                                tvTotalPaid.setText("0 VNĐ");
+                                tvPendingAmount.setText("0 VNĐ");
                             }
                         } catch (Exception e) {
                             Toast.makeText(getContext(), "Lỗi xử lý dữ liệu thanh toán", Toast.LENGTH_SHORT).show();
                             showEmptyState(true);
+                            // Reset số tiền về 0 nếu có lỗi
+                            tvTotalPaid.setText("0 VNĐ");
+                            tvPendingAmount.setText("0 VNĐ");
                         }
                     } else {
                         showEmptyState(true);
+                        // Reset số tiền về 0 nếu không có dữ liệu
+                        tvTotalPaid.setText("0 VNĐ");
+                        tvPendingAmount.setText("0 VNĐ");
                     }
                 } else {
                     Toast.makeText(getContext(), "Lỗi tải dữ liệu thanh toán", Toast.LENGTH_SHORT).show();
                     showEmptyState(true);
+                    // Reset số tiền về 0 nếu có lỗi
+                    tvTotalPaid.setText("0 VNĐ");
+                    tvPendingAmount.setText("0 VNĐ");
                 }
             }
             
@@ -173,15 +197,24 @@ public class LandlordPaymentManagementFragment extends Fragment {
         });
     }
     
+    
     private List<Payment> filterValidPayments(List<Payment> paymentList) {
         List<Payment> validPayments = new ArrayList<>();
         
         for (Payment payment : paymentList) {
-            // Chỉ hiển thị payments có booking và booking đã được confirmed
+            if (payment != null) {
+                // Nếu booking có status, chỉ lấy confirmed hoặc active
+                // Nếu booking không có status (null), vẫn hiển thị payment
             if (payment.getBooking() != null) {
                 String bookingStatus = payment.getBooking().getStatus();
-                // Chỉ hiển thị payments từ booking đã confirmed hoặc active
-                if ("confirmed".equals(bookingStatus) || "active".equals(bookingStatus)) {
+                    if (bookingStatus == null || 
+                        "confirmed".equals(bookingStatus) || 
+                        "active".equals(bookingStatus) ||
+                        "deposit_paid".equals(bookingStatus)) {
+                        validPayments.add(payment);
+                    }
+                } else {
+                    // Nếu không có booking, vẫn hiển thị payment
                     validPayments.add(payment);
                 }
             }
@@ -190,15 +223,20 @@ public class LandlordPaymentManagementFragment extends Fragment {
         return validPayments;
     }
     
-    private void calculateSummary(List<Payment> paymentList) {
+    private void calculateSummaryFromList(List<Payment> paymentList) {
         double paidAmount = 0;
         double pendingAmount = 0;
         
+        if (paymentList != null) {
         for (Payment payment : paymentList) {
-            if ("completed".equals(payment.getStatus())) {
+                if (payment != null) {
+                    String status = payment.getStatus();
+                    if ("completed".equals(status)) {
                 paidAmount += payment.getAmount();
-            } else if ("pending".equals(payment.getStatus())) {
+                    } else if ("pending".equals(status) || "processing".equals(status)) {
                 pendingAmount += payment.getAmount();
+                    }
+                }
             }
         }
         

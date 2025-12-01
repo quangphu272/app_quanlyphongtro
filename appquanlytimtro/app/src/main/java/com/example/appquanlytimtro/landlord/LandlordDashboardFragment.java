@@ -1,3 +1,18 @@
+//fragment: màn hình dashboard cho chủ trọ
+// Mục đích file: File này dùng để hiển thị tổng quan thống kê cho chủ trọ
+// function: 
+// - onCreateView(): Khởi tạo view và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupClickListeners(): Thiết lập các sự kiện click
+// - loadUserData(): Tải thông tin user hiện tại
+// - loadDashboardData(): Tải dữ liệu thống kê dashboard từ API
+// - updateDashboardData(): Cập nhật dữ liệu dashboard lên UI
+// - onManageRoomsClick(): Xử lý click quản lý phòng
+// - onManageBookingsClick(): Xử lý click quản lý đặt phòng
+// - onManagePaymentsClick(): Xử lý click quản lý thanh toán
+// - onAddRoomClick(): Xử lý click thêm phòng
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
 package com.example.appquanlytimtro.landlord;
 
 import android.content.Intent;
@@ -63,12 +78,10 @@ public class LandlordDashboardFragment extends Fragment {
 
     private void setupClickListeners() {
         cardLogout.setOnClickListener(v -> {
-            // Show confirmation dialog
             new androidx.appcompat.app.AlertDialog.Builder(getContext())
                 .setTitle("Đăng xuất")
                 .setMessage("Bạn có chắc chắn muốn đăng xuất?")
                 .setPositiveButton("Đăng xuất", (dialog, which) -> {
-                    // Call logout method from MainActivity
                     if (getActivity() instanceof com.example.appquanlytimtro.MainActivity) {
                         ((com.example.appquanlytimtro.MainActivity) getActivity()).logout();
                     }
@@ -86,7 +99,6 @@ public class LandlordDashboardFragment extends Fragment {
         
         if (btnManageRooms != null) {
             btnManageRooms.setOnClickListener(v -> {
-                // Navigate to room management fragment
                 if (getActivity() instanceof com.example.appquanlytimtro.MainActivity) {
                     ((com.example.appquanlytimtro.MainActivity) getActivity()).navigateToFragment(1); // Room management tab
                 }
@@ -95,7 +107,6 @@ public class LandlordDashboardFragment extends Fragment {
         
         if (btnViewBookings != null) {
             btnViewBookings.setOnClickListener(v -> {
-                // Navigate to bookings fragment
                 if (getActivity() instanceof com.example.appquanlytimtro.MainActivity) {
                     ((com.example.appquanlytimtro.MainActivity) getActivity()).navigateToFragment(2); // Bookings tab
                 }
@@ -118,8 +129,6 @@ public class LandlordDashboardFragment extends Fragment {
         }
         
         
-        // Skip the dashboard API and go directly to load real data
-        // This ensures we always get real data
         loadRealDataFromAPIs();
     }
     
@@ -153,7 +162,6 @@ public class LandlordDashboardFragment extends Fragment {
         String token = "Bearer " + retrofitClient.getToken();
         
         
-        // Load rooms data
         java.util.Map<String, String> roomParams = new java.util.HashMap<>();
         roomParams.put("landlordId", currentUser.getId());
         
@@ -213,7 +221,6 @@ public class LandlordDashboardFragment extends Fragment {
             }
         });
         
-        // Load bookings data
         java.util.Map<String, String> bookingParams = new java.util.HashMap<>();
         bookingParams.put("landlordId", currentUser.getId());
         

@@ -1,3 +1,16 @@
+//adapter: cầu nối giữa dữ liệu và giao diện hiển thị
+// Mục đích file: File này dùng để hiển thị danh sách thanh toán
+// function: 
+// - PaymentAdapter(): Khởi tạo adapter với danh sách thanh toán và listener
+// - onCreateViewHolder(): Tạo ViewHolder cho item thanh toán
+// - onBindViewHolder(): Bind dữ liệu thanh toán vào ViewHolder
+// - getItemCount(): Trả về số lượng thanh toán
+// - PaymentViewHolder(): Khởi tạo ViewHolder và tìm các view con
+// - bind(): Hiển thị thông tin thanh toán và xử lý sự kiện
+// - getTypeText(): Chuyển đổi mã loại thanh toán thành text hiển thị
+// - getStatusText(): Chuyển đổi mã trạng thái thành text hiển thị
+// - getStatusColor(): Lấy màu sắc tương ứng với trạng thái
+// - formatDate(): Định dạng ngày tháng hiển thị
 package com.example.appquanlytimtro.adapters;
 
 import android.view.LayoutInflater;

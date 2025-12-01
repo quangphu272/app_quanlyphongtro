@@ -1,3 +1,19 @@
+//model: class đại diện cho item thanh toán
+// Mục đích file: File này dùng để định nghĩa cấu trúc dữ liệu item thanh toán
+// function: 
+// - PaymentItem(): Constructor mặc định
+// - getId(): Lấy ID item thanh toán
+// - setId(): Thiết lập ID item thanh toán
+// - getType(): Lấy loại item thanh toán
+// - setType(): Thiết lập loại item thanh toán
+// - getStatus(): Lấy trạng thái item thanh toán
+// - setStatus(): Thiết lập trạng thái item thanh toán
+// - getAmount(): Lấy số tiền
+// - setAmount(): Thiết lập số tiền
+// - getDescription(): Lấy mô tả
+// - setDescription(): Thiết lập mô tả
+// - getDate(): Lấy ngày tháng
+// - setDate(): Thiết lập ngày tháng
 package com.example.appquanlytimtro.models;
 
 import com.google.gson.annotations.SerializedName;
@@ -9,7 +25,8 @@ public class PaymentItem {
     private String id;
     
     @SerializedName("type")
-    private String type; // "payment" hoặc "booking"
+    private String type;
+    
     
     @SerializedName("status")
     private String status;
@@ -35,7 +52,6 @@ public class PaymentItem {
     @SerializedName("booking")
     private Booking booking;
     
-    // Constructor cho Payment
     public PaymentItem(Payment payment) {
         this.id = payment.getId();
         this.type = "payment";
@@ -49,11 +65,10 @@ public class PaymentItem {
         this.booking = payment.getBooking();
     }
     
-    // Constructor cho Booking (chưa thanh toán)
     public PaymentItem(Booking booking) {
         this.id = booking.getId();
         this.type = "booking";
-        this.status = "pending"; // Booking chưa thanh toán
+        this.status = "pending";
         this.amount = booking.getPricing() != null ? booking.getPricing().getDeposit() : 0;
         this.paymentMethod = "pending";
         this.initiatedAt = booking.getCreatedAt();
@@ -63,7 +78,6 @@ public class PaymentItem {
         this.booking = booking;
     }
     
-    // Getters
     public String getId() { return id; }
     public String getType() { return type; }
     public String getStatus() { return status; }
@@ -75,7 +89,6 @@ public class PaymentItem {
     public User getRecipient() { return recipient; }
     public Booking getBooking() { return booking; }
     
-    // Helper methods
     public boolean isPayment() {
         return "payment".equals(type);
     }

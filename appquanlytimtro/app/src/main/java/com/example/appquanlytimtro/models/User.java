@@ -1,3 +1,27 @@
+//model: class đại diện cho thông tin người dùng
+// Mục đích file: File này dùng để định nghĩa cấu trúc dữ liệu người dùng
+// function: 
+// - User(): Constructor mặc định
+// - getId(): Lấy ID người dùng
+// - setId(): Thiết lập ID người dùng
+// - getFullName(): Lấy họ tên
+// - setFullName(): Thiết lập họ tên
+// - getEmail(): Lấy email
+// - setEmail(): Thiết lập email
+// - getPhone(): Lấy số điện thoại
+// - setPhone(): Thiết lập số điện thoại
+// - getRole(): Lấy vai trò
+// - setRole(): Thiết lập vai trò
+// - getAddress(): Lấy địa chỉ
+// - setAddress(): Thiết lập địa chỉ
+// - getProfileImage(): Lấy ảnh đại diện
+// - setProfileImage(): Thiết lập ảnh đại diện
+// - isVerified(): Kiểm tra đã xác thực chưa
+// - setVerified(): Thiết lập trạng thái xác thực
+// - getCreatedAt(): Lấy thời gian tạo
+// - setCreatedAt(): Thiết lập thời gian tạo
+// - getUpdatedAt(): Lấy thời gian cập nhật
+// - setUpdatedAt(): Thiết lập thời gian cập nhật
 package com.example.appquanlytimtro.models;
 
 import com.google.gson.annotations.SerializedName;

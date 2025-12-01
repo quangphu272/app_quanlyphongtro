@@ -67,6 +67,19 @@
             android:theme="@style/Theme.QuanLyTimTro" />
             
         <activity
+            android:name=".payments.PaymentSuccessActivity"
+            android:exported="false"
+            android:theme="@style/Theme.QuanLyTimTro">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" android:host="localhost" android:pathPrefix="/payment/success" />
+                <data android:scheme="https" android:host="localhost" android:pathPrefix="/payment/success" />
+            </intent-filter>
+        </activity>
+            
+        <activity
             android:name=".landlord.EditRoomActivity"
             android:exported="false"
             android:theme="@style/Theme.QuanLyTimTro" />
@@ -93,11 +106,6 @@
             
         <activity
             android:name=".MainActivity"
-            android:exported="false"
-            android:theme="@style/Theme.QuanLyTimTro" />
-            
-        <activity
-            android:name=".payments.PaymentListActivity"
             android:exported="false"
             android:theme="@style/Theme.QuanLyTimTro" />
             

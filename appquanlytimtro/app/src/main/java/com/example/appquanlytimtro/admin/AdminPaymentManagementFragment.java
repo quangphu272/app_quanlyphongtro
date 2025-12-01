@@ -1,3 +1,21 @@
+//fragment: màn hình quản lý thanh toán cho admin
+// Mục đích file: File này dùng để quản lý tất cả các thanh toán trong hệ thống cho admin
+// function: 
+// - onCreateView(): Khởi tạo view và setup các component
+// - loadUserData(): Tải thông tin user hiện tại
+// - initViews(): Khởi tạo các view components
+// - setupRecyclerView(): Thiết lập RecyclerView và adapter
+// - handlePaymentAction(): Xử lý các hành động thanh toán
+// - confirmPayment(): Xác nhận thanh toán
+// - cancelPayment(): Hủy thanh toán
+// - refundPayment(): Hoàn tiền
+// - setupSwipeRefresh(): Thiết lập chức năng pull-to-refresh
+// - loadPayments(): Tải danh sách thanh toán từ API
+// - setupFilterChips(): Thiết lập các chip lọc
+// - applyFilter(): Áp dụng bộ lọc
+// - calculateSummary(): Tính toán tổng kết
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showEmptyState(): Hiển thị/ẩn trạng thái empty
 package com.example.appquanlytimtro.admin;
 
 import android.os.Bundle;

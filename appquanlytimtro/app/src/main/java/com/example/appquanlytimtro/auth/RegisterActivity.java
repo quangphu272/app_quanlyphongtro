@@ -1,3 +1,19 @@
+//activity: màn hình đăng ký
+// Mục đích file: File này dùng để xử lý việc đăng ký tài khoản mới cho người dùng trong ứng dụng quản lý tìm trọ
+// function: 
+// - onCreate(): Khởi tạo activity và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupSpinners(): Thiết lập spinner chọn vai trò
+// - setupClickListeners(): Thiết lập các sự kiện click
+// - validateInput(): Kiểm tra tính hợp lệ của dữ liệu nhập
+// - validatePassword(): Kiểm tra độ mạnh của mật khẩu
+// - register(): Thực hiện đăng ký
+// - handleRegisterResponse(): Xử lý phản hồi đăng ký
+// - saveUserData(): Lưu thông tin user và token
+// - navigateToMain(): Chuyển đến màn hình chính
+// - navigateToLogin(): Chuyển đến màn hình đăng nhập
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
 package com.example.appquanlytimtro.auth;
 
 import android.content.Intent;

@@ -1,3 +1,8 @@
+//config: file cấu hình các thông số cho VNPay
+// Mục đích file: File này chứa các cấu hình cần thiết để tích hợp với VNPay
+// function: 
+// - isConfigured(): Kiểm tra xem VNPay đã được cấu hình chưa
+// - getConfigurationMessage(): Lấy thông báo trạng thái cấu hình
 package com.example.appquanlytimtro.config;
 
 /**

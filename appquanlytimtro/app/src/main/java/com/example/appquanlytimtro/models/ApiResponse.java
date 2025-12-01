@@ -1,3 +1,15 @@
+//model: class đại diện cho phản hồi từ API
+// Mục đích file: File này dùng để định nghĩa cấu trúc phản hồi chung từ API
+// function: 
+// - ApiResponse(): Constructor mặc định
+// - ApiResponse(String, String, T): Constructor với tham số
+// - getStatus(): Lấy trạng thái phản hồi
+// - setStatus(): Thiết lập trạng thái phản hồi
+// - getMessage(): Lấy thông báo phản hồi
+// - setMessage(): Thiết lập thông báo phản hồi
+// - getData(): Lấy dữ liệu phản hồi
+// - setData(): Thiết lập dữ liệu phản hồi
+// - isSuccess(): Kiểm tra phản hồi có thành công không
 package com.example.appquanlytimtro.models;
 
 import com.google.gson.annotations.SerializedName;

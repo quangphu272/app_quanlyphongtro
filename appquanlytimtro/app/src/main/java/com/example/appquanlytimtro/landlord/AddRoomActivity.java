@@ -1,3 +1,23 @@
+//activity: màn hình thêm phòng trọ mới
+// Mục đích file: File này dùng để tạo phòng trọ mới cho chủ trọ
+// function: 
+// - onCreate(): Khởi tạo activity và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupToolbar(): Thiết lập toolbar với nút back
+// - setupSpinners(): Thiết lập spinner chọn loại phòng
+// - mapRoomTypeToBackend(): Chuyển đổi loại phòng hiển thị thành mã backend
+// - mapAmenityToBackend(): Chuyển đổi tiện ích hiển thị thành mã backend
+// - setupAmenities(): Thiết lập danh sách tiện ích
+// - setupRules(): Thiết lập danh sách quy định
+// - setupImagePicker(): Thiết lập chọn ảnh
+// - removeImage(): Xóa ảnh khỏi danh sách
+// - setupSubmitButton(): Thiết lập nút submit
+// - validateInput(): Kiểm tra tính hợp lệ của dữ liệu nhập
+// - createRoom(): Tạo phòng trọ mới
+// - uploadImages(): Upload ảnh lên server
+// - getText(): Lấy text từ EditText
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - onOptionsItemSelected(): Xử lý click vào menu item
 package com.example.appquanlytimtro.landlord;
 
 import android.content.Intent;

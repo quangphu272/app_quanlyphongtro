@@ -1,3 +1,13 @@
+//dialog: màn hình lọc phòng trọ
+// Mục đích file: File này dùng để hiển thị dialog lọc phòng trọ theo các tiêu chí
+// function: 
+// - onCreateDialog(): Tạo dialog và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupClickListeners(): Thiết lập các sự kiện click
+// - onApplyFilterClick(): Xử lý click áp dụng bộ lọc
+// - onClearFilterClick(): Xử lý click xóa bộ lọc
+// - getFilterData(): Lấy dữ liệu bộ lọc
+// - setFilterData(): Thiết lập dữ liệu bộ lọc
 package com.example.appquanlytimtro.rooms;
 
 import android.app.Dialog;

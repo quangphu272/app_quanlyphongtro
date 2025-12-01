@@ -1,3 +1,12 @@
+//adapter: cầu nối giữa dữ liệu và giao diện hiển thị
+// Mục đích file: File này dùng để hiển thị danh sách thanh toán
+// function: 
+// - PaymentsListAdapter(): Khởi tạo adapter với danh sách thanh toán
+// - onCreateViewHolder(): Tạo ViewHolder cho item thanh toán
+// - onBindViewHolder(): Bind dữ liệu thanh toán vào ViewHolder
+// - getItemCount(): Trả về số lượng thanh toán
+// - VH(): ViewHolder chứa các view con
+// - bind(): Hiển thị thông tin thanh toán
 package com.example.appquanlytimtro.payments;
 
 import android.view.LayoutInflater;

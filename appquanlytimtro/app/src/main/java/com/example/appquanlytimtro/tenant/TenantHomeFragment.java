@@ -1,3 +1,19 @@
+//fragment: màn hình chính cho người thuê trọ
+// Mục đích file: File này dùng để hiển thị màn hình chính cho người thuê trọ
+// function: 
+// - onCreateView(): Khởi tạo view và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupRecyclerView(): Thiết lập RecyclerView và adapter
+// - setupClickListeners(): Thiết lập các sự kiện click
+// - loadUserData(): Tải thông tin user hiện tại
+// - loadRecentRooms(): Tải danh sách phòng gần đây
+// - loadUserBookings(): Tải danh sách đặt phòng của user
+// - onSearchRoomsClick(): Xử lý click tìm kiếm phòng
+// - onViewAllRoomsClick(): Xử lý click xem tất cả phòng
+// - onViewBookingsClick(): Xử lý click xem đặt phòng
+// - onRoomClick(): Xử lý click vào phòng
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
 package com.example.appquanlytimtro.tenant;
 
 import android.content.Intent;
@@ -126,12 +142,10 @@ public class TenantHomeFragment extends Fragment {
         });
 
         cardLogout.setOnClickListener(v -> {
-            // Show confirmation dialog
             new androidx.appcompat.app.AlertDialog.Builder(getContext())
                 .setTitle("Đăng xuất")
                 .setMessage("Bạn có chắc chắn muốn đăng xuất?")
                 .setPositiveButton("Đăng xuất", (dialog, which) -> {
-                    // Call logout method from MainActivity
                     if (getActivity() instanceof MainActivity) {
                         ((MainActivity) getActivity()).logout();
                     }

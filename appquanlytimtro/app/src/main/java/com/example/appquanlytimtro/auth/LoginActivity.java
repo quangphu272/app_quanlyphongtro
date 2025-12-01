@@ -1,3 +1,17 @@
+//activity: màn hình đăng nhập
+// Mục đích file: File này dùng để xử lý việc đăng nhập của người dùng vào ứng dụng quản lý tìm trọ
+// function: 
+// - onCreate(): Khởi tạo activity và kiểm tra trạng thái đăng nhập
+// - initViews(): Khởi tạo các view components
+// - setupClickListeners(): Thiết lập các sự kiện click
+// - validateInput(): Kiểm tra tính hợp lệ của dữ liệu nhập
+// - login(): Thực hiện đăng nhập
+// - handleLoginResponse(): Xử lý phản hồi đăng nhập
+// - saveUserData(): Lưu thông tin user và token
+// - navigateToMain(): Chuyển đến màn hình chính
+// - navigateToRegister(): Chuyển đến màn hình đăng ký
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
 package com.example.appquanlytimtro.auth;
 
 import android.content.Intent;
@@ -28,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     
     private EditText etEmail, etPassword;
     private Button btnLogin;
-    private TextView tvRegister, tvForgotPassword;
+    private TextView tvRegister;
     private ProgressBar progressBar;
     
     private RetrofitClient retrofitClient;
@@ -52,14 +66,12 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         tvRegister = findViewById(R.id.tvRegister);
-        tvForgotPassword = findViewById(R.id.tvForgotPassword);
         progressBar = findViewById(R.id.progressBar);
     }
     
     private void setupClickListeners() {
         btnLogin.setOnClickListener(v -> performLogin());
         tvRegister.setOnClickListener(v -> navigateToRegister());
-        tvForgotPassword.setOnClickListener(v -> handleForgotPassword());
     }
     
     private void performLogin() {
@@ -150,49 +162,6 @@ public class LoginActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
-    }
-    
-    private void handleForgotPassword() {
-        String email = etEmail.getText().toString().trim();
-        
-        if (TextUtils.isEmpty(email)) {
-            etEmail.setError("Vui lòng nhập email để đặt lại mật khẩu");
-            etEmail.requestFocus();
-            return;
-        }
-        
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            etEmail.setError("Email không hợp lệ");
-            etEmail.requestFocus();
-            return;
-        }
-        
-        showLoading(true);
-        
-        retrofitClient.getApiService().forgotPassword(java.util.Collections.singletonMap("email", email))
-                .enqueue(new Callback<ApiResponse<Void>>() {
-                    @Override
-                    public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
-                        showLoading(false);
-                        
-                        if (response.isSuccessful() && response.body() != null) {
-                            ApiResponse<Void> apiResponse = response.body();
-                            if (apiResponse.isSuccess()) {
-                                Toast.makeText(LoginActivity.this, "Email đặt lại mật khẩu đã được gửi!", Toast.LENGTH_LONG).show();
-                            } else {
-                                showError(apiResponse.getMessage());
-                            }
-                        } else {
-                            showError("Không thể gửi email đặt lại mật khẩu");
-                        }
-                    }
-                    
-                    @Override
-                    public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
-                        showLoading(false);
-                        showError("Lỗi kết nối. Vui lòng thử lại.");
-                    }
-                });
     }
     
     private void showLoading(boolean show) {

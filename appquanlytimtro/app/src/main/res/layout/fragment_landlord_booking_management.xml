@@ -7,7 +7,6 @@
     android:background="@color/background"
     tools:context=".landlord.LandlordBookingManagementFragment">
 
-    <!-- Filter Chips -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -62,22 +61,6 @@
                     style="@style/Widget.Material3.Chip.Filter" />
 
                 <com.google.android.material.chip.Chip
-                    android:id="@+id/chipActive"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:text="Đang hoạt động"
-                    style="@style/Widget.Material3.Chip.Filter" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipCompleted"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:text="Đã hoàn thành"
-                    style="@style/Widget.Material3.Chip.Filter" />
-
-                <com.google.android.material.chip.Chip
                     android:id="@+id/chipCancelled"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -90,7 +73,6 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Main Content -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
@@ -101,7 +83,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- Bookings List -->
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewBookings"
                 android:layout_width="match_parent"
@@ -110,7 +92,6 @@
                 android:clipToPadding="false"
                 tools:listitem="@layout/item_landlord_booking" />
 
-            <!-- Empty State -->
             <LinearLayout
                 android:id="@+id/emptyView"
                 android:layout_width="match_parent"
@@ -147,7 +128,6 @@
 
             </LinearLayout>
 
-            <!-- Loading -->
             <ProgressBar
                 android:id="@+id/progressBar"
                 android:layout_width="wrap_content"

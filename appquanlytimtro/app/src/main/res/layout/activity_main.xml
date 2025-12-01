@@ -7,7 +7,6 @@
     android:background="@color/background"
     tools:context=".MainActivity">
 
-    <!-- App Bar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -27,7 +26,6 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Main Content -->
     <FrameLayout
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"

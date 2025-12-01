@@ -1,3 +1,20 @@
+//fragment: màn hình quản lý phòng cho chủ trọ
+// Mục đích file: File này dùng để quản lý các phòng trọ của chủ trọ
+// function: 
+// - onCreateView(): Khởi tạo view và setup các component
+// - initViews(): Khởi tạo các view components
+// - setupRecyclerView(): Thiết lập RecyclerView và adapter
+// - setupSwipeRefresh(): Thiết lập chức năng pull-to-refresh
+// - setupClickListeners(): Thiết lập các sự kiện click
+// - loadRooms(): Tải danh sách phòng từ API
+// - updateEmptyView(): Cập nhật trạng thái empty view
+// - onAddRoomClick(): Xử lý click thêm phòng
+// - onRoomClick(): Xử lý click vào phòng
+// - onEditRoomClick(): Xử lý click chỉnh sửa phòng
+// - onDeleteRoomClick(): Xử lý click xóa phòng
+// - onToggleStatusClick(): Xử lý click thay đổi trạng thái phòng
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
 package com.example.appquanlytimtro.landlord;
 
 import android.content.Intent;
@@ -70,7 +87,6 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         btnAddRoom = view.findViewById(R.id.btnAddRoom);
         
-        // Initialize room list and adapter
         roomList = new java.util.ArrayList<>();
         roomAdapter = new LandlordRoomAdapter(roomList, this);
         
@@ -103,7 +119,6 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
         
         String token = "Bearer " + retrofitClient.getToken();
         
-        // Create empty query map instead of null
         java.util.Map<String, String> queryParams = new java.util.HashMap<>();
         
         retrofitClient.getApiService().getUserRooms(token, currentUser.getId(), queryParams).enqueue(new Callback<ApiResponse<java.util.Map<String, Object>>>() {
@@ -119,7 +134,6 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
                     
                     if (data != null && data.containsKey("rooms")) {
                         try {
-                            // Parse rooms from response
                             Gson gson = new Gson();
                             java.util.List<?> roomsData = (java.util.List<?>) data.get("rooms");
                             
@@ -179,8 +193,6 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
         });
     }
     
-    // Implementation of LandlordRoomAdapter.OnRoomActionListener
-    // Removed onRoomClick method - no more "view details" functionality
     
     @Override
     public void onEditRoom(Room room) {
@@ -191,7 +203,6 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
     
     @Override
     public void onDeleteRoom(Room room) {
-        // Show confirmation dialog
         new androidx.appcompat.app.AlertDialog.Builder(getContext())
                 .setTitle("Xóa phòng")
                 .setMessage("Bạn có chắc chắn muốn xóa phòng \"" + room.getTitle() + "\"?")
@@ -202,7 +213,6 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
     
     @Override
     public void onToggleAvailability(Room room) {
-        // Toggle room status
         String currentStatus = room.getStatus();
         String newStatus;
         
@@ -251,7 +261,6 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
     private void updateRoomStatus(Room room, String newStatus) {
         String token = "Bearer " + retrofitClient.getToken();
         
-        // Create updated room object
         Room updatedRoom = new Room();
         updatedRoom.setStatus(newStatus);
         

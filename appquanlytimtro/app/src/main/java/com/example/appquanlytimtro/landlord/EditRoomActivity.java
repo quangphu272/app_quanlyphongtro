@@ -1,3 +1,28 @@
+//activity: màn hình chỉnh sửa phòng trọ
+// Mục đích file: File này dùng để chỉnh sửa thông tin phòng trọ đã có
+// function: 
+// - onCreate(): Khởi tạo activity và lấy room_id từ intent
+// - initViews(): Khởi tạo các view components
+// - setupToolbar(): Thiết lập toolbar với menu
+// - setupImagePicker(): Thiết lập chọn ảnh
+// - setupRoomTypeDropdown(): Thiết lập dropdown chọn loại phòng
+// - showRoomTypeDialog(): Hiển thị dialog chọn loại phòng
+// - setupAmenitiesAndRules(): Thiết lập danh sách tiện ích và quy định
+// - setupImageRecyclerView(): Thiết lập RecyclerView hiển thị ảnh
+// - loadUserData(): Tải thông tin user hiện tại
+// - loadRoomDetails(): Tải thông tin chi tiết phòng từ API
+// - populateForm(): Điền dữ liệu vào form
+// - selectImages(): Chọn ảnh mới
+// - onImageRemove(): Xử lý xóa ảnh
+// - updateRoom(): Cập nhật thông tin phòng
+// - createRoomFromForm(): Tạo object Room từ form
+// - validateForm(): Kiểm tra tính hợp lệ của form
+// - uploadImages(): Upload ảnh lên server
+// - getAmenityText(): Chuyển đổi mã tiện ích thành text hiển thị
+// - onCreateOptionsMenu(): Tạo menu options
+// - onOptionsItemSelected(): Xử lý click vào menu item
+// - showLoading(): Hiển thị/ẩn loading indicator
+// - showError(): Hiển thị thông báo lỗi
 package com.example.appquanlytimtro.landlord;
 
 import android.content.Intent;

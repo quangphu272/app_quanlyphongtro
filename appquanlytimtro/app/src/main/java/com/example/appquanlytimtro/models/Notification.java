@@ -1,3 +1,21 @@
+//model: class đại diện cho thông tin thông báo
+// Mục đích file: File này dùng để định nghĩa cấu trúc dữ liệu thông báo
+// function: 
+// - Notification(): Constructor mặc định
+// - getId(): Lấy ID thông báo
+// - setId(): Thiết lập ID thông báo
+// - getRecipientId(): Lấy ID người nhận
+// - setRecipientId(): Thiết lập ID người nhận
+// - getType(): Lấy loại thông báo
+// - setType(): Thiết lập loại thông báo
+// - getTitle(): Lấy tiêu đề thông báo
+// - setTitle(): Thiết lập tiêu đề thông báo
+// - getMessage(): Lấy nội dung thông báo
+// - setMessage(): Thiết lập nội dung thông báo
+// - isRead(): Kiểm tra đã đọc chưa
+// - setRead(): Thiết lập trạng thái đã đọc
+// - getCreatedAt(): Lấy thời gian tạo
+// - setCreatedAt(): Thiết lập thời gian tạo
 package com.example.appquanlytimtro.models;
 
 import com.google.gson.annotations.SerializedName;

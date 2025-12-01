@@ -1,3 +1,29 @@
+//model: class đại diện cho thông tin thanh toán
+// Mục đích file: File này dùng để định nghĩa cấu trúc dữ liệu thanh toán
+// function: 
+// - Payment(): Constructor mặc định
+// - getId(): Lấy ID thanh toán
+// - setId(): Thiết lập ID thanh toán
+// - getBookingId(): Lấy ID đặt phòng
+// - setBookingId(): Thiết lập ID đặt phòng
+// - getPayerId(): Lấy ID người thanh toán
+// - setPayerId(): Thiết lập ID người thanh toán
+// - getRecipientId(): Lấy ID người nhận
+// - setRecipientId(): Thiết lập ID người nhận
+// - getType(): Lấy loại thanh toán
+// - setType(): Thiết lập loại thanh toán
+// - getAmount(): Lấy số tiền
+// - setAmount(): Thiết lập số tiền
+// - getStatus(): Lấy trạng thái thanh toán
+// - setStatus(): Thiết lập trạng thái thanh toán
+// - getPaymentMethod(): Lấy phương thức thanh toán
+// - setPaymentMethod(): Thiết lập phương thức thanh toán
+// - getTransactionId(): Lấy ID giao dịch
+// - setTransactionId(): Thiết lập ID giao dịch
+// - getCreatedAt(): Lấy thời gian tạo
+// - setCreatedAt(): Thiết lập thời gian tạo
+// - getUpdatedAt(): Lấy thời gian cập nhật
+// - setUpdatedAt(): Thiết lập thời gian cập nhật
 package com.example.appquanlytimtro.models;
 
 import com.google.gson.annotations.SerializedName;
@@ -18,7 +44,7 @@ public class Payment {
     private String recipientId;
     
     @SerializedName("type")
-    private String type; // deposit, monthly_rent, utilities, penalty, refund
+    private String type;
     
     @SerializedName("amount")
     private double amount;
@@ -27,10 +53,10 @@ public class Payment {
     private String currency;
     
     @SerializedName("status")
-    private String status; // pending, processing, completed, failed, cancelled, refunded
+    private String status;
     
     @SerializedName("paymentMethod")
-    private String paymentMethod; // vnpay, bank_transfer, cash, other
+    private String paymentMethod;
     
     @SerializedName("vnpay")
     private VNPayInfo vnpay;
@@ -74,7 +100,6 @@ public class Payment {
     @SerializedName("metadata")
     private Metadata metadata;
     
-    // Related objects
     @SerializedName("booking")
     private Booking booking;
     
@@ -84,10 +109,8 @@ public class Payment {
     @SerializedName("recipient")
     private User recipient;
 
-    // Constructors
     public Payment() {}
 
-    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -296,7 +319,6 @@ public class Payment {
         this.recipient = recipient;
     }
 
-    // Nested classes
     public static class VNPayInfo {
         @SerializedName("txnRef")
         private String txnRef;
@@ -361,7 +383,6 @@ public class Payment {
         @SerializedName("vnpPayDate")
         private String vnpPayDate;
 
-        // Getters and Setters
         public String getTxnRef() { return txnRef; }
         public void setTxnRef(String txnRef) { this.txnRef = txnRef; }
         
