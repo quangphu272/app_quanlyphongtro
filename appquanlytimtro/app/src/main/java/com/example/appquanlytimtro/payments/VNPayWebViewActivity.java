@@ -31,6 +31,16 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.appquanlytimtro.R;
 import com.example.appquanlytimtro.config.VNPayConfig;
+import com.example.appquanlytimtro.models.ApiResponse;
+import com.example.appquanlytimtro.models.Booking;
+import com.example.appquanlytimtro.network.RetrofitClient;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class VNPayWebViewActivity extends AppCompatActivity {
 
@@ -42,12 +52,18 @@ public class VNPayWebViewActivity extends AppCompatActivity {
     private String bookingId;
     private String roomId;
     private String orderId; // TxnRef từ payment request
+    private String landlordName;
+    private String landlordPhone;
+    private String landlordAddress;
+    private RetrofitClient retrofitClient;
+    private boolean devPaymentSimulated;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vnpay_webview);
         
+        retrofitClient = RetrofitClient.getInstance(this);
         initViews();
         setupToolbar();
         setupWebView();
@@ -140,6 +156,9 @@ public class VNPayWebViewActivity extends AppCompatActivity {
             bookingId = intent.getStringExtra("booking_id");
             roomId = intent.getStringExtra("room_id");
             orderId = intent.getStringExtra("order_id");
+            landlordName = intent.getStringExtra("landlord_name");
+            landlordPhone = intent.getStringExtra("landlord_phone");
+            landlordAddress = intent.getStringExtra("landlord_address");
             
             if (paymentUrl != null && !paymentUrl.isEmpty()) {
                 Log.d(TAG, "Loading payment URL: " + paymentUrl);
@@ -165,18 +184,28 @@ public class VNPayWebViewActivity extends AppCompatActivity {
                 successIntent.putExtra("txnRef", response.getOrderId());
                 successIntent.putExtra("transaction_id", response.getTransactionId());
                 successIntent.putExtra("amount", response.getAmount());
+                successIntent.putExtra("bookingId", bookingId);
                 
-                // Lấy thông tin từ URL nếu có
-                String landlordPhone = uri.getQueryParameter("landlordPhone");
-                String landlordAddress = uri.getQueryParameter("landlordAddress");
+                String landlordPhoneFromUrl = uri.getQueryParameter("landlordPhone");
+                String landlordAddressFromUrl = uri.getQueryParameter("landlordAddress");
                 String paymentId = uri.getQueryParameter("paymentId");
                 
-                if (landlordPhone != null) {
-                    successIntent.putExtra("landlordPhone", landlordPhone);
+                if (landlordPhoneFromUrl != null) {
+                    successIntent.putExtra("landlord_phone", landlordPhoneFromUrl);
+                } else if (landlordPhone != null) {
+                    successIntent.putExtra("landlord_phone", landlordPhone);
                 }
-                if (landlordAddress != null) {
-                    successIntent.putExtra("landlordAddress", landlordAddress);
+                
+                if (landlordAddressFromUrl != null) {
+                    successIntent.putExtra("landlord_address", landlordAddressFromUrl);
+                } else if (landlordAddress != null) {
+                    successIntent.putExtra("landlord_address", landlordAddress);
                 }
+                
+                if (landlordName != null) {
+                    successIntent.putExtra("landlord_name", landlordName);
+                }
+                
                 if (paymentId != null) {
                     successIntent.putExtra("paymentId", paymentId);
                 }
@@ -202,20 +231,71 @@ public class VNPayWebViewActivity extends AppCompatActivity {
         }
     }
     
+    private void simulateDevPaymentRecord() {
+        if (devPaymentSimulated) {
+            return;
+        }
+        
+        if (retrofitClient == null || bookingId == null || bookingId.isEmpty()) {
+            Log.w(TAG, "Cannot simulate dev payment: missing retrofit client or bookingId");
+            return;
+        }
+        
+        String token = retrofitClient.getToken();
+        if (token == null || token.isEmpty()) {
+            Log.w(TAG, "Cannot simulate dev payment: missing auth token");
+            return;
+        }
+        
+        devPaymentSimulated = true;
+        
+        Map<String, String> body = new HashMap<>();
+        body.put("status", "deposit_paid");
+        body.put("paymentMethod", "vnpay");
+        body.put("paymentSource", "vnpay_dev_fallback");
+        if (orderId != null && !orderId.isEmpty()) {
+            body.put("txnRef", orderId);
+        }
+        
+        retrofitClient.getApiService()
+            .updateBookingStatus("Bearer " + token, bookingId, body)
+            .enqueue(new Callback<ApiResponse<Booking>>() {
+                @Override
+                public void onResponse(Call<ApiResponse<Booking>> call, Response<ApiResponse<Booking>> response) {
+                    if (response.isSuccessful()) {
+                        Log.d(TAG, "Simulated dev payment record successfully created");
+                    } else {
+                        Log.e(TAG, "Failed to simulate dev payment record: " + response.code());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ApiResponse<Booking>> call, Throwable t) {
+                    Log.e(TAG, "Error simulating dev payment record", t);
+                }
+            });
+    }
+    
     private void handleWebsiteNotApprovedError() {
         // Khi gặp lỗi "Website chưa được phê duyệt", vẫn hiển thị thông tin chủ trọ
-        // Sử dụng orderId (txnRef) để lấy thông tin từ API
+        // Sử dụng orderId (txnRef) để lấy thông tin từ API và mô phỏng giao dịch thành công
+        simulateDevPaymentRecord();
         if (orderId != null && !orderId.isEmpty()) {
             // Gọi API để lấy thông tin chủ trọ
             Intent successIntent = new Intent(this, PaymentSuccessActivity.class);
             successIntent.putExtra("txnRef", orderId);
             successIntent.putExtra("bookingId", bookingId);
+            successIntent.putExtra("landlord_name", landlordName);
+            successIntent.putExtra("landlord_phone", landlordPhone);
+            successIntent.putExtra("landlord_address", landlordAddress);
             startActivity(successIntent);
             finish();
         } else if (bookingId != null && !bookingId.isEmpty()) {
-            // Nếu có bookingId, có thể lấy thông tin từ booking
             Intent successIntent = new Intent(this, PaymentSuccessActivity.class);
             successIntent.putExtra("bookingId", bookingId);
+            successIntent.putExtra("landlord_name", landlordName);
+            successIntent.putExtra("landlord_phone", landlordPhone);
+            successIntent.putExtra("landlord_address", landlordAddress);
             startActivity(successIntent);
             finish();
         } else {

@@ -64,7 +64,6 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
     
     private TextInputEditText etSearch;
     private MaterialButton btnSearch;
-    private MaterialButton btnFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +104,6 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
         
         etSearch = findViewById(R.id.etSearch);
         btnSearch = findViewById(R.id.btnSearch);
-        btnFilter = findViewById(R.id.btnFilter);
     }
     
     private void setupToolbar() {
@@ -139,7 +137,6 @@ public class RoomListActivity extends AppCompatActivity implements RoomAdapter.O
 
     private void setupSearchListeners() {
         btnSearch.setOnClickListener(v -> performSearch());
-        //btnFilter.setOnClickListener(v -> showFilterDialog());
         
         etSearch.setOnEditorActionListener((v, actionId, event) -> {
             performSearch();

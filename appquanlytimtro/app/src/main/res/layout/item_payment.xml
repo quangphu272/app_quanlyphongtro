@@ -45,7 +45,7 @@
                     android:id="@+id/tvAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3,000,000 VNĐ"
+                    android:text=""
                     android:textAppearance="@style/TextAppearance.QuanLyTimTro.Title2"
                     android:textColor="@color/text_primary"
                     android:textStyle="bold" />

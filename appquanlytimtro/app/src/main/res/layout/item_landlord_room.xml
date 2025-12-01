@@ -153,16 +153,6 @@
                 app:tint="@android:color/white" />
 
             <ImageButton
-                android:id="@+id/btnToggleStatus"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginBottom="4dp"
-                android:background="@drawable/circle_background_secondary"
-                android:src="@drawable/ic_pause"
-                android:contentDescription="Toggle status"
-                app:tint="@android:color/white" />
-
-            <ImageButton
                 android:id="@+id/btnDelete"
                 android:layout_width="36dp"
                 android:layout_height="36dp"

@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.appquanlytimtro.R;
 import com.example.appquanlytimtro.models.Room;
+import com.example.appquanlytimtro.utils.ImageUtils;
 import com.google.android.material.chip.Chip;
 
 import java.text.NumberFormat;
@@ -39,7 +40,6 @@ public class LandlordRoomAdapter extends RecyclerView.Adapter<LandlordRoomAdapte
     public interface OnRoomActionListener {
         void onEditRoom(Room room);
         void onDeleteRoom(Room room);
-        void onToggleAvailability(Room room);
     }
     
     public LandlordRoomAdapter(List<Room> rooms, OnRoomActionListener listener) {
@@ -76,7 +76,7 @@ public class LandlordRoomAdapter extends RecyclerView.Adapter<LandlordRoomAdapte
         private ImageView ivRoomImage;
         private TextView tvTitle, tvAddress, tvPrice, tvArea, tvViews;
         private Chip chipStatus, chipRoomType;
-        private ImageButton btnEdit, btnDelete, btnToggleStatus;
+        private ImageButton btnEdit, btnDelete;
         
         public RoomViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -90,7 +90,6 @@ public class LandlordRoomAdapter extends RecyclerView.Adapter<LandlordRoomAdapte
             chipRoomType = itemView.findViewById(R.id.chipRoomType);
             btnEdit = itemView.findViewById(R.id.btnEdit);
             btnDelete = itemView.findViewById(R.id.btnDelete);
-            btnToggleStatus = itemView.findViewById(R.id.btnToggleStatus);
             
             
             btnEdit.setOnClickListener(v -> {
@@ -107,15 +106,6 @@ public class LandlordRoomAdapter extends RecyclerView.Adapter<LandlordRoomAdapte
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
                         listener.onDeleteRoom(rooms.get(position));
-                    }
-                }
-            });
-            
-            btnToggleStatus.setOnClickListener(v -> {
-                if (listener != null) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) {
-                        listener.onToggleAvailability(rooms.get(position));
                     }
                 }
             });
@@ -165,39 +155,30 @@ public class LandlordRoomAdapter extends RecyclerView.Adapter<LandlordRoomAdapte
                 case "active":
                     chipStatus.setText("Đang hoạt động");
                     chipStatus.setChipBackgroundColorResource(R.color.success);
-                    btnToggleStatus.setImageResource(R.drawable.ic_pause);
                     break;
                 case "inactive":
                     chipStatus.setText("Tạm dừng");
                     chipStatus.setChipBackgroundColorResource(R.color.warning);
-                    btnToggleStatus.setImageResource(R.drawable.ic_play);
                     break;
                 case "rented":
                     chipStatus.setText("Đã cho thuê");
                     chipStatus.setChipBackgroundColorResource(R.color.info);
-                    btnToggleStatus.setImageResource(R.drawable.ic_home);
                     break;
                 case "maintenance":
                     chipStatus.setText("Bảo trì");
                     chipStatus.setChipBackgroundColorResource(R.color.error);
-                    btnToggleStatus.setImageResource(R.drawable.ic_build);
                     break;
                 default:
                     chipStatus.setText("Không xác định");
                     chipStatus.setChipBackgroundColorResource(R.color.surface_variant);
-                    btnToggleStatus.setImageResource(R.drawable.ic_help);
                     break;
             }
             
             
             if (room.getImages() != null && !room.getImages().isEmpty()) {
-                String imageUrl = room.getImages().get(0).getUrl();
-                
-                if (imageUrl != null && !imageUrl.isEmpty()) {
-                    if (!imageUrl.startsWith("http")) {
-                        imageUrl = "http://10.0.2.2:5000" + imageUrl;
-                    }
-                    
+                String imageUrl = ImageUtils.resolveImageUrl(room.getImages().get(0).getUrl());
+
+                if (imageUrl != null) {
                     Glide.with(itemView.getContext())
                             .load(imageUrl)
                             .placeholder(R.drawable.ic_room_placeholder)

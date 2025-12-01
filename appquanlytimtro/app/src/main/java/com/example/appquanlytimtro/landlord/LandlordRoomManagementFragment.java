@@ -157,17 +157,9 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
                                 } catch (Exception e) {
                                     errorCount++;
                                 }
-                            }
-                            
-                            
+                            }               
                             roomAdapter.notifyDataSetChanged();
-                            if (getContext() != null) {
-                                Toast.makeText(getContext(), "Đã tải " + roomList.size() + " phòng (thành công: " + successCount + ", lỗi: " + errorCount + ")", Toast.LENGTH_LONG).show();
-                            }
                         } catch (Exception e) {
-                            if (getContext() != null) {
-                                Toast.makeText(getContext(), "Lỗi xử lý dữ liệu: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                            }
                         }
                     } else {
                         if (getContext() != null) {
@@ -211,26 +203,6 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
                 .show();
     }
     
-    @Override
-    public void onToggleAvailability(Room room) {
-        String currentStatus = room.getStatus();
-        String newStatus;
-        
-        switch (currentStatus != null ? currentStatus.toLowerCase() : "active") {
-            case "active":
-                newStatus = "inactive";
-                break;
-            case "inactive":
-                newStatus = "active";
-                break;
-            default:
-                newStatus = "active";
-                break;
-        }
-        
-        updateRoomStatus(room, newStatus);
-    }
-    
     private void deleteRoom(Room room) {
         String token = "Bearer " + retrofitClient.getToken();
         
@@ -258,33 +230,4 @@ public class LandlordRoomManagementFragment extends Fragment implements Landlord
         });
     }
     
-    private void updateRoomStatus(Room room, String newStatus) {
-        String token = "Bearer " + retrofitClient.getToken();
-        
-        Room updatedRoom = new Room();
-        updatedRoom.setStatus(newStatus);
-        
-        retrofitClient.getApiService().updateRoom(token, room.getId(), updatedRoom).enqueue(new Callback<ApiResponse<Room>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<Room>> call, Response<ApiResponse<Room>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    if (getContext() != null) {
-                        Toast.makeText(getContext(), "Đã cập nhật trạng thái phòng", Toast.LENGTH_SHORT).show();
-                    }
-                    loadRooms(); // Reload the list
-                } else {
-                    if (getContext() != null) {
-                        Toast.makeText(getContext(), "Không thể cập nhật trạng thái", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-            
-            @Override
-            public void onFailure(Call<ApiResponse<Room>> call, Throwable t) {
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
 }

@@ -89,7 +89,7 @@
                     android:id="@+id/tvPendingAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3,000,000 VNĐ"
+                    android:text=""
                     android:textAppearance="@style/TextAppearance.QuanLyTimTro.Title1"
                     android:textColor="@color/warning"
                     android:textStyle="bold" />

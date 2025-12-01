@@ -101,7 +101,7 @@
                         android:id="@+id/tvLandlordPhone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="0123456789"
+                        android:text=""
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"

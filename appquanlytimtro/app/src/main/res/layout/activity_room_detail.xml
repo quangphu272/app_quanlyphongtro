@@ -171,7 +171,7 @@
                         android:id="@+id/tvPrice"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="3,000,000 VNĐ/tháng"
+                        android:text=""
                         android:textAppearance="@style/TextAppearance.QuanLyTimTro.Headline2"
                         android:textColor="@color/primary"
                         android:textStyle="bold"
@@ -398,7 +398,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Liên hệ: 0123456789 | email@example.com"
+                    android:text=""
                     android:textSize="14sp"
                     android:textColor="@android:color/black" />
 
@@ -449,7 +449,7 @@
                     android:id="@+id/tvBottomPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3,000,000 VNĐ/tháng"
+                    android:text=""
                     android:textAppearance="@style/TextAppearance.QuanLyTimTro.Title1"
                     android:textColor="@color/primary"
                     android:textStyle="bold" />

@@ -100,7 +100,7 @@ public class LandlordDashboardFragment extends Fragment {
         if (btnManageRooms != null) {
             btnManageRooms.setOnClickListener(v -> {
                 if (getActivity() instanceof com.example.appquanlytimtro.MainActivity) {
-                    ((com.example.appquanlytimtro.MainActivity) getActivity()).navigateToFragment(1); // Room management tab
+                    ((com.example.appquanlytimtro.MainActivity) getActivity()).navigateToFragment(1);
                 }
             });
         }
@@ -108,7 +108,7 @@ public class LandlordDashboardFragment extends Fragment {
         if (btnViewBookings != null) {
             btnViewBookings.setOnClickListener(v -> {
                 if (getActivity() instanceof com.example.appquanlytimtro.MainActivity) {
-                    ((com.example.appquanlytimtro.MainActivity) getActivity()).navigateToFragment(2); // Bookings tab
+                    ((com.example.appquanlytimtro.MainActivity) getActivity()).navigateToFragment(2);
                 }
             });
         }
@@ -127,86 +127,14 @@ public class LandlordDashboardFragment extends Fragment {
             loadDefaultData();
             return;
         }
-        
-        
-        loadRealDataFromAPIs();
-    }
-    
-    private void updateDashboardData(java.util.Map<String, Object> data) {
-        if (tvTotalRooms != null) {
-            Object totalRooms = data.get("totalRooms");
-            tvTotalRooms.setText(totalRooms != null ? totalRooms.toString() : "0");
-        }
-        
-        if (tvOccupiedRooms != null) {
-            Object occupiedRooms = data.get("occupiedRooms");
-            tvOccupiedRooms.setText(occupiedRooms != null ? occupiedRooms.toString() : "0");
-        }
-        
-        if (tvTotalRevenue != null) {
-            Object revenue = data.get("totalRevenue");
-            if (revenue != null) {
-                tvTotalRevenue.setText(revenue.toString() + " VNĐ");
-            } else {
-                tvTotalRevenue.setText("0 VNĐ");
-            }
-        }
-        
-        if (tvPendingBookings != null) {
-            Object pendingBookings = data.get("pendingBookings");
-            tvPendingBookings.setText(pendingBookings != null ? pendingBookings.toString() : "0");
-        }
-    }
-    
-    private void loadRealDataFromAPIs() {
         String token = "Bearer " + retrofitClient.getToken();
-        
-        
-        java.util.Map<String, String> roomParams = new java.util.HashMap<>();
-        roomParams.put("landlordId", currentUser.getId());
-        
-        retrofitClient.getApiService().getRooms(roomParams).enqueue(new Callback<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>>() {
+        retrofitClient.getApiService().getStatisticsOverview(token).enqueue(new Callback<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>>() {
             @Override
             public void onResponse(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Response<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> response) {
-                
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     java.util.Map<String, Object> data = response.body().getData();
-                    
-                    if (data != null && data.containsKey("rooms")) {
-                        try {
-                            com.google.gson.Gson gson = new com.google.gson.Gson();
-                            String roomsJson = gson.toJson(data.get("rooms"));
-                            java.util.List<com.example.appquanlytimtro.models.Room> rooms = gson.fromJson(roomsJson, new com.google.gson.reflect.TypeToken<java.util.List<com.example.appquanlytimtro.models.Room>>(){}.getType());
-                            
-                            
-                            if (rooms != null) {
-                                final int totalRooms = rooms.size();
-                                final int[] occupiedRooms = {0};
-                                final double[] totalRevenue = {0};
-                                
-                                for (com.example.appquanlytimtro.models.Room room : rooms) {
-                                    if ("active".equals(room.getStatus())) {
-                                        occupiedRooms[0]++;
-                                    }
-                                    if (room.getPrice() != null) {
-                                        totalRevenue[0] += room.getPrice().getMonthly();
-                                    }
-                                }
-                                
-                                
-                                if (getActivity() != null) {
-                                    getActivity().runOnUiThread(() -> {
-                                        tvTotalRooms.setText(String.valueOf(totalRooms));
-                                        tvOccupiedRooms.setText(String.valueOf(occupiedRooms[0]));
-                                        tvTotalRevenue.setText(String.format("%.0f VNĐ", totalRevenue[0]));
-                                    });
-                                }
-                            } else {
-                                loadDefaultData();
-                            }
-                        } catch (Exception e) {
-                            loadDefaultData();
-                        }
+                    if (data != null && data.containsKey("stats")) {
+                        bindStats((java.util.Map<String, Object>) data.get("stats"));
                     } else {
                         loadDefaultData();
                     }
@@ -214,84 +142,33 @@ public class LandlordDashboardFragment extends Fragment {
                     loadDefaultData();
                 }
             }
-            
+
             @Override
             public void onFailure(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
                 loadDefaultData();
             }
         });
-        
-        java.util.Map<String, String> bookingParams = new java.util.HashMap<>();
-        bookingParams.put("landlordId", currentUser.getId());
-        
-        
-        retrofitClient.getApiService().getBookings(token, bookingParams).enqueue(new Callback<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>>() {
-            @Override
-            public void onResponse(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Response<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> response) {
-                
-                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    java.util.Map<String, Object> data = response.body().getData();
-                    
-                    if (data != null && data.containsKey("bookings")) {
-                        try {
-                            com.google.gson.Gson gson = new com.google.gson.Gson();
-                            String bookingsJson = gson.toJson(data.get("bookings"));
-                            java.util.List<com.example.appquanlytimtro.models.Booking> bookings = gson.fromJson(bookingsJson, new com.google.gson.reflect.TypeToken<java.util.List<com.example.appquanlytimtro.models.Booking>>(){}.getType());
-                            
-                            
-                            if (bookings != null) {
-                                final int[] pendingBookings = {0};
-                                for (com.example.appquanlytimtro.models.Booking booking : bookings) {
-                                    if ("pending".equals(booking.getStatus())) {
-                                        pendingBookings[0]++;
-                                    }
-                                }
-                                
-                                
-                                if (getActivity() != null) {
-                                    getActivity().runOnUiThread(() -> {
-                                        tvPendingBookings.setText(String.valueOf(pendingBookings[0]));
-                                    });
-                                }
-                            } else {
-                                if (getActivity() != null) {
-                                    getActivity().runOnUiThread(() -> {
-                                        tvPendingBookings.setText("0");
-                                    });
-                                }
-                            }
-                        } catch (Exception e) {
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> {
-                                    tvPendingBookings.setText("0");
-                                });
-                            }
-                        }
-                    } else {
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> {
-                                tvPendingBookings.setText("0");
-                            });
-                        }
-                    }
-                } else {
-                    if (getActivity() != null) {
-                        getActivity().runOnUiThread(() -> {
-                            tvPendingBookings.setText("0");
-                        });
-                    }
-                }
-            }
-            
-            @Override
-            public void onFailure(Call<com.example.appquanlytimtro.models.ApiResponse<java.util.Map<String, Object>>> call, Throwable t) {
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        tvPendingBookings.setText("0");
-                    });
-                }
-            }
-        });
+    }
+
+    private void bindStats(java.util.Map<String, Object> stats) {
+        if (stats == null) {
+            loadDefaultData();
+            return;
+        }
+        java.util.Map<String, Object> rooms = stats.containsKey("rooms") && stats.get("rooms") instanceof java.util.Map ? (java.util.Map<String, Object>) stats.get("rooms") : null;
+        java.util.Map<String, Object> bookings = stats.containsKey("bookings") && stats.get("bookings") instanceof java.util.Map ? (java.util.Map<String, Object>) stats.get("bookings") : null;
+        java.util.Map<String, Object> payments = stats.containsKey("payments") && stats.get("payments") instanceof java.util.Map ? (java.util.Map<String, Object>) stats.get("payments") : null;
+
+        int totalRooms = rooms != null && rooms.get("totalRooms") instanceof Number ? ((Number) rooms.get("totalRooms")).intValue() : 0;
+        int activeRooms = rooms != null && rooms.get("activeRooms") instanceof Number ? ((Number) rooms.get("activeRooms")).intValue() : 0;
+        int pendingBookings = bookings != null && bookings.get("pendingBookings") instanceof Number ? ((Number) bookings.get("pendingBookings")).intValue() : 0;
+        Number revenueNumber = payments != null && payments.get("totalAmount") instanceof Number ? (Number) payments.get("totalAmount") : null;
+        String revenueText = revenueNumber != null ? String.format(java.util.Locale.getDefault(), "%.0f VNĐ", revenueNumber.doubleValue()) : "0 VNĐ";
+
+        tvTotalRooms.setText(String.valueOf(totalRooms));
+        tvOccupiedRooms.setText(String.valueOf(activeRooms));
+        tvPendingBookings.setText(String.valueOf(pendingBookings));
+        tvTotalRevenue.setText(revenueText);
     }
     
     private void loadDefaultData() {

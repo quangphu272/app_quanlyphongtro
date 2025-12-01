@@ -17,14 +17,17 @@ package com.example.appquanlytimtro.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.appquanlytimtro.R;
 import com.example.appquanlytimtro.models.Booking;
+import com.example.appquanlytimtro.utils.ImageUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 
@@ -98,6 +101,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
     }
 
     static class BookingViewHolder extends RecyclerView.ViewHolder {
+        private ImageView ivRoomImage;
         private TextView tvRoomTitle;
         private TextView tvRoomAddress;
         private TextView tvCheckInDate;
@@ -111,6 +115,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
 
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
+            ivRoomImage = itemView.findViewById(R.id.ivRoomImage);
             tvRoomTitle = itemView.findViewById(R.id.tvRoomTitle);
             tvRoomAddress = itemView.findViewById(R.id.tvRoomAddress);
             tvCheckInDate = itemView.findViewById(R.id.tvCheckInDate);
@@ -126,6 +131,23 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         public void bind(Booking booking, OnBookingClickListener listener) {
             if (booking.getRoom() != null) {
                 tvRoomTitle.setText(booking.getRoom().getTitle());
+
+                if (ivRoomImage != null && booking.getRoom().getImages() != null && !booking.getRoom().getImages().isEmpty()) {
+                    String imageUrl = ImageUtils.resolveImageUrl(booking.getRoom().getImages().get(0).getUrl());
+                    if (imageUrl != null) {
+                        Glide.with(itemView.getContext())
+                                .load(imageUrl)
+                                .placeholder(R.drawable.ic_room_placeholder)
+                                .error(R.drawable.ic_room_placeholder)
+                                .centerCrop()
+                                .into(ivRoomImage);
+                    } else {
+                        ivRoomImage.setImageResource(R.drawable.ic_room_placeholder);
+                    }
+                } else if (ivRoomImage != null) {
+                    ivRoomImage.setImageResource(R.drawable.ic_room_placeholder);
+                }
+
                 if (booking.getRoom().getAddress() != null) {
                     String address = booking.getRoom().getAddress().getStreet() + ", " +
                                    booking.getRoom().getAddress().getWard() + ", " +
@@ -191,23 +213,16 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             String status = booking.getStatus();
             
             layoutActionButtons.setVisibility(View.GONE);
-            
-            switch (status) {
-                case "pending":
-                    layoutActionButtons.setVisibility(View.VISIBLE);
-                    btnPayment.setVisibility(View.VISIBLE);
-                    btnPayment.setText("Thanh toán");
-                    break;
-                case "confirmed":
-                case "deposit_paid":
-                case "active":
-                case "completed":
-                case "cancelled":
-                    break;
+            btnPayment.setVisibility(View.GONE);
+        
+            if ("confirmed".equals(status)) {
+                layoutActionButtons.setVisibility(View.VISIBLE);
+                btnPayment.setVisibility(View.VISIBLE);
+                btnPayment.setText("Thanh toán cọc");
             }
 
             btnPayment.setOnClickListener(v -> {
-                if (listener != null) {
+                if (listener != null && "confirmed".equals(status)) {
                     listener.onPaymentClick(booking);
                 }
             });

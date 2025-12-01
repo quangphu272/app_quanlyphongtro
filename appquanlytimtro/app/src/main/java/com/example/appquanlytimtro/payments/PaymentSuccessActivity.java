@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.appquanlytimtro.R;
+import com.example.appquanlytimtro.bookings.BookingListActivity;
 import com.example.appquanlytimtro.models.ApiResponse;
 import com.example.appquanlytimtro.network.RetrofitClient;
 import com.google.android.material.button.MaterialButton;
@@ -85,8 +86,9 @@ public class PaymentSuccessActivity extends AppCompatActivity {
             } else {
                 // Lấy từ intent extras
                 txnRef = intent.getStringExtra("txnRef");
-                landlordPhone = intent.getStringExtra("landlordPhone");
-                landlordAddress = intent.getStringExtra("landlordAddress");
+                landlordPhone = intent.getStringExtra("landlord_phone");
+                landlordAddress = intent.getStringExtra("landlord_address");
+                landlordName = intent.getStringExtra("landlord_name");
                 paymentId = intent.getStringExtra("paymentId");
                 bookingId = intent.getStringExtra("bookingId");
             }
@@ -264,7 +266,12 @@ public class PaymentSuccessActivity extends AppCompatActivity {
             }
         });
         
-        btnFinish.setOnClickListener(v -> finish());
+        btnFinish.setOnClickListener(v -> {
+            Intent intent = new Intent(PaymentSuccessActivity.this, BookingListActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        });
     }
 
     private void showLoading(boolean show) {

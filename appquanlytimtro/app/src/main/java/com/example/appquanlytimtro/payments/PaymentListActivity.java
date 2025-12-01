@@ -205,13 +205,19 @@ public class PaymentListActivity extends AppCompatActivity {
         List<Payment> validPayments = new ArrayList<>();
         
         for (Payment payment : paymentList) {
-            // Chỉ hiển thị payments có booking và booking đã được confirmed
-            if (payment.getBooking() != null) {
-                String bookingStatus = payment.getBooking().getStatus();
-                // Chỉ hiển thị payments từ booking đã confirmed hoặc active
-                if ("confirmed".equals(bookingStatus) || "active".equals(bookingStatus)) {
-                    validPayments.add(payment);
-                }
+            if (payment == null) continue;
+            
+            if (payment.getBooking() == null) {
+                validPayments.add(payment);
+                continue;
+            }
+
+            String bookingStatus = payment.getBooking().getStatus();
+            if ("confirmed".equals(bookingStatus)
+                    || "deposit_paid".equals(bookingStatus)
+                    || "active".equals(bookingStatus)
+                    || "completed".equals(bookingStatus)) {
+                validPayments.add(payment);
             }
         }
         
@@ -235,8 +241,6 @@ public class PaymentListActivity extends AppCompatActivity {
     }
     
     private void onPaymentClick(Payment payment) {
-        // Navigate to payment detail
-        Toast.makeText(this, "Chi tiết thanh toán: " + payment.getId(), Toast.LENGTH_SHORT).show();
     }
     
     private void showLoading(boolean show) {

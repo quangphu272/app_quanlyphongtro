@@ -56,6 +56,10 @@ public class PaymentActivity extends AppCompatActivity {
     private User currentUser;
     private RetrofitClient retrofitClient;
     
+    private String landlordNameExtra;
+    private String landlordPhoneExtra;
+    private String landlordAddressExtra;
+    
     private long checkInDate = 0;
     private long checkOutDate = 0;
     private int durationMonths = 0;
@@ -103,6 +107,10 @@ public class PaymentActivity extends AppCompatActivity {
         if (intent != null) {
             String roomId = intent.getStringExtra("room_id");
             String bookingId = intent.getStringExtra("booking_id");
+            
+            landlordNameExtra = intent.getStringExtra("landlord_name");
+            landlordPhoneExtra = intent.getStringExtra("landlord_phone");
+            landlordAddressExtra = intent.getStringExtra("landlord_address");
             
             long checkInDate = intent.getLongExtra("check_in_date", 0);
             long checkOutDate = intent.getLongExtra("check_out_date", 0);
@@ -212,17 +220,17 @@ public class PaymentActivity extends AppCompatActivity {
             }
             
             if (room.getPrice() != null) {
-                NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
-                
-                double totalAmount = room.getPrice().getMonthly();
-                tvTotalAmount.setText(formatter.format((long)totalAmount) + " VNĐ");
-                
-                double depositAmount = room.getPrice().getDeposit();
-                tvDepositAmount.setText(formatter.format((long)depositAmount) + " VNĐ");
+                if (monthlyRent <= 0) {
+                    monthlyRent = room.getPrice().getMonthly();
+                }
+                if (deposit <= 0) {
+                    deposit = room.getPrice().getDeposit();
+                }
+                if (durationMonths <= 0) {
+                    durationMonths = 1;
+                }
+                updateBookingDetailsUI();
             }
-            
-            tvCheckIn.setText("Ngay nhận phòng");
-            tvCheckOut.setText("Ngay trả phòng");
         }
     }
     
@@ -301,6 +309,20 @@ public class PaymentActivity extends AppCompatActivity {
                 } else if (room != null && room.getId() != null) {
                     intent.putExtra("room_id", room.getId());
                 }
+                
+                // Truyền thông tin chủ trọ nếu có
+                String landlordNameExtra = currentIntent.getStringExtra("landlord_name");
+                String landlordPhoneExtra = currentIntent.getStringExtra("landlord_phone");
+                String landlordAddressExtra = currentIntent.getStringExtra("landlord_address");
+                if (landlordNameExtra != null) {
+                    intent.putExtra("landlord_name", landlordNameExtra);
+                }
+                if (landlordPhoneExtra != null) {
+                    intent.putExtra("landlord_phone", landlordPhoneExtra);
+                }
+                if (landlordAddressExtra != null) {
+                    intent.putExtra("landlord_address", landlordAddressExtra);
+                }
             }
             
             startActivityForResult(intent, 1001);
@@ -348,10 +370,14 @@ public class PaymentActivity extends AppCompatActivity {
             
             if (paymentSuccess) {
                 // Mở màn hình hiển thị thông tin chủ trọ
-                Intent successIntent = new Intent(this, PaymentSuccessActivity.class);
-                successIntent.putExtra("txnRef", orderId);
-                successIntent.putExtra("transaction_id", transactionId);
-                successIntent.putExtra("amount", amount);
+            Intent successIntent = new Intent(this, PaymentSuccessActivity.class);
+            successIntent.putExtra("txnRef", orderId);
+            successIntent.putExtra("transaction_id", transactionId);
+            successIntent.putExtra("amount", amount);
+            successIntent.putExtra("bookingId", getIntent().getStringExtra("booking_id"));
+            successIntent.putExtra("landlord_name", landlordNameExtra);
+            successIntent.putExtra("landlord_phone", landlordPhoneExtra);
+            successIntent.putExtra("landlord_address", landlordAddressExtra);
                 startActivity(successIntent);
                 finish();
             } else {
@@ -380,6 +406,10 @@ public class PaymentActivity extends AppCompatActivity {
             successIntent.putExtra("txnRef", response.getOrderId());
             successIntent.putExtra("transaction_id", response.getTransactionId());
             successIntent.putExtra("amount", response.getAmount());
+            successIntent.putExtra("bookingId", getIntent().getStringExtra("booking_id"));
+            successIntent.putExtra("landlord_name", landlordNameExtra);
+            successIntent.putExtra("landlord_phone", landlordPhoneExtra);
+            successIntent.putExtra("landlord_address", landlordAddressExtra);
             startActivity(successIntent);
             finish();
         } else {

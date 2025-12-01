@@ -38,8 +38,6 @@ import com.example.appquanlytimtro.payments.PaymentListActivity;
 import com.example.appquanlytimtro.profile.ProfileActivity;
 import com.example.appquanlytimtro.network.RetrofitClient;
 import com.example.appquanlytimtro.models.User;
-import com.example.appquanlytimtro.models.Booking;
-import com.example.appquanlytimtro.models.Payment;
 import com.example.appquanlytimtro.models.ApiResponse;
 import com.google.android.material.card.MaterialCardView;
 import com.google.gson.Gson;
@@ -80,7 +78,7 @@ public class TenantHomeFragment extends Fragment {
         
         initViews(view);
         setupClickListeners();
-        loadStatistics();
+        loadDashboardStats();
         
         return view;
     }
@@ -155,98 +153,56 @@ public class TenantHomeFragment extends Fragment {
         });
     }
 
-    private void loadStatistics() {
-        if (currentUser == null) return;
-        
+    private void loadDashboardStats() {
+        if (currentUser == null) {
+            setDefaultStats();
+            return;
+        }
         String token = "Bearer " + retrofitClient.getToken();
-        
-        retrofitClient.getApiService().getBookings(token, new java.util.HashMap<>()).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
+        retrofitClient.getApiService().getStatisticsOverview(token).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
             @Override
             public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     Map<String, Object> data = response.body().getData();
-                    if (data != null && data.containsKey("bookings")) {
-                        List<?> bookingsData = (List<?>) data.get("bookings");
-                        calculateBookingStats(bookingsData);
-                    }
+                    Map<String, Object> stats = data != null && data.containsKey("stats") ? (Map<String, Object>) data.get("stats") : null;
+                    bindStats(stats);
+                } else {
+                    setDefaultStats();
                 }
-                loadPaymentStats();
             }
-            
+
             @Override
             public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
-                loadPaymentStats();
+                setDefaultStats();
             }
         });
     }
-    
-    private void calculateBookingStats(List<?> bookingsData) {
-        int totalBookings = 0;
-        int pendingPayments = 0;
-        double totalDeposit = 0.0;
-        
-        Gson gson = new Gson();
-        for (Object bookingObj : bookingsData) {
-            try {
-                Booking booking = gson.fromJson(gson.toJson(bookingObj), Booking.class);
-                if (booking != null) {
-                    totalBookings++;
-                    
-                    if ("pending".equals(booking.getStatus())) {
-                        pendingPayments++;
-                    }
-                    
-                    if (booking.getPricing() != null) {
-                        totalDeposit += booking.getPricing().getDeposit();
-                    }
-                }
-            } catch (Exception e) {
-            }
+
+    private void bindStats(Map<String, Object> stats) {
+        if (stats == null) {
+            setDefaultStats();
+            return;
         }
-        
+        Map<String, Object> bookings = stats.get("bookings") instanceof Map ? (Map<String, Object>) stats.get("bookings") : null;
+        Map<String, Object> payments = stats.get("payments") instanceof Map ? (Map<String, Object>) stats.get("payments") : null;
+
+        int totalBookings = bookings != null && bookings.get("totalBookings") instanceof Number ? ((Number) bookings.get("totalBookings")).intValue() : 0;
+        int pending = bookings != null && bookings.get("pendingBookings") instanceof Number ? ((Number) bookings.get("pendingBookings")).intValue() : 0;
+        double totalDeposit = bookings != null && bookings.get("totalDeposit") instanceof Number ? ((Number) bookings.get("totalDeposit")).doubleValue() : 0;
+        double totalPaid = payments != null && payments.get("totalAmount") instanceof Number ? ((Number) payments.get("totalAmount")).doubleValue() : 0;
+
+        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
+
         tvTotalBookings.setText(String.valueOf(totalBookings));
-        tvPendingPayments.setText(String.valueOf(pendingPayments));
-        
-        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
+        tvPendingPayments.setText(String.valueOf(pending));
         tvTotalDeposit.setText(formatter.format(totalDeposit) + " VNĐ");
-    }
-    
-    private void loadPaymentStats() {
-        String token = "Bearer " + retrofitClient.getToken();
-        
-        retrofitClient.getApiService().getPayments(token, new java.util.HashMap<>()).enqueue(new Callback<ApiResponse<Map<String, Object>>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<Map<String, Object>>> call, Response<ApiResponse<Map<String, Object>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    Map<String, Object> data = response.body().getData();
-                    if (data != null && data.containsKey("payments")) {
-                        List<?> paymentsData = (List<?>) data.get("payments");
-                        calculatePaymentStats(paymentsData);
-                    }
-                }
-            }
-            
-            @Override
-            public void onFailure(Call<ApiResponse<Map<String, Object>>> call, Throwable t) {
-            }
-        });
-    }
-    
-    private void calculatePaymentStats(List<?> paymentsData) {
-        double totalPaid = 0.0;
-        
-        Gson gson = new Gson();
-        for (Object paymentObj : paymentsData) {
-            try {
-                Payment payment = gson.fromJson(gson.toJson(paymentObj), Payment.class);
-                if (payment != null && "completed".equals(payment.getStatus())) {
-                    totalPaid += payment.getAmount();
-                }
-            } catch (Exception e) {
-            }
-        }
-        
-        NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
         tvTotalPaid.setText(formatter.format(totalPaid) + " VNĐ");
+    }
+
+    private void setDefaultStats() {
+        tvTotalBookings.setText("0");
+        tvPendingPayments.setText("0");
+        tvTotalDeposit.setText("0 VNĐ");
+        tvTotalPaid.setText("0 VNĐ");
     }
 }

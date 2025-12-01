@@ -65,7 +65,8 @@ import retrofit2.Response;
 
 public class AddRoomActivity extends AppCompatActivity {
 
-    private TextInputEditText etTitle, etDescription, etCity, etDistrict, etWard, etStreet;
+    private TextInputEditText etTitle, etDescription, etStreet;
+    private AutoCompleteTextView etCity, etDistrict, etWard;
     private TextInputEditText etArea, etPrice, etDeposit, etElectricPrice, etWaterPrice, etInternetPrice, etOtherPrice;
     private AutoCompleteTextView spinnerRoomType;
     private LinearLayout layoutAmenities, layoutRules;
@@ -146,6 +147,42 @@ public class AddRoomActivity extends AppCompatActivity {
         String[] roomTypes = {"Phòng trọ", "Chung cư mini", "Nhà nguyên căn", "Homestay", "Ký túc xá"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, roomTypes);
         spinnerRoomType.setAdapter(adapter);
+
+        String[] cities = {"Hà Nội", "TP.HCM", "Đà Nẵng"};
+        ArrayAdapter<String> cityAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, cities);
+        etCity.setAdapter(cityAdapter);
+
+        etCity.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedCity = cities[position];
+            String[] districts;
+            if ("Đà Nẵng".equals(selectedCity)) {
+                districts = new String[]{"Hải Châu", "Thanh Khê", "Hoà Khánh", "Sơn Trà"};
+            } else if ("Hà Nội".equals(selectedCity)) {
+                districts = new String[]{"Ba Đình", "Hoàn Kiếm", "Đống Đa", "Cầu Giấy"};
+            } else {
+                districts = new String[]{"Quận 1", "Quận 3", "Bình Thạnh", "Phú Nhuận"};
+            }
+            ArrayAdapter<String> districtAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, districts);
+            etDistrict.setAdapter(districtAdapter);
+            etDistrict.setText("");
+            etWard.setText("");
+        });
+
+        etDistrict.setOnItemClickListener((parent, view, position, id) -> {
+            String city = etCity.getText() != null ? etCity.getText().toString() : "";
+            String district = etDistrict.getText() != null ? etDistrict.getText().toString() : "";
+            String[] wards;
+            if ("Đà Nẵng".equals(city) && "Hải Châu".equals(district)) {
+                wards = new String[]{"Hải Châu 1", "Hải Châu 2"};
+            } else if ("Đà Nẵng".equals(city) && "Thanh Khê".equals(district)) {
+                wards = new String[]{"Thanh Khê Đông", "Thanh Khê Tây"};
+            } else {
+                wards = new String[]{"Phường 1", "Phường 2", "Phường 3"};
+            }
+            ArrayAdapter<String> wardAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, wards);
+            etWard.setAdapter(wardAdapter);
+            etWard.setText("");
+        });
     }
     
     private String mapRoomTypeToBackend(String displayType) {
@@ -264,7 +301,7 @@ public class AddRoomActivity extends AppCompatActivity {
     
     private boolean validateInput() {
         String title = getText(etTitle);
-        String city = getText(etCity);
+        String city = getAutoText(etCity);
         String priceStr = getText(etPrice);
         
         if (TextUtils.isEmpty(title)) {
@@ -274,7 +311,7 @@ public class AddRoomActivity extends AppCompatActivity {
         }
         
         if (TextUtils.isEmpty(city)) {
-            etCity.setError("Vui lòng nhập thành phố");
+            etCity.setError("Vui lòng chọn thành phố");
             etCity.requestFocus();
             return false;
         }
@@ -305,9 +342,9 @@ public class AddRoomActivity extends AppCompatActivity {
         room.setRoomType(mapRoomTypeToBackend(spinnerRoomType.getText().toString()));
         
         User.Address address = new User.Address();
-        address.setCity(getText(etCity));
-        address.setDistrict(getText(etDistrict));
-        address.setWard(getText(etWard));
+        address.setCity(getAutoText(etCity));
+        address.setDistrict(getAutoText(etDistrict));
+        address.setWard(getAutoText(etWard));
         address.setStreet(getText(etStreet));
         room.setAddress(address);
         
@@ -588,6 +625,10 @@ public class AddRoomActivity extends AppCompatActivity {
     
     private String getText(TextInputEditText editText) {
         return editText.getText() != null ? editText.getText().toString().trim() : "";
+    }
+
+    private String getAutoText(AutoCompleteTextView view) {
+        return view.getText() != null ? view.getText().toString().trim() : "";
     }
     
     private void showLoading(boolean show) {

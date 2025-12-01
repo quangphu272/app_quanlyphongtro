@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.appquanlytimtro.R;
 import com.example.appquanlytimtro.models.Room;
+import com.example.appquanlytimtro.utils.ImageUtils;
 import com.google.android.material.chip.Chip;
 
 import java.text.NumberFormat;
@@ -99,7 +100,6 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
         public void bind(Room room) {
             tvTitle.setText(room.getTitle());
             
-            // Set address
             if (room.getAddress() != null) {
                 String address = "";
                 if (room.getAddress().getStreet() != null && !room.getAddress().getStreet().isEmpty()) {
@@ -114,33 +114,27 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
                 if (room.getAddress().getCity() != null && !room.getAddress().getCity().isEmpty()) {
                     address += room.getAddress().getCity();
                 }
-                // Remove trailing comma and space
                 if (address.endsWith(", ")) {
                     address = address.substring(0, address.length() - 2);
                 }
                 tvAddress.setText(address);
             }
             
-            // Set price
             if (room.getPrice() != null) {
                 NumberFormat formatter = NumberFormat.getNumberInstance(Locale.getDefault());
                 String price = formatter.format(room.getPrice().getMonthly()) + " VNĐ/tháng";
                 tvPrice.setText(price);
             }
             
-            // Set area
             tvArea.setText(String.format("%.0f m²", room.getArea()));
             
-            // Set views
             tvViews.setText(room.getViews() + " lượt xem");
             
-            // Set room type
             if (room.getRoomType() != null) {
                 String roomTypeText = getRoomTypeText(room.getRoomType());
                 chipRoomType.setText(roomTypeText);
             }
             
-            // Set status
             String status = room.getStatus();
             if (status == null) status = "active";
             
@@ -163,14 +157,9 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
                     break;
             }
             
-            // Set room image
             if (room.getImages() != null && !room.getImages().isEmpty()) {
-                String imageUrl = room.getImages().get(0).getUrl();
-                if (imageUrl != null && !imageUrl.isEmpty()) {
-                    // Convert relative URL to full URL
-                    if (!imageUrl.startsWith("http")) {
-                        imageUrl = "http://10.0.2.2:5000" + imageUrl;
-                    }
+                String imageUrl = ImageUtils.resolveImageUrl(room.getImages().get(0).getUrl());
+                if (imageUrl != null) {
                     Glide.with(itemView.getContext())
                             .load(imageUrl)
                             .placeholder(R.drawable.ic_room_placeholder)

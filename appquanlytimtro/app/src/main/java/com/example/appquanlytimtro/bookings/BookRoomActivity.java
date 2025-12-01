@@ -394,28 +394,14 @@ public class BookRoomActivity extends AppCompatActivity {
                     ApiResponse<Booking> apiResponse = response.body();
 
                     if (apiResponse.isSuccess() && apiResponse.getData() != null) {
-                        Booking createdBooking = apiResponse.getData();
-                        Toast.makeText(BookRoomActivity.this, "Đặt phòng thành công!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(
+                                BookRoomActivity.this,
+                                "Đặt phòng thành công! Vui lòng chờ chủ trọ xác nhận trước khi thanh toán tiền cọc.",
+                                Toast.LENGTH_LONG
+                        ).show();
                         
-                        Intent intent = new Intent(BookRoomActivity.this, PaymentActivity.class);
-                        intent.putExtra("booking_id", createdBooking.getId());
-                        intent.putExtra("room_id", roomId);
-                        intent.putExtra("amount", room.getPrice().getDeposit());
-                        
-                        intent.putExtra("check_in_date", bookingDetails.getCheckInDate().getTime());
-                        intent.putExtra("check_out_date", bookingDetails.getCheckOutDate().getTime());
-                        intent.putExtra("duration_months", durationMonths);
-                        intent.putExtra("monthly_rent", room.getPrice().getMonthly());
-                        intent.putExtra("deposit", room.getPrice().getDeposit());
-                        
-                        double utilitiesAmount = 0;
-                        Room.Utilities utilities = room.getPrice().getUtilities();
-                        if (utilities != null) {
-                            utilitiesAmount = utilities.getElectricity() + utilities.getWater() + 
-                                             utilities.getInternet() + utilities.getOther();
-                        }
-                        intent.putExtra("utilities_amount", utilitiesAmount);
-                        
+                        Intent intent = new Intent(BookRoomActivity.this, BookingListActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
                         finish();
                     } else {

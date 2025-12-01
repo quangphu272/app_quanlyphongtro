@@ -72,32 +72,12 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Action Buttons -->
-                    <LinearLayout
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSearch"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnSearch"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="8dp"
-                            android:text="Tìm kiếm"
-                            app:icon="@drawable/ic_search" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnFilter"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="8dp"
-                            android:text="Bộ lọc"
-                            app:icon="@drawable/ic_filter"
-                            style="@style/Widget.Material3.Button.OutlinedButton" />
-
-                    </LinearLayout>
+                        android:text="Tìm kiếm"
+                        app:icon="@drawable/ic_search" />
 
                 </LinearLayout>
 

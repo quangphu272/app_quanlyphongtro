@@ -193,9 +193,6 @@ public class BookingListActivity extends AppCompatActivity implements BookingAda
 
     @Override
     public void onBookingClick(Booking booking) {
-        Intent intent = new Intent(this, BookingDetailActivity.class);
-        intent.putExtra("booking_id", booking.getId());
-        startActivity(intent);
     }
 
     @Override
@@ -208,6 +205,22 @@ public class BookingListActivity extends AppCompatActivity implements BookingAda
         Intent intent = new Intent(this, PaymentActivity.class);
         intent.putExtra("booking_id", booking.getId());
         intent.putExtra("room_id", booking.getRoom().getId());
+        
+        if (booking.getLandlord() != null) {
+            intent.putExtra("landlord_name", booking.getLandlord().getFullName());
+            intent.putExtra("landlord_phone", booking.getLandlord().getPhone());
+        }
+        if (booking.getRoom() != null && booking.getRoom().getAddress() != null) {
+            com.example.appquanlytimtro.models.User.Address addr = booking.getRoom().getAddress();
+            String address = (addr.getStreet() != null ? addr.getStreet() + ", " : "") +
+                             (addr.getWard() != null ? addr.getWard() + ", " : "") +
+                             (addr.getDistrict() != null ? addr.getDistrict() + ", " : "") +
+                             (addr.getCity() != null ? addr.getCity() : "");
+            if (address.endsWith(", ")) {
+                address = address.substring(0, address.length() - 2);
+            }
+            intent.putExtra("landlord_address", address);
+        }
         
         if (booking.getBookingDetails() != null) {
             intent.putExtra("check_in_date", booking.getBookingDetails().getCheckInDate().getTime());
